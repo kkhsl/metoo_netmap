@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.metoo.sqlite.mapper.PortIpv6Mapper">
+
+    <select id="selectObjByMap" parameterType="java.util.Map" resultType="com.metoo.sqlite.entity.PortIpv6">
+        SELECT *
+        FROM metoo_port_ipv6
+    </select>
+
+    <insert id="insert" parameterType="com.metoo.sqlite.entity.PortIpv6">
+        INSERT INTO metoo_port_ipv6
+        <trim prefix="(" suffixOverrides="," suffix=")">
+            <if test="createTime != null and createTime != ''">
+                createTime,
+            </if>
+            <if test="port != null and port != ''">
+                port,
+            </if>
+            <if test="status != null and status != ''">
+                status,
+            </if>
+            <if test="ipv6_address != null and ipv6_address != ''">
+                ip,
+            </if>
+            <if test="ipv6_subnet != null and ipv6_subnet != ''">
+                ipv6_subnet,
+            </if>
+            <if test="description != null and description != ''">
+                description,
+            </if>
+            <if test="deviceUuid != null and deviceUuid != ''">
+                deviceUuid,
+            </if>
+        </trim>
+        <trim prefix="values(" suffixOverrides="," suffix=")">
+            <if test="createTime != null and createTime != ''">
+                #{createTime},
+            </if>
+            <if test="port != null and port != ''">
+                #{port},
+            </if>
+            <if test="status != null and status != ''">
+                #{status},
+            </if>
+            <if test="ipv6_address != null and ipv6_address != ''">
+                #{ipv6_address},
+            </if>
+            <if test="ipv6_subnet != null and ipv6_subnet != ''">
+                #{ipv6_subnet},
+            </if>
+            <if test="description != null and description != ''">
+                #{description},
+            </if>
+            <if test="deviceUuid != null and deviceUuid != ''">
+                #{deviceUuid},
+            </if>
+        </trim>
+    </insert>
+
+    <update id="update" parameterType="com.metoo.sqlite.entity.PortIpv6">
+        update metoo_port_ipv6
+        <set>
+            <if test="createTime != null and createTime != ''">
+                createTime = #{createTime},
+            </if>
+            <if test="port != null and port != ''">
+                port = #{port},
+            </if>
+            <if test="status != null and status != ''">
+                status = #{status},
+            </if>
+            <if test="ipv6_address != null and ipv6_address != ''">
+                ipv6_address = #{ipv6_address},
+            </if>
+            <if test="ipv6_subnet != null and ipv6_subnet != ''">
+                ipv6_subnet = #{ipv6_subnet},
+            </if>
+            <if test="description != null and description != ''">
+                description = #{description},
+            </if>
+            <if test="deviceUuid != null and deviceUuid != ''">
+                deviceUuid = #{deviceUuid},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="batchInsertGather" parameterType="java.util.List">
+        INSERT INTO `metoo_port_ipv6_gather` (
+            createTime,
+            port,
+            status,
+            ipv6_address,
+            ipv6_subnet,
+            description,
+            deviceUuid
+        )
+        VALUES
+        <foreach collection ="list" item="item" separator ="," >
+            <!--<if test="item.createTime != null and item.createTime != ''
+                        and item.port != null and item.port != ''
+                        and item.status != null and item.status != ''
+                        and item.ipv6_address != null and item.ipv6_address != ''
+                        and item.status != null and item.status != ''
+                        and item.ipv6_subnet != null and item.ipv6_subnet != ''
+                        and item.description != null and item.description != ''
+                        and item.deviceUuid != null and item.deviceUuid != ''">-->
+                (
+                #{item.createTime},
+                #{item.port},
+                #{item.status},
+                #{item.ipv6_address},
+                #{item.ipv6_subnet},
+                #{item.description},
+                #{item.deviceUuid}
+                )
+          <!--</if>-->
+        </foreach>
+    </insert>
+
+    <update id="deleteTableGather">
+       DELETE FROM metoo_port_ipv6_gather
+    </update>
+
+    <delete id="deleteTable">
+        DELETE FROM metoo_port_ipv6
+    </delete>
+
+    <insert id="copyGatherData">
+        INSERT INTO metoo_port_ipv6 SELECT * FROM metoo_port_ipv6_gather
+    </insert>
+
+</mapper>
