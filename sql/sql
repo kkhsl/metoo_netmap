@@ -304,7 +304,7 @@ CREATE TABLE metoo_probe_result (
     result INTEGER(11)
 );
 
-CREATE TABLE metoo_log_gather (
+CREATE TABLE metoo_gather_log (
     id INTEGER PRIMARY KEY AUTOINCREMENT, -- id
     createTime TEXT NOT NULL,-- 创建时间
     beginTime TEXT,
@@ -312,4 +312,8 @@ CREATE TABLE metoo_log_gather (
     type TEXT,
     result TEXT,
     details TEXT
+);
+
+CREATE TABLE metoo_gather_semaphore (
+    semaphore INTEGER(11)
 );

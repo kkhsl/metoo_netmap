@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.metoo.sqlite.mapper.GatherSemaphoreMapper">
+
+    <select id="selectObjByOne" resultType="com.metoo.sqlite.entity.GatherSemaphore">
+        select * from metoo_gather_semaphore
+    </select>
+
+    <select id="selectObjByMap" parameterType="java.util.Map" resultType="com.metoo.sqlite.entity.Ipv4">
+        SELECT *
+        FROM metoo_gather_semaphore
+        <where>
+            <if test="semaphore != null">
+                semaphore = #{semaphore}
+            </if>
+        </where>
+    </select>
+
+    <update id="update" parameterType="com.metoo.sqlite.entity.GatherSemaphore">
+        UPDATE metoo_gather_semaphore
+        <set>
+            <if test="semaphore != null">
+                semaphore = #{semaphore}
+            </if>
+        </set>
+    </update>
+
+</mapper>

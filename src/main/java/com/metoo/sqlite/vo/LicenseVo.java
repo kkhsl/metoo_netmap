@@ -22,43 +22,18 @@ public class LicenseVo {
     private Long startTime;
     @ApiModelProperty("结束时间")
     private Long endTime;
-    @ApiModelProperty("授权时间")
-    private int licenseDay;
-    @ApiModelProperty("License类型 0：试用版 1，授权版 2：终身版")
-    private String type;
-    @ApiModelProperty("License版本号")
-    private String licenseVersion;
 
-    // 授权信息
-    @ApiModelProperty("授权防火墙")
-    private int licenseFireWall;
-    @ApiModelProperty("授权路由/交换")
-    private int licenseRouter;
-    @ApiModelProperty("授权主机数")
-    private int licenseHost;
-    @ApiModelProperty("授权模拟网关")
-    private int licenseUe;
-    @ApiModelProperty("授权设备数量")
-    private int licenseDevice;
-    @ApiModelProperty("AC授权")
-    private boolean licenseAC;
+    private Integer unit_id;
 
-    @ApiModelProperty("已使用")
-    private int useDay;
-    @ApiModelProperty("未使用")
-    private int surplusDay;
-    @ApiModelProperty("客户信息")
-    private String customerInfo;
+    private String version;
 
+    @ApiModelProperty("城市")
+    private String city;
 
-    @ApiModelProperty("以导入防火墙")
-    private int useFirewall;
-    @ApiModelProperty("以导入路由交换")
-    private int useRouter;
-    @ApiModelProperty("以导入主机数")
-    private int useHost;
-    @ApiModelProperty("以导入模拟网关")
-    private int useUe;
+    @ApiModelProperty("区/县")
+    private String area;
 
+    @ApiModelProperty("单位名称")
+    private String unit;
 
 }

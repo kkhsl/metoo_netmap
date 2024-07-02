@@ -35,15 +35,10 @@ public class GatherTerminal implements Gather {
         IArpService arpService = (IArpService) ApplicationContextUtils.getBean("arpServiceImpl");
         IProbeService probeService = (IProbeService) ApplicationContextUtils.getBean("probeServiceImpl");
 
-
-
-        // 写入终端采集表
+        // ARP 写入终端采集表
         terminalService.deleteTableGather();
-
         List<Arp> arpList = arpService.selectObjByMap(null);
-
         String createTime = DateTools.getCreateTime();
-
         List<Terminal> terminals = new ArrayList<>();
         if(arpList.size() > 0){
             for (Arp arp : arpList) {

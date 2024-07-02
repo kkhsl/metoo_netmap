@@ -2,7 +2,6 @@ package com.metoo.sqlite.mapper;
 
 import com.metoo.sqlite.dto.GatherLogDTO;
 import com.metoo.sqlite.entity.GatherLog;
-import com.metoo.sqlite.vo.Result;
 
 import java.util.List;
 import java.util.Map;

@@ -18,6 +18,12 @@
             <if test="ipv4addr != null and ipv4addr != ''">
                 AND ipv4addr = #{ipv4addr}
             </if>
+            <if test="ipv4IsNotNull != null and ipv4IsNotNull != ''">
+                AND ipv4addr is not null and ipv6addr is null
+            </if>
+            <if test="ipv4AndIpv6IsNotNull != null and ipv4AndIpv6IsNotNull != ''">
+                AND ipv6addr is not null
+            </if>
         </where>
     </select>
 
