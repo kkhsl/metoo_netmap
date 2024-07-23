@@ -4,6 +4,10 @@ import com.alibaba.fastjson.JSONObject;
 import com.metoo.sqlite.entity.Probe;
 import com.metoo.sqlite.entity.ProbeBody;
 import com.metoo.sqlite.entity.ProbeResult;
+import com.metoo.sqlite.entity.Terminal;
+import com.metoo.sqlite.gather.factory.gather.Gather;
+import com.metoo.sqlite.gather.factory.gather.GatherFactory;
+import com.metoo.sqlite.model.TerminalModel;
 import com.metoo.sqlite.service.IProbeResultService;
 import com.metoo.sqlite.service.IProbeService;
 import com.metoo.sqlite.utils.date.DateTools;
@@ -14,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,9 +38,9 @@ public class ProbeManagerController {
     @Autowired
     private IProbeResultService probeResultService;
 
+
     @PostMapping("/probeNmap/uploadScanResult")
     public String probe(@RequestBody ProbeBody body) {
-        log.info("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$" + body.getResult() + "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$");
         Map result = new HashMap();
         result.put("code", 0);
         result.put("message", null);
@@ -47,6 +52,7 @@ public class ProbeManagerController {
             result.put("code", 1);
         } else {
             this.probeService.deleteTable();
+            log.info("chuangfa---------------------------：" + body.getResult());
             List<Probe> probeDataList = JSONObject.parseArray(body.getResult(), Probe.class);
             if (probeDataList.size() > 0) {
                 String createTime = DateTools.getCreateTime();
@@ -56,10 +62,26 @@ public class ProbeManagerController {
                 }
             }
         }
-        // 这里执行
+
+
+        try {
+            GatherFactory factory = new GatherFactory();
+            Gather gather = factory.getGather("fileToProbe");
+            gather.executeMethod();
+
+            this.probeService.deleteTableBack();
+            this.probeService.copyToBck();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        List list = this.probeService.selectObjByMap(null);
+        log.info("chuangfa + os_scan========================================：" + JSONObject.toJSONString(list));
+
         ProbeResult probeResult = this.probeResultService.selectObjByOne();
         probeResult.setResult(probeResult.getResult() + 1);
         this.probeResultService.update(probeResult);
+
         return JSONObject.toJSONString(result);
     }
 

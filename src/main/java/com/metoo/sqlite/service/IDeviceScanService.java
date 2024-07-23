@@ -18,8 +18,13 @@ public interface IDeviceScanService {
 
     int insert(DeviceScan instance);
 
+    int update(DeviceScan instance);
+
     int batchInsert(List<DeviceScan> list);
 
     boolean copyGatherData(List<DeviceScan> list);
 
+    int copyToBck();
+
+    int deleteTable();
 }

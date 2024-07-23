@@ -46,6 +46,12 @@
         delete from metoo_arp where id = #{id}
     </delete>
 
+    <delete id="deleteTableBack">
+        delete from metoo_arp_back
+    </delete>
 
+    <insert id="copyToBck">
+         INSERT INTO metoo_arp_back SELECT * FROM metoo_arp
+    </insert>
 
 </mapper>

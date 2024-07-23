@@ -67,6 +67,7 @@ public class Gather4ManagerController {
     }
 
     private final Lock lock = new ReentrantLock();
+//    private InterProcessMutex lock; // 分布式锁
 
 
     @GetMapping("/main")

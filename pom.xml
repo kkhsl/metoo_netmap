@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.metoo.sqlite</groupId>
-    <artifactId>nrsm_sqlite</artifactId>
+    <artifactId>metoo_netmap</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <packaging>jar</packaging>
@@ -159,6 +159,12 @@
             <artifactId>fastjson</artifactId>
             <version>1.2.58</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>20210307</version> <!-- 使用最新版本 -->
+        </dependency>
         <!--end-->
 
         <dependency>
@@ -218,6 +224,31 @@
             <version>1.9.8</version>
         </dependency>
 
+        <!--Bouncy Castle 使用Bouncy Castle库实现SM4算法-->
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcprov-jdk15on</artifactId>
+            <version>1.69</version> <!-- 替换为最新版本 -->
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+        </dependency>
+
+        <!--kafka-->
+        <dependency>
+            <groupId>org.apache.kafka</groupId>
+            <artifactId>kafka-clients</artifactId>
+            <version>2.4.1</version><!--版本和kakfa版本保持一致-->
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.kafka</groupId>
+            <artifactId>spring-kafka</artifactId>
+            <version>2.4.10.RELEASE</version>
+        </dependency>
+        <!--end-->
+
+
     </dependencies>
 
     <build>
@@ -229,8 +260,6 @@
             </plugin>
         </plugins>
     </build>
-
-
 
 
 </project>

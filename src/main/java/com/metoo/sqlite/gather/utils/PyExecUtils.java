@@ -2,6 +2,7 @@ package com.metoo.sqlite.gather.utils;
 
 import com.metoo.sqlite.gather.Process.PythonScriptRunner;
 import com.metoo.sqlite.gather.common.PyCommand;
+import com.metoo.sqlite.gather.common.PyCommandBuilder;
 import com.metoo.sqlite.gather.ssh.SSHUtils;
 import com.metoo.sqlite.utils.Global;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,4 +32,29 @@ public class PyExecUtils {
         String result = this.sshUtils.executeCommand(pyCommand.toParamsString());
         return result;
     }
+
+    public String exec(PyCommandBuilder pyCommand) {
+        String result = "";
+        if (Global.env.equals("prod") || Global.env.equals("docker")) {
+            result = this.pythonScriptRunner.exec(pyCommand.getPath(), pyCommand.toStringArray());
+        }else if("dev".equals(Global.env)){
+            result = this.sshUtils.executeCommand(pyCommand.toParamsString());
+        }
+//        result = this.sshUtils.executeCommand(pyCommand.toParamsString());
+//        result = this.pythonScriptRunner.exec(pyCommand.getPath(), pyCommand.toStringArray());
+        return result;
+    }
+
+
+    // 仅使用登录ssh方式，执行命令；优化登录方式，避免每次连接带来的性能和时间消耗，注意并发问题
+//    public String exec(PyCommandBuilder pyCommand) {
+//        String result = this.sshUtils.executeCommand(pyCommand.toParamsString());
+//        return result;
+//    }
+
+//    public String process(PyCommandBuilder pyCommand) {
+//        String result = this.pythonScriptRunner.runPythonScript(pyCommand.toStringArray());
+//        return result;
+//    }
+
 }

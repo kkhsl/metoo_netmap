@@ -7,6 +7,7 @@ import com.metoo.sqlite.entity.Device;
 import com.metoo.sqlite.entity.GatewayInfo;
 import com.metoo.sqlite.entity.Ipv4;
 import com.metoo.sqlite.gather.common.PyCommand;
+import com.metoo.sqlite.gather.common.PyCommandBuilder;
 import com.metoo.sqlite.gather.strategy.Context;
 import com.metoo.sqlite.gather.strategy.DataCollectionStrategy;
 import com.metoo.sqlite.gather.utils.PyExecUtils;
@@ -37,14 +38,19 @@ public class GatewayInfoCollectionStrategy implements DataCollectionStrategy {
     public GatewayInfoCollectionStrategy(IGatewayInfoService gatewayInfoService, PyExecUtils pyExecUtils) {
         this.gatewayInfoService = gatewayInfoService;
         this.pyExecUtils = pyExecUtils;
-    }
+}
 
     @Override
     public void collectData(Context context) {
         try {
             Device device = (Device) context.getEntity();
             if (device != null) {
-                PyCommand pyCommand = (PyCommand) ApplicationContextUtils.getBean("pyCommand");
+
+                // python3 192.168.5.1
+//                PyCommand pyCommand = (PyCommand) ApplicationContextUtils.getBean("pyCommand");
+                PyCommandBuilder pyCommand = new PyCommandBuilder();
+                pyCommand.setVersion("python3");
+                pyCommand.setPath(Global.PYPATH);
                 pyCommand.setName("main.py");
                 pyCommand.setParams(new String[]{
                         device.getDeviceVendorAlias(),
@@ -56,12 +62,17 @@ public class GatewayInfoCollectionStrategy implements DataCollectionStrategy {
                         device.getLoginPassword(), Global.PY_SUFFIX_GET_FIREWALL});
                 String result = this.pyExecUtils.exec(pyCommand);
                 if (StringUtil.isNotEmpty(result)) {
-                    List<GatewayInfo> gatewayInfoList = JSONObject.parseArray(result, GatewayInfo.class);
-                    if(gatewayInfoList.size() > 0){
-                        gatewayInfoList.forEach(e -> {
-                            e.setCreateTime(context.getCreateTime());
-                        });
-                        this.gatewayInfoService.batchInsertGather(gatewayInfoList);
+                    try {
+                        List<GatewayInfo> gatewayInfoList = JSONObject.parseArray(result, GatewayInfo.class);
+                        if(gatewayInfoList.size() > 0){
+                            gatewayInfoList.forEach(e -> {
+                                e.setCreateTime(context.getCreateTime());
+                                e.setDeviceName(device.getName());
+                            });
+                            this.gatewayInfoService.batchInsertGather(gatewayInfoList);
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
                 }
             }

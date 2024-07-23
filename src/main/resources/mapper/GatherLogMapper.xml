@@ -53,6 +53,9 @@
             <if test="details != null and details != ''">
                 details,
             </if>
+            <if test="data != null and data != ''">
+                data,
+            </if>
         </trim>
         <trim prefix="VALUES(" suffixOverrides="," suffix=")">
             <if test="createTime != null and createTime != ''">
@@ -72,6 +75,9 @@
             </if>
             <if test="details != null and details != ''">
                 #{details},
+            </if>
+            <if test="data != null and data != ''">
+                #{data},
             </if>
         </trim>
     </insert>
@@ -96,6 +102,9 @@
             </if>
             <if test="details != null and details != ''">
                 details = #{details},
+            </if>
+            <if test="data != null and data != ''">
+                data = #{data},
             </if>
         </set> WHERE id = #{id}
     </update>

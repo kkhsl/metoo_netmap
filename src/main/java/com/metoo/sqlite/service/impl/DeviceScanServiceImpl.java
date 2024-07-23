@@ -3,6 +3,7 @@ package com.metoo.sqlite.service.impl;
 import com.metoo.sqlite.entity.DeviceScan;
 import com.metoo.sqlite.mapper.DeviceScanMapper;
 import com.metoo.sqlite.service.IDeviceScanService;
+import com.metoo.sqlite.utils.date.DateTools;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,8 +30,29 @@ public class DeviceScanServiceImpl implements IDeviceScanService {
 
     @Override
     public int insert(DeviceScan instance) {
+        if(instance.getId() == null){
+            try {
+                instance.setCreateTime(DateTools.getCreateTime());
+                return this.deviceScanMapper.insert(instance);
+            } catch (Exception e) {
+                e.printStackTrace();
+                return 0;
+            }
+        }else{
+            try {
+                return this.deviceScanMapper.update(instance);
+            } catch (Exception e) {
+                e.printStackTrace();
+                return 0;
+            }
+        }
+    }
+
+    @Override
+    public int update(DeviceScan instance) {
         try {
-            return this.deviceScanMapper.insert(instance);
+            instance.setCreateTime(DateTools.getCreateTime());
+            return this.deviceScanMapper.update(instance);
         } catch (Exception e) {
             e.printStackTrace();
             return 0;
@@ -61,5 +83,15 @@ public class DeviceScanServiceImpl implements IDeviceScanService {
             e.printStackTrace();
             return false;
         }
+    }
+
+    @Override
+    public int copyToBck() {
+        return this.deviceScanMapper.copyToBck();
+    }
+
+    @Override
+    public int deleteTable() {
+        return this.deviceScanMapper.deleteTable();
     }
 }

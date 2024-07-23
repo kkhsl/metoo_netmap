@@ -28,4 +28,6 @@ public class GatewayInfo {
     private String operator;
     private String ipv6_address;
     private String ipv6_subnet;
+
+    private String deviceName;
 }

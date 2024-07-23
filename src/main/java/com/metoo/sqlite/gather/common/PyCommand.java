@@ -2,6 +2,7 @@ package com.metoo.sqlite.gather.common;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import org.junit.Test;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -17,14 +18,16 @@ import java.util.List;
 @Component
 public class PyCommand {
 
+    // 链式调用方法连续设置多个属性值
+
     @ApiModelProperty("前缀")
-    @Value("${py.prefix}")
+//    @Value("${py.prefix}")
     private String prefix; // 可以设置flag，决定是否使用前缀
 
-    @Value("${py.version}")
+//    @Value("${py.version}")
     private String version;
 
-    @Value("${py.path}")
+//    @Value("${py.path}")
     @ApiModelProperty("文件绝对路径")
     private String path;
 
@@ -73,6 +76,16 @@ public class PyCommand {
     public void setParams(String[] params) {
         this.params = params;
     }
+
+    public PyCommand() {
+    }
+
+    public PyCommand(String path, String[] params) {
+        this.path = path;
+        this.params = params;
+    }
+
+
 
 
     // 方法：将对象的属性值转换为字符串数组
@@ -160,11 +173,19 @@ public class PyCommand {
     }
 
     public String toParamsString() {
+
         List<String> list = new ArrayList<>();
-        if (prefix != null && !prefix.isEmpty()) {
+
+        if (prefix != null) {
             list.add(prefix);
         }
-        if (version != null && !version.isEmpty()) {
+
+        if (path != null) {
+            String path1 = " cd " + path + " && ";
+            list.add(path1);
+        }
+
+        if (version != null) {
             list.add(version);
         }
 //        if (path != null && !path.isEmpty()) {
@@ -197,7 +218,7 @@ public class PyCommand {
         PyCommand command = new PyCommand();
 //        command.setPrefix("nohup");
 //        command.setVersion("python3");
-//        command.setPath("/opt/sqlite/script/");
+        command.setPath("/opt/sqlite/script/");
         command.setName("main.py");
         command.setParams(new String[]{"h3c", "switch", "192.168.100.1", "ssh", "22", "metoo", "metoo89745000", "aliveint"});
         String result = command.toParamsString();
@@ -205,6 +226,8 @@ public class PyCommand {
 
         String[] result2 = command.toStringArray();
         System.out.println(result2); // 打印字符串数组
-
     }
+
+    // Fluent API 或者 Builder 模式
+
 }

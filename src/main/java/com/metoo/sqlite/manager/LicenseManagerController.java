@@ -47,18 +47,24 @@ public class LicenseManagerController {
         String uuid = SystemInfoUtils.getSerialNumber();
 
         if(!uuid.equals(obj.getSystemSN())){
-            return ResponseUtil.error(413,"未授权设备");
+            return ResponseUtil.error("未授权设备");
         }
 
         try {
             String licenseInfo = this.aesEncryptUtils.decrypt(obj.getLicense());
             System.out.println("====licenseInfo:" + licenseInfo);
             LicenseVo license = JSONObject.parseObject(licenseInfo, LicenseVo.class);
+
             long currentTime = DateTools.currentTimeMillis();
             int useDay = DateTools.compare(currentTime, license.getStartTime());
+
             license.setUseDay(useDay);
             int surplusDay = DateTools.compare(license.getEndTime(), currentTime);
             license.setSurplusDay(surplusDay);
+
+            int licenseDay = DateTools.compare(license.getEndTime(), license.getStartTime());
+            license.setLicenseDay(licenseDay);
+
             System.out.println(JSONObject.toJSONString(license));
             return ResponseUtil.ok(license);
         } catch (Exception e) {

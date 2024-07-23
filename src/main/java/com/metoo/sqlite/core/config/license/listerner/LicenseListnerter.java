@@ -29,8 +29,6 @@ public class LicenseListnerter implements ServletContextListener {
         licenseService.detection();
     }
 
-
-
     @Override
     public void contextDestroyed(ServletContextEvent servletContextEvent) {
         log.info("=========销毁=========");

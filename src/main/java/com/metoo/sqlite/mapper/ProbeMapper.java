@@ -14,12 +14,18 @@ import java.util.Map;
 @Mapper
 public interface ProbeMapper {
 
+    List<Probe> selectObjByMap(Map params);
+
     int insert(Probe instance);
 
-    List<Probe> selectObjByMap(Map params);
+    int update(Probe instance);
 
     int delete(Integer id);
 
     int deleteTable();
+
+    int deleteTableBack();
+
+    int copyToBck();
 
 }

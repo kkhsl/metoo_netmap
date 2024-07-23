@@ -9,7 +9,7 @@
 <configuration status="INFO">
     <!--全局通用属性-->
     <properties>
-        <property name="log4j2.file.path">/opt/sqlite/logs</property>
+        <property name="log4j2.file.path">/opt/netmap/logs</property>
     </properties>
 
     <appenders>

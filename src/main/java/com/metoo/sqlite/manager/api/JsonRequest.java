@@ -9,6 +9,7 @@ public class JsonRequest {
 
     private String taskuuid;
     private String ip;
+    private String port;
 
     public String getTaskuuid() {
         return taskuuid;
@@ -24,5 +25,13 @@ public class JsonRequest {
 
     public void setIp(String ip) {
         this.ip = ip;
+    }
+
+    public String getPort() {
+        return port;
+    }
+
+    public void setPort(String port) {
+        this.port = port;
     }
 }

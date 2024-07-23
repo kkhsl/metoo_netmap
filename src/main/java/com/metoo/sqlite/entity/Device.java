@@ -59,6 +59,11 @@ public class Device {
     private String version;
     private String ipv6_keyword;
     private String ipv6_address;
+
+    private String ipv6Addrcount;
+    private String ipv6Forward;
+
+
     private String sentlocally;
     private String neighboradverts;
 

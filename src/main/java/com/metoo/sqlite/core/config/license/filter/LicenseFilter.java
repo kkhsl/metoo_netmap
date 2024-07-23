@@ -5,6 +5,7 @@ import com.metoo.sqlite.entity.License;
 import com.metoo.sqlite.service.ILicenseService;
 import com.metoo.sqlite.vo.Result;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.annotation.Order;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
@@ -13,15 +14,19 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
+//@Order(2)
 public class LicenseFilter implements Filter {
 
     // 定义不需要过滤的路径
     private final List<String> excludedPaths
             = Arrays.asList(
-                "/admin/captcha",
-                "/admin/login",
-                "/admin/logout"
-            );
+            "/admin/captcha",
+            "/admin/login",
+            "/admin/logout",
+            "/admin/license/systemInfo",
+            "/admin/license/query",
+            "/admin/license/update"
+        );
 
     @Autowired
     private ILicenseService licenseService;
@@ -42,8 +47,7 @@ public class LicenseFilter implements Filter {
             System.out.println(request.getRequestURI());
             System.out.println(request.getRequestURL());
             HttpServletResponse response = (HttpServletResponse) servletResponse;
-            if (
-                    excludedPaths.stream().anyMatch(request.getRequestURI()::startsWith)) {
+            if (excludedPaths.stream().anyMatch(request.getRequestURI()::startsWith)) {
                 // 如果在排除列表中，则直接放行
                 chain.doFilter(request, response);
             } else {

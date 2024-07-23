@@ -16,9 +16,11 @@ public interface DeviceScanMapper {
 
     int insert(DeviceScan instance);
 
+    int update(DeviceScan instance);
+
     int batchInsert(List<DeviceScan> list);
 
     int deleteTable();
 
-
+    int copyToBck();
 }

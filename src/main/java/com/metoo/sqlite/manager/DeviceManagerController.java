@@ -6,6 +6,7 @@ import com.metoo.sqlite.entity.Device;
 import com.metoo.sqlite.entity.DeviceType;
 import com.metoo.sqlite.entity.DeviceVendor;
 import com.metoo.sqlite.gather.common.PyCommand;
+import com.metoo.sqlite.gather.common.PyCommandBuilder;
 import com.metoo.sqlite.gather.pool.GatherDataThreadPool;
 import com.metoo.sqlite.gather.pool.ThreadPoolUtils;
 import com.metoo.sqlite.gather.utils.PyExecUtils;
@@ -95,7 +96,9 @@ public class DeviceManagerController {
                     device.setDeviceVendorAlias(deviceVendor.getAlias());
                 }
             }
-            PyCommand pyCommand = (PyCommand) ApplicationContextUtils.getBean("pyCommand");
+            PyCommandBuilder pyCommand = new PyCommandBuilder();
+            pyCommand.setVersion("python3");
+            pyCommand.setPath(Global.PYPATH);
             pyCommand.setName("main.py");
             pyCommand.setParams(new String[]{
                     device.getDeviceVendorAlias(),
@@ -135,6 +138,8 @@ public class DeviceManagerController {
                 }
             }
             PyCommand pyCommand = (PyCommand) ApplicationContextUtils.getBean("pyCommand");
+            pyCommand.setVersion("python3");
+            pyCommand.setPath(Global.PYPATH);
             pyCommand.setName("main.py");
             pyCommand.setParams(new String[]{
                     device.getDeviceVendorAlias(),

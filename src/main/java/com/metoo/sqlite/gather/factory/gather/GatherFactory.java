@@ -36,8 +36,10 @@ public class GatherFactory {
             return new GatherDeviceScan();
         } else if(shapeType.equalsIgnoreCase(Global.TERMINAL)){
             return new GatherTerminal();
-        } else if(shapeType.equalsIgnoreCase(Global.GATEWAY_OPERATOR)){
+        } /*else if(shapeType.equalsIgnoreCase(Global.GATEWAY_OPERATOR)){
             return new GatherGatewayOperator();
+        }*/ else if(shapeType.equalsIgnoreCase("fileToProbe")){
+            return new GatherOsScan();
         }
         return null;
     }

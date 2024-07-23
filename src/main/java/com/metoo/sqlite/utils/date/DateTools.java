@@ -214,6 +214,9 @@ public class DateTools {
 
     public static int compare(Long time1, Long time2){
         int day = (int) ((time1 - time2) / ONEDAY_TIME);
+        if(day <= 0){
+            return 0;
+        }
         return day;
     }
 

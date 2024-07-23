@@ -9,14 +9,34 @@ import java.util.Scanner;
 @Component
 public class SystemInfoUtils {
 
-    public static String getSerialNumber() {
+//    public static String getSerialNumber() {
+////        String cpuId = null;
+////        // 获取当前操作系统名称
+////        String os = System.getProperty("os.name");
+////        os = os.toUpperCase();
+////        if ("LINUX".equals(os)) {
+////            try {
+////                cpuId = getLinuxDmidecodeInfo("dmidecode -t system | grep 'Serial Number'", "Serial Number", ":");
+////            } catch (IOException e) {
+////                e.printStackTrace();
+////            }
+////        } else {
+////            try {
+////                cpuId = getWindowsBiosUUID();
+////            } catch (IOException e) {
+////                e.printStackTrace();
+////            }
+////        }
+////        return cpuId.toUpperCase().replace(" ", "");
+//
+//
 //        String cpuId = null;
 //        // 获取当前操作系统名称
 //        String os = System.getProperty("os.name");
 //        os = os.toUpperCase();
 //        if ("LINUX".equals(os)) {
 //            try {
-//                cpuId = getLinuxDmidecodeInfo("dmidecode -t system | grep 'Serial Number'", "Serial Number", ":");
+//                cpuId = getLinuxDmidecodeInfo("dmidecode -t system | grep 'UUID'", "UUID", ":");
 //            } catch (IOException e) {
 //                e.printStackTrace();
 //            }
@@ -27,31 +47,20 @@ public class SystemInfoUtils {
 //                e.printStackTrace();
 //            }
 //        }
-//        return cpuId.toUpperCase().replace(" ", "");
+//        if(cpuId != null){
+//            cpuId.toUpperCase().replace(" ", "");
+//        }
+//        return "";
+//    }
 
 
-        String cpuId = null;
-        // 获取当前操作系统名称
-        String os = System.getProperty("os.name");
-        os = os.toUpperCase();
-        if ("LINUX".equals(os)) {
-            try {
-                cpuId = getLinuxDmidecodeInfo("dmidecode -t system | grep 'UUID'", "UUID", ":");
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        } else {
-            try {
-                cpuId = getWindowsBiosUUID();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        return cpuId.toUpperCase().replace(" ", "");
-    }
+//    public static void main(String[] args) {
+//        System.out.println(getBiosUuid());
+//    }
 
+//    public static String getBiosUuid() {
+    public static String getSerialNumber() {
 
-    public static String getBiosUuid() {
         String cpuId = null;
         // 获取当前操作系统名称
         String os = System.getProperty("os.name");

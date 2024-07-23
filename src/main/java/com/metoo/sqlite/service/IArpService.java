@@ -21,4 +21,8 @@ public interface IArpService {
     int deleteTable();
 
     int gather();
+
+    int deleteTableBack();
+
+    int copyToBck();
 }

@@ -6,6 +6,7 @@ import com.metoo.sqlite.core.config.application.ApplicationContextUtils;
 import com.metoo.sqlite.entity.Device;
 import com.metoo.sqlite.entity.GatewayInfo;
 import com.metoo.sqlite.gather.common.PyCommand;
+import com.metoo.sqlite.gather.common.PyCommandBuilder;
 import com.metoo.sqlite.gather.strategy.Context;
 import com.metoo.sqlite.gather.strategy.DataCollectionStrategy;
 import com.metoo.sqlite.gather.utils.PyExecUtils;
@@ -42,7 +43,10 @@ public class GatewayOperatorCollectionStrategy implements DataCollectionStrategy
         try {
             GatewayInfo gatewayInfo = (GatewayInfo) context.getEntity();
             if (gatewayInfo != null) {
-                               PyCommand pyCommand = (PyCommand) ApplicationContextUtils.getBean("pyCommand");
+//                PyCommand pyCommand = (PyCommand) ApplicationContextUtils.getBean("pyCommand");
+                PyCommandBuilder pyCommand = new PyCommandBuilder();
+                pyCommand.setVersion("python3");
+                pyCommand.setPath(Global.PYPATH);
                 pyCommand.setName("ip2operate.py");
                 pyCommand.setParams(new String[]{
                         gatewayInfo.getIp_address()

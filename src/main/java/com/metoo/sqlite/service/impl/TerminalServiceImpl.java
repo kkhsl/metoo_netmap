@@ -3,6 +3,7 @@ package com.metoo.sqlite.service.impl;
 import com.metoo.sqlite.entity.Terminal;
 import com.metoo.sqlite.mapper.TerminalMapper;
 import com.metoo.sqlite.service.ITerminalService;
+import com.metoo.sqlite.utils.date.DateTools;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -39,15 +40,22 @@ public class TerminalServiceImpl implements ITerminalService {
     public boolean insert(Terminal instance) {
         if (instance.getId() == null || instance.getId().equals("")) {
             try {
+                instance.setCreateTime(DateTools.getCreateTime());
                 this.terminalMapper.insert(instance);
                 return true;
             } catch (Exception e) {
                 e.printStackTrace();
                 return false;
-
+            }
+        }else{
+            try {
+                this.terminalMapper.update(instance);
+                return true;
+            } catch (Exception e) {
+                e.printStackTrace();
+                return false;
             }
         }
-        return false;
     }
 
     @Override

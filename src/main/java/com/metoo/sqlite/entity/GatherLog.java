@@ -36,4 +36,8 @@ public class GatherLog {
     @ApiModelProperty("采集数据，分析之后的数据")
     private String details;
 
+    private String data;
+
+
+
 }

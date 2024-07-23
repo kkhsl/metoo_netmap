@@ -22,7 +22,7 @@ public class TestApiManagerController {
 
     @Autowired
     private SSHUtils sshUtils;
-    @Value("${py.path}")
+//    @Value("${py.path}")
     private String path;
 
     @GetMapping
@@ -30,4 +30,5 @@ public class TestApiManagerController {
         String result = this.sshUtils.executeCommand("cd " + path + " && python3 main.py h3c switch 192.168.100.3 ssh 22 metoo metoo8974500 test");
         return ResponseUtil.ok(result);
     }
+
 }

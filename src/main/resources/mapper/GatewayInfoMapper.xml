@@ -33,6 +33,9 @@
             <if test="ipv6_subnet != null and ipv6_subnet != ''">
                 ipv6_subnet,
             </if>
+            <if test="deviceName != null and deviceName != ''">
+                deviceName,
+            </if>
         </trim>
         <trim prefix="VALUES(" suffix=")" suffixOverrides=",">
             <if test="createTime != null and createTime != ''">
@@ -55,6 +58,9 @@
             </if>
             <if test="ipv6_subnet != null and ipv6_subnet != ''">
                 #{ipv6_subnet},
+            </if>
+            <if test="deviceName != null and deviceName != ''">
+                #{deviceName},
             </if>
         </trim>
     </insert>
@@ -83,6 +89,9 @@
             <if test="ipv6_subnet != null and ipv6_subnet != ''">
                 ipv6_subnet = #{ipv6_subnet},
             </if>
+            <if test="deviceName != null and deviceName != ''">
+                deviceName = #{deviceName},
+            </if>
         </set>
         where id = #{id}
     </update>
@@ -95,7 +104,8 @@
             description,
             operator,
             ipv6_address,
-            ipv6_subnet
+            ipv6_subnet,
+            deviceName
         )
         VALUES
         <foreach collection ="list" item="item" separator ="," >
@@ -106,7 +116,8 @@
                 #{item.description},
                 #{item.operator},
                 #{item.ipv6_address},
-                #{item.ipv6_subnet}
+                #{item.ipv6_subnet},
+                #{item.deviceName}
             )
         </foreach>
     </insert>

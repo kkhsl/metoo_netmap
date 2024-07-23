@@ -95,11 +95,17 @@
             <if test="ipv6_address != null and ipv6_address != ''">
                 ipv6_address,
             </if>
+            <if test="ipv6Forward != null and ipv6Forward != ''">
+                ipv6Forward,
+            </if>
             <if test="sentlocally != null and sentlocally != ''">
                 sentlocally,
             </if>
             <if test="neighboradverts != null and neighboradverts != ''">
                 neighboradverts,
+            </if>
+            <if test="ipv6Addrcount != null and ipv6Addrcount != ''">
+                ipv6Addrcount,
             </if>
         </trim>
         <trim prefix="VALUES(" suffixOverrides="," suffix=")">
@@ -148,11 +154,17 @@
             <if test="ipv6_address != null and ipv6_address != ''">
                 #{ipv6_address},
             </if>
+            <if test="ipv6Forward != null and ipv6Forward != ''">
+                #{ipv6Forward},
+            </if>
             <if test="sentlocally != null and sentlocally != ''">
                 #{sentlocally},
             </if>
             <if test="neighboradverts != null and neighboradverts != ''">
                 #{neighboradverts},
+            </if>
+            <if test="ipv6Addrcount != null and ipv6Addrcount != ''">
+                #{ipv6Addrcount},
             </if>
         </trim>
     </insert>
@@ -190,23 +202,32 @@
             <if test="deviceModelId != null and deviceModelId != ''">
                 deviceModelId = #{deviceModelId},
             </if>
-            <if test="model != null and model != ''">
+            <if test="model != ''">
                 model = #{model},
             </if>
-            <if test="version != null and version != ''">
+            <if test="version != ''">
                 version = #{version},
             </if>
-            <if test="ipv6_keyword != null and ipv6_keyword != ''">
+            <if test="ipv6_keyword != ''">
                 ipv6_keyword = #{ipv6_keyword},
             </if>
-            <if test="ipv6_address != null and ipv6_address != ''">
+            <if test="ipv6_address != ''">
                 ipv6_address = #{ipv6_address},
             </if>
-            <if test="sentlocally != null and sentlocally != ''">
+            <if test="ipv6_address != ''">
+                ipv6_address = #{ipv6_address},
+            </if>
+            <if test="ipv6Forward != ''">
+                ipv6Forward = #{ipv6Forward},
+            </if>
+            <if test="sentlocally != ''">
                 sentlocally = #{sentlocally},
             </if>
-            <if test="neighboradverts != null and neighboradverts != ''">
+            <if test="neighboradverts != ''">
                 neighboradverts = #{neighboradverts},
+            </if>
+            <if test="ipv6Addrcount != ''">
+                ipv6Addrcount = #{ipv6Addrcount},
             </if>
         </set> WHERE id = #{id}
     </update>

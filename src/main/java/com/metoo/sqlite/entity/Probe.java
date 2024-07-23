@@ -1,5 +1,6 @@
 package com.metoo.sqlite.entity;
 
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -65,5 +66,8 @@ public class Probe {
     @ApiModelProperty("匹配的指纹")
     private String fingerId;
     @ApiModelProperty("ttl值")
-    private String ttl;
+    private Integer ttl;
+
+    @ApiModelProperty("os可用率")
+    private Float reliability;
 }

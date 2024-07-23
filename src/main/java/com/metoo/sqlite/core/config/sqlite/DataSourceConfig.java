@@ -18,7 +18,8 @@ public class DataSourceConfig {
         HikariConfig config = new HikariConfig();
 //        config.setJdbcUrl("jdbc:sqlite:E:\\java\\soft\\sqlite\\sqlite\\mydatabase.sqlite");
 //        config.setJdbcUrl("jdbc:sqlite:./data/mydatabase.sqlite");
-        config.setJdbcUrl("jdbc:sqlite::resource:data/mydatabase.sqlite");
+        config.setJdbcUrl("jdbc:sqlite:D:\\metoo\\project\\metoo\\sql\\netmap\\mydatabase1.db");
+//        config.setJdbcUrl("jdbc:sqlite::resource:data/mydatabase.sqlite");
 
         config.setDriverClassName("org.sqlite.JDBC");
         config.setMaximumPoolSize(10);

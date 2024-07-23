@@ -17,4 +17,8 @@ import lombok.experimental.Accessors;
 public class GatherSemaphore {
 
     private Integer semaphore;
+
+    // 标识
+
+    // 过期时间
 }

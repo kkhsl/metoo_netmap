@@ -11,6 +11,7 @@ import com.metoo.sqlite.service.IArpService;
 import com.metoo.sqlite.service.IDeviceScanService;
 import com.metoo.sqlite.service.IProbeService;
 import com.metoo.sqlite.service.ITerminalService;
+import com.metoo.sqlite.utils.StringUtils;
 import com.metoo.sqlite.utils.date.DateTools;
 import lombok.extern.slf4j.Slf4j;
 
@@ -35,40 +36,49 @@ public class GatherTerminal implements Gather {
         IArpService arpService = (IArpService) ApplicationContextUtils.getBean("arpServiceImpl");
         IProbeService probeService = (IProbeService) ApplicationContextUtils.getBean("probeServiceImpl");
 
-        // ARP 写入终端采集表
         terminalService.deleteTableGather();
-        List<Arp> arpList = arpService.selectObjByMap(null);
-        String createTime = DateTools.getCreateTime();
-        List<Terminal> terminals = new ArrayList<>();
-        if(arpList.size() > 0){
-            for (Arp arp : arpList) {
-                Terminal terminal = new Terminal();
-                terminal.setCreateTime(createTime);
-                terminal.setIpv4addr(arp.getIp());
-                terminal.setIpv6addr(arp.getIpv6());
-                terminal.setMac(arp.getMac());
-                terminal.setMacvendor(arp.getMacVendor());
-                terminals.add(terminal);
-            }
-            if(terminals.size() > 0){
-                terminalService.batchInsertGather(terminals);
-            }
-        }
 
-        // os-os_family port_num-port service-port_serivce_product
 
-        // 使用HashMap来存储合并后的结果
+        Set<String> deleteSet = new HashSet();
+
         Map<String, TerminalModel> resultMap = new HashMap<>();
 
+        Map params = new HashMap();
+
         // 需要在metoo_scan后面执行
-        List<Probe> probes = probeService.selectObjByMap(null);
+        params.clear();
+//        params.put("ip_addr", "192.168.6.71");
+        List<Probe> probes = probeService.selectObjByMap(params);
+
         if(probes.size() > 0){
             // 组合数据，更新终端采集表
             for (Probe probe : probes) {
+
+                boolean flag = false;
+
                 String ip = probe.getIp_addr();
                 String port_number = probe.getPort_num();
                 String os_family = probe.getOs_family();
                 String port_service_product = probe.getPort_service_product();
+                String port_service_vendor = probe.getPort_service_vendor();
+                String vendor = probe.getVendor();
+                String os_gen = probe.getOs_gen();
+                Float reliability = probe.getReliability();
+                Integer ttl = probe.getTtl();
+
+                if("microsoft".equalsIgnoreCase(port_service_vendor)){
+                    flag = true;
+
+                }
+                if("apple".equalsIgnoreCase(port_service_vendor)){
+                    flag = true;
+                }
+                if("openbsd".equalsIgnoreCase(port_service_vendor)){
+                    flag = true;
+                }
+                if(ttl != null && ttl > 0){
+                    flag = true;
+                }
 
                 if(resultMap.containsKey(ip)){
                     TerminalModel terminalModel = resultMap.get(ip);
@@ -81,47 +91,127 @@ public class GatherTerminal implements Gather {
                     if(StringUtil.isNotEmpty(port_service_product) && !terminalModel.containsPort_service_product(port_service_product)){
                         terminalModel.addPort_service_product(port_service_product);
                     }
+                    if(reliability != null){
+                        terminalModel.setReliability(reliability);
+                    }
+                    if(StringUtil.isNotEmpty(vendor)){
+                        terminalModel.setVendor(vendor);
+                    }
+                    if(StringUtil.isNotEmpty(os_gen)){
+                        terminalModel.setOs_gen(os_gen);
+                    }
+                    if(!terminalModel.isFlag()){
+                        terminalModel.setFlag(flag);
+                    }
+
                 }else{
-                    // 如果IP不存在，则直接添加新的NetworkInfo对象
-                    TerminalModel terminalModel = new TerminalModel(ip, port_number, os_family, port_service_product);
+                    TerminalModel terminalModel = new TerminalModel(ip, port_number, os_family,
+                            port_service_product, reliability, ttl, os_gen, vendor, flag);
                     resultMap.put(ip, terminalModel);
                 }
             }
         }
-
-        List<Terminal> terminalList = new ArrayList<>();
-
+        List<Terminal> terminals = new ArrayList<>();
         if(resultMap != null && !resultMap.isEmpty()){
-            Map params = new HashMap();
             for (String key : resultMap.keySet()) {
+
                 TerminalModel terminalModel = resultMap.get(key);
-                if(terminalModel != null){
-                    params.clear();
-                    params.put("ipv4addr", key);
-                    List<Terminal> terminalListByIp = terminalService.selectObjByMap(params);
-                    if(terminalListByIp.size() > 0){
-                        Terminal terminal = terminalListByIp.get(0);
-                        terminal.setCreateTime(createTime);
-                        if(terminalModel.getPort_numberS().size() > 0){
-                            terminal.setActive_port(String.join(",", terminalModel.getPort_numberS()));
+                if(terminalModel != null && terminalModel.isFlag()){
+
+                    deleteSet.add(key);
+
+                    Terminal terminal = new Terminal();
+                    terminal.setCreateTime(DateTools.getCreateTime());
+                    if(terminalModel.getPort_numberS().size() > 0){
+                        terminal.setActive_port(String.join(",", terminalModel.getPort_numberS()));
+                    }
+//                    if(terminalModel.getOs_familyS().size() > 0){
+//                        terminal.set(String.join(",", terminalModel.getOs_familyS()));
+//                    }
+                    if(terminalModel.getPort_service_productS().size() > 0){
+                        terminal.setService(String.join(",", terminalModel.getPort_service_productS()));
+                    }
+                    if(StringUtils.isNotEmpty(terminalModel.getOs_gen()) || StringUtils.isNotEmpty(terminalModel.getVendor())){
+                        if(StringUtil.isNotEmpty(terminalModel.getVendor())){
+                            terminal.setOs(terminalModel.getVendor() + " " + terminalModel.getOs_gen());
+                        }else{
+                            terminal.setOs(terminalModel.getOs_gen());
                         }
-                        if(terminalModel.getOs_familyS().size() > 0){
-                            terminal.setOs(String.join(",", terminalModel.getOs_familyS()));
+
+                    }
+                    if(terminalModel.getReliability() != null){
+                        if(terminalModel.getReliability() > 0.9
+                                && StringUtils.isEmpty(terminalModel.getOs_gen())){
+
+                            if(StringUtil.isNotEmpty(terminalModel.getVendor())){
+                                String os = terminalModel.getVendor() + " " + terminalModel.getOs_gen();
+                                    terminal.setOs(os.trim());
+                            }else{
+                                terminal.setOs(terminalModel.getOs_gen());
+                            }
                         }
-                        if(terminalModel.getPort_service_productS().size() > 0){
-                            terminal.setService(String.join(",", terminalModel.getPort_service_productS()));
+                    }
+                    if(StringUtils.isEmpty(terminal.getOs()) && terminalModel.getTtl() != null){
+                        if(terminalModel.getTtl() < 32){
+                            terminal.setOs("Windows");
                         }
-                        terminalList.add(terminal);
+                        if(terminalModel.getTtl() > 60 && terminalModel.getTtl() < 64){
+                            terminal.setOs("Linux");
+                        }
+                        if(terminalModel.getTtl() > 120 && terminalModel.getTtl() < 128){
+//                            if(StringUtil.isNotEmpty(terminalModel.getVendor())){
+//                                terminal.setOs(terminalModel.getVendor() + " " + "Windows");
+//                            }else{
+//                                terminal.setOs("Windows");
+//                            }
+                            terminal.setOs("Windows");
+                        }
+                    }
+                    if(terminal.getId() == null){
+                        params.clear();
+                        params.put("ip", key);
+                        List<Arp> arps = arpService.selectObjByMap(params);
+                        if(arps.size() > 0){
+                            Arp arp = arps.get(0);
+                            terminal.setIpv4addr(key);
+                            terminal.setIpv6addr(arp.getIpv6());
+                            terminal.setMac(arp.getMac());
+                            terminal.setMacvendor(arp.getMacVendor());
+                        }
+                        terminals.add(terminal);
                     }
                 }
             }
         }
 
-        terminalService.batchInsertGather(terminalList);
+        if(terminals.size() > 0){
+            terminalService.batchInsertGather(terminals);
+        }
+        if(deleteSet.size() > 0){
+            for (String ip_addr : deleteSet) {
+                this.deleteProbe(ip_addr, probeService);
+            }
+        }
 
-        // 写入终端表
         terminalService.copyGatherData();
 
         log.info("terminal End......" + (System.currentTimeMillis() - time));
+    }
+
+    public void deleteProbe(String ip_addr, IProbeService probeService) {
+        if (StringUtil.isNotEmpty(ip_addr)) {
+            Map params = new HashMap();
+            params.put("ip_addr", ip_addr);
+            List<Probe> deleteProbes = probeService.selectObjByMap(params);
+            if (deleteProbes.size() > 0) {
+                for (Probe deleteProbe : deleteProbes) {
+                    try {
+                        probeService.delete(deleteProbe.getId());
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
     }
 }

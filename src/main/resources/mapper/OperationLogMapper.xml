@@ -26,11 +26,11 @@
             <if test="ip != null and ip != ''">
                 AND `ip` = #{ip}
             </if>
-        </where>
+        </where> ORDER BY createTime desc
     </select>
 
     <select id="selectObjByMap" parameterType="java.util.Map" resultType="com.metoo.sqlite.entity.OperationLog">
-        SELECT * FROM metoo_operation_log
+        SELECT * FROM metoo_operation_log  ORDER BY createTime desc
     </select>
 
     <insert id="insert" parameterType="com.metoo.sqlite.entity.OperationLog">

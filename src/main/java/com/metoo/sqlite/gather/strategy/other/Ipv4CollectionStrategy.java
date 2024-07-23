@@ -8,6 +8,7 @@ import com.metoo.sqlite.entity.Ipv4;
 import com.metoo.sqlite.entity.PortIpv4;
 import com.metoo.sqlite.entity.PortIpv6;
 import com.metoo.sqlite.gather.common.PyCommand;
+import com.metoo.sqlite.gather.common.PyCommandBuilder;
 import com.metoo.sqlite.gather.strategy.Context;
 import com.metoo.sqlite.gather.strategy.DataCollectionStrategy;
 import com.metoo.sqlite.gather.utils.PyExecUtils;
@@ -47,7 +48,10 @@ public class Ipv4CollectionStrategy implements DataCollectionStrategy {
         try {
             Device device = (Device) context.getEntity();
             if (device != null) {
-                PyCommand pyCommand = (PyCommand) ApplicationContextUtils.getBean("pyCommand");
+//                PyCommand pyCommand = (PyCommand) ApplicationContextUtils.getBean("pyCommand");
+                PyCommandBuilder pyCommand = new PyCommandBuilder();
+                pyCommand.setVersion("python3");
+                pyCommand.setPath(Global.PYPATH);
                 pyCommand.setName("main.py");
                 pyCommand.setParams(new String[]{
                         device.getDeviceVendorAlias(),
@@ -60,15 +64,19 @@ public class Ipv4CollectionStrategy implements DataCollectionStrategy {
                 String result = this.pyExecUtils.exec(pyCommand);
                 if (StringUtil.isNotEmpty(result)) {
                     log.info("ipv4" + result);
-                    List<Ipv4> ipv4List = JSONObject.parseArray(result, Ipv4.class);
-                    if (ipv4List.size() > 0) {
-                        if(ipv4List.size() > 0){
-                            ipv4List.forEach(e -> {
-                                e.setDeviceUuid(device.getUuid());
-                                e.setCreateTime(context.getCreateTime());
-                            });
-                            this.ipv4Service.batchInsertGather(ipv4List);
+                    try {
+                        List<Ipv4> ipv4List = JSONObject.parseArray(result, Ipv4.class);
+                        if (ipv4List.size() > 0) {
+                            if(ipv4List.size() > 0){
+                                ipv4List.forEach(e -> {
+                                    e.setDeviceUuid(device.getUuid());
+                                    e.setCreateTime(context.getCreateTime());
+                                });
+                                this.ipv4Service.batchInsertGather(ipv4List);
+                            }
                         }
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
                 }
             }

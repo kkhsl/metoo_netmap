@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class AppConfig {
 
-    @Value("${py.path}")
+//    @Value("${py.path}")
     private String path;
 
     @GetMapping("/admin/properties")

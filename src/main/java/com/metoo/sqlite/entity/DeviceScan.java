@@ -6,6 +6,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
+import java.util.Objects;
+
 /**
  * @author HKK
  * @version 1.0
@@ -26,5 +28,22 @@ public class DeviceScan {
     private String device_ipv6;
     private String device_product;
     private String device_type;
+
+    @Override
+    public boolean equals(Object o){
+        if(this == o){
+            return true;
+        }
+        if(o == null || getClass() != o.getClass()){
+            return false;
+        }
+        DeviceScan deviceScan = (DeviceScan) o;
+        return Objects.equals(device_ipv4, deviceScan.getDevice_ipv4());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(device_ipv4);
+    }
 
 }

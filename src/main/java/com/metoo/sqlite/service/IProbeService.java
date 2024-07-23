@@ -16,8 +16,14 @@ public interface IProbeService {
 
     boolean insert(Probe instance);
 
+    boolean update(Probe instance);
+
     int delete(Integer id);
 
     int deleteTable();
+
+    int deleteTableBack();
+
+    int copyToBck();
 
 }

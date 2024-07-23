@@ -24,13 +24,25 @@ public class ProbeServiceImpl implements IProbeService {
 
     @Override
     public List<Probe> selectObjByMap(Map params) {
-        return this.probeMapper.selectObjByMap(params);
+        List<Probe> probes = this.probeMapper.selectObjByMap(params);
+        return probes;
     }
 
     @Override
     public boolean insert(Probe instance) {
         try {
             this.probeMapper.insert(instance);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    @Override
+    public boolean update(Probe instance) {
+        try {
+            this.probeMapper.update(instance);
             return true;
         } catch (Exception e) {
             e.printStackTrace();
@@ -56,6 +68,16 @@ public class ProbeServiceImpl implements IProbeService {
             e.printStackTrace();
             return 0;
         }
+    }
+
+    @Override
+    public int deleteTableBack() {
+        return this.probeMapper.deleteTableBack();
+    }
+
+    @Override
+    public int copyToBck() {
+        return this.probeMapper.copyToBck();
     }
 
 }

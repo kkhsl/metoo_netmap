@@ -30,13 +30,17 @@ public class LicenseDto {
     @ApiModelProperty("过期时间")
     private long expireTime;
 
-    // 授权信息
-    @ApiModelProperty("授权防火墙")
-    private int licenseFireWall;
-    @ApiModelProperty("授权路由/交换")
-    private int licenseRouter;
-    @ApiModelProperty("授权主机数")
-    private int licenseHost;
-    @ApiModelProperty("授权模拟网关")
-    private int licenseUe;
+    //#################################
+    private String unit_id;
+
+    private String version;
+
+    @ApiModelProperty("城市")
+    private String city;
+
+    @ApiModelProperty("区/县")
+    private String area;
+
+    @ApiModelProperty("单位名称")
+    private String unit;
 }

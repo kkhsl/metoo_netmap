@@ -3,11 +3,9 @@ package com.metoo.sqlite.gather.strategy.other;
 import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.util.StringUtil;
 import com.metoo.sqlite.core.config.application.ApplicationContextUtils;
-import com.metoo.sqlite.entity.Device;
-import com.metoo.sqlite.entity.PortIpv4;
-import com.metoo.sqlite.entity.PortIpv6;
-import com.metoo.sqlite.entity.Subnet;
+import com.metoo.sqlite.entity.*;
 import com.metoo.sqlite.gather.common.PyCommand;
+import com.metoo.sqlite.gather.common.PyCommandBuilder;
 import com.metoo.sqlite.gather.strategy.Context;
 import com.metoo.sqlite.gather.strategy.DataCollectionStrategy;
 import com.metoo.sqlite.gather.utils.PyExecUtils;
@@ -42,10 +40,21 @@ public class PingCollectionStrategy implements DataCollectionStrategy {
         try {
             Subnet subnet = (Subnet) context.getEntity();
             if (subnet != null) {
-                PyCommand pyCommand = (PyCommand) ApplicationContextUtils.getBean("pyCommand");
-                pyCommand.setName("ping.py");
+//                /opt/sqlite/cf-scanner/cf-scanner -i 192.168.5.0/24  -ns=true -np=false -m ping
+//                PyCommand pyCommand = (PyCommand) ApplicationContextUtils.getBean("pyCommand");
+                PyCommandBuilder pyCommand = new PyCommandBuilder();
+                pyCommand.setPrefix("");
+                pyCommand.setVersion("");
+                pyCommand.setPath(Global.cf_scanner);
+                pyCommand.setName("./cf-scanner");
                 pyCommand.setParams(new String[]{
-                        subnet.getIp(), String.valueOf(subnet.getMask())});
+                        "-i",
+                        subnet.getIp()+"/"+String.valueOf(subnet.getMask()),
+                        "-ns=true",
+                        "-np=false",
+                        "-m",
+                        "ping"
+                });
                 String result = this.pyExecUtils.exec(pyCommand);
                 if (StringUtil.isNotEmpty(result)) {}
             }

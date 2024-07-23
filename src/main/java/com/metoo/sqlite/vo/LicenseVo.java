@@ -22,8 +22,19 @@ public class LicenseVo {
     private Long startTime;
     @ApiModelProperty("结束时间")
     private Long endTime;
+    @ApiModelProperty("授权天数")
+    private int licenseDay;
+    @ApiModelProperty("License版本号")
+    private String licenseVersion;
 
-    private Integer unit_id;
+    @ApiModelProperty("已使用")
+    private int useDay;
+    @ApiModelProperty("未使用")
+    private int surplusDay;
+
+    //############################
+
+    private String unit_id;
 
     private String version;
 
@@ -35,5 +46,6 @@ public class LicenseVo {
 
     @ApiModelProperty("单位名称")
     private String unit;
+
 
 }

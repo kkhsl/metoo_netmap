@@ -6,11 +6,13 @@ import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
 import org.apache.shiro.web.filter.AccessControlFilter;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.annotation.Order;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
 // AuthenticatingFilter
+@Order(0)
 public class MyAccessControlFilter extends AccessControlFilter {
 
     @Value("${spring.profiles.active}")

@@ -7,6 +7,7 @@ import com.metoo.sqlite.entity.Device;
 import com.metoo.sqlite.entity.Ipv4;
 import com.metoo.sqlite.entity.Ipv6;
 import com.metoo.sqlite.gather.common.PyCommand;
+import com.metoo.sqlite.gather.common.PyCommandBuilder;
 import com.metoo.sqlite.gather.strategy.Context;
 import com.metoo.sqlite.gather.strategy.DataCollectionStrategy;
 import com.metoo.sqlite.gather.utils.PyExecUtils;
@@ -43,7 +44,10 @@ public class Ipv6CollectionStrategy implements DataCollectionStrategy {
         try {
             Device device = (Device) context.getEntity();
             if (device != null) {
-                PyCommand pyCommand = (PyCommand) ApplicationContextUtils.getBean("pyCommand");
+//                PyCommand pyCommand = (PyCommand) ApplicationContextUtils.getBean("pyCommand");
+                PyCommandBuilder pyCommand = new PyCommandBuilder();
+                pyCommand.setVersion("python3");
+                pyCommand.setPath(Global.PYPATH);
                 pyCommand.setName("main.py");
                 pyCommand.setParams(new String[]{
                         device.getDeviceVendorAlias(),
@@ -53,23 +57,27 @@ public class Ipv6CollectionStrategy implements DataCollectionStrategy {
                         device.getLoginPort(),
                         device.getLoginName(),
                         device.getLoginPassword(), Global.PY_SUFFIX_IPV6_NEIGHBORS});
-                String result = this.pyExecUtils.exec(pyCommand);
-                if (StringUtil.isNotEmpty(result)) {
-                    List<Ipv6> ipv6List = JSONObject.parseArray(result, Ipv6.class);
-                    if (ipv6List.size() > 0) {
+                try {
+                    String result = this.pyExecUtils.exec(pyCommand);
+                    if (StringUtil.isNotEmpty(result)) {
+                        List<Ipv6> ipv6List = JSONObject.parseArray(result, Ipv6.class);
+                        if (ipv6List.size() > 0) {
 
-                        List<Ipv6> filteredObjects = ipv6List.stream()
-                                .filter(obj -> !obj.getIpv6_mac().startsWith("FE80"))
-                                .collect(Collectors.toList());
+                            List<Ipv6> filteredObjects = ipv6List.stream()
+                                    .filter(obj -> !obj.getIpv6_mac().startsWith("FE80"))
+                                    .collect(Collectors.toList());
 
-                        if(filteredObjects.size() > 0){
-                            filteredObjects.forEach(e -> {
-                                e.setDeviceUuid(device.getUuid());
-                                e.setCreateTime(context.getCreateTime());
-                            });
-                            this.ipv6Service.batchInsertGather(filteredObjects);
+                            if(filteredObjects.size() > 0){
+                                filteredObjects.forEach(e -> {
+                                    e.setDeviceUuid(device.getUuid());
+                                    e.setCreateTime(context.getCreateTime());
+                                });
+                                this.ipv6Service.batchInsertGather(filteredObjects);
+                            }
                         }
                     }
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             }
         } catch (Exception e) {

@@ -30,7 +30,6 @@ public class GlobalExceptionHandler {
 //        return modelAndView;
 //    }
 
-
     @ExceptionHandler(Exception.class)
     public Result handleException(Exception e) {
         log.error(e.getMessage(),e);

@@ -8,6 +8,7 @@ import com.metoo.sqlite.entity.Device;
 import com.metoo.sqlite.entity.Ipv4;
 import com.metoo.sqlite.entity.SubnetIpv6;
 import com.metoo.sqlite.gather.common.PyCommand;
+import com.metoo.sqlite.gather.common.PyCommandBuilder;
 import com.metoo.sqlite.gather.strategy.Context;
 import com.metoo.sqlite.gather.strategy.DataCollectionStrategy;
 import com.metoo.sqlite.gather.utils.PyExecUtils;
@@ -43,17 +44,24 @@ public class Ipv6SubnetCollectionStrategy implements DataCollectionStrategy {
     @Override
     public void collectData(Context context) {
         try {
-            PyCommand pyCommand = (PyCommand) ApplicationContextUtils.getBean("pyCommand");
+//                PyCommand pyCommand = (PyCommand) ApplicationContextUtils.getBean("pyCommand");
+            PyCommandBuilder pyCommand = new PyCommandBuilder();
+            pyCommand.setVersion("python3");
+            pyCommand.setPath(Global.PYPATH);
             pyCommand.setName("subnetipv6.py");
-            String result = this.pyExecUtils.exec(pyCommand);
-            if (StringUtil.isNotEmpty(result)) {
-               // 递归ipv6网段数据
-                if(!"".equals(result)){
-                    JSONObject obj = JSONObject.parseObject(result);
-                    if(obj != null){
-                        generic(obj, null);
+            try {
+                String result = this.pyExecUtils.exec(pyCommand);
+                if (StringUtil.isNotEmpty(result)) {
+                   // 递归ipv6网段数据
+                    if(!"".equals(result)){
+                        JSONObject obj = JSONObject.parseObject(result);
+                        if(obj != null){
+                            generic(obj, null);
+                        }
                     }
                 }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         } catch (Exception e) {
             e.printStackTrace();

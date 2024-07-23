@@ -20,4 +20,8 @@ public interface ArpMapper {
 
     int deleteTable();
 
+    int deleteTableBack();
+
+    int copyToBck();
+
 }

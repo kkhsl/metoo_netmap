@@ -6,6 +6,7 @@ import com.metoo.sqlite.core.config.application.ApplicationContextUtils;
 import com.metoo.sqlite.entity.Device;
 import com.metoo.sqlite.entity.Ipv4;
 import com.metoo.sqlite.gather.common.PyCommand;
+import com.metoo.sqlite.gather.common.PyCommandBuilder;
 import com.metoo.sqlite.gather.strategy.Context;
 import com.metoo.sqlite.gather.strategy.DataCollectionStrategy;
 import com.metoo.sqlite.gather.utils.PyExecUtils;
@@ -45,7 +46,10 @@ public class DeviceCollectionStrategy implements DataCollectionStrategy {
         try {
             Device device = (Device) context.getEntity();
             if (device != null) {
-                PyCommand pyCommand = (PyCommand) ApplicationContextUtils.getBean("pyCommand");
+//                PyCommand pyCommand = (PyCommand) ApplicationContextUtils.getBean("pyCommand");
+                PyCommandBuilder pyCommand = new PyCommandBuilder();
+                pyCommand.setVersion("python3");
+                pyCommand.setPath(Global.PYPATH);
                 pyCommand.setName("main.py");
                 pyCommand.setParams(new String[]{
                         device.getDeviceVendorAlias(),
@@ -57,16 +61,33 @@ public class DeviceCollectionStrategy implements DataCollectionStrategy {
                         device.getLoginPassword(), Global.PY_SUFFIX_GET_SWITCH});
                 String result = this.pyExecUtils.exec(pyCommand);
                 if (StringUtil.isNotEmpty(result)) {
-                    Device obj = JSONObject.parseObject(result, Device.class);
+                    try {
+                        Device obj = JSONObject.parseObject(result, Device.class);
                         if(obj != null){
                             device.setModel(obj.getModel());
                             device.setVersion(obj.getVersion());
                             device.setIpv6_keyword(obj.getIpv6_keyword());
-                            device.setIpv6_address(obj.getIpv6_address());
+                            device.setIpv6Addrcount(obj.getIpv6_address());
                             device.setSentlocally(obj.getSentlocally());
                             device.setNeighboradverts(obj.getNeighboradverts());
+                            device.setIpv6Forward("false");
+                            if(!"".equals(obj.getSentlocally()) || !"".equals(obj.getNeighboradverts())){
+                                device.setIpv6Forward("true");
+                            }
                             deviceService.update(device);
                         }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }else{
+                    device.setModel(null);
+                    device.setVersion(null);
+                    device.setIpv6_keyword(null);
+                    device.setIpv6Addrcount(null);
+                    device.setSentlocally(null);
+                    device.setNeighboradverts(null);
+                    device.setIpv6Forward(null);
+                    deviceService.update(device);
                 }
             }
         } catch (Exception e) {

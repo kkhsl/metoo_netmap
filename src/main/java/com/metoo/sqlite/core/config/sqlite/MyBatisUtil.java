@@ -1,6 +1,6 @@
 package com.metoo.sqlite.core.config.sqlite;
 
-import com.metoo.sqlite.mapper.UserMapper;
+import com.metoo.sqlite.mapper.OsScanMapper;
 import org.apache.ibatis.mapping.Environment;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -28,7 +28,8 @@ public class MyBatisUtil {
 
             // 创建MyBatis配置
             Configuration configuration = new Configuration(environment);
-            configuration.addMapper(UserMapper.class);
+
+            configuration.addMapper(OsScanMapper.class);
 
             // 构建SqlSessionFactory
             sqlSessionFactory = new SqlSessionFactoryBuilder().build(configuration);

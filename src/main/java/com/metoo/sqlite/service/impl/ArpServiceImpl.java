@@ -58,10 +58,22 @@ public class ArpServiceImpl implements IArpService {
             if(arps.size() > 0){
                 this.batchInsert(arps);
             }
+            this.arpMapper.deleteTableBack();
+            this.arpMapper.copyToBck();
             return 1;
         } catch (Exception e) {
             e.printStackTrace();
             return 0;
         }
+    }
+
+    @Override
+    public int deleteTableBack() {
+        return this.arpMapper.deleteTableBack();
+    }
+
+    @Override
+    public int copyToBck() {
+        return this.arpMapper.copyToBck();
     }
 }

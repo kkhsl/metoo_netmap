@@ -173,17 +173,18 @@ CREATE TABLE metoo_ipv6 (
 
 
 CREATE TABLE metoo_arp (
-    id INTEGER PRIMARY KEY AUTOINCREMENT, -- id
-    createTime TEXT NOT NULL,-- 创建时间
-    ip TEXT,
-    ipv6 TEXT,
-    mac TEXT,
-    port TEXT,
-    macVendor TEXT,
-    deviceUuid TEXT
-);
+      id INTEGER PRIMARY KEY AUTOINCREMENT, -- id
+      createTime TEXT NOT NULL,-- 创建时间
+      ip TEXT,
+      ipv6 TEXT,
+      mac TEXT,
+      port TEXT,
+      macVendor TEXT,
+      deviceUuid TEXT
+  );
 
 
+DROP TABLE IF EXISTS "main"."metoo_probe";
 CREATE TABLE metoo_probe (
     id INTEGER PRIMARY KEY AUTOINCREMENT, -- id
     createTime TEXT NOT NULL,-- 创建时间
@@ -207,8 +208,10 @@ CREATE TABLE metoo_probe (
     title TEXT,
     response TEXT,
     fingerId TEXT,
-    ttl TEXT
+    ttl TEXT,
+    reliability Integer
 );
+
 
 CREATE TABLE metoo_operation_log (
     id INTEGER PRIMARY KEY AUTOINCREMENT, -- id
@@ -311,9 +314,27 @@ CREATE TABLE metoo_gather_log (
     endTime TEXT,
     type TEXT,
     result TEXT,
-    details TEXT
+    details TEXT,
+    data TEXT
 );
 
 CREATE TABLE metoo_gather_semaphore (
     semaphore INTEGER(11)
 );
+
+DROP TABLE IF EXISTS "main"."metoo_sureying_log";
+CREATE TABLE metoo_sureying_log (
+    id INTEGER PRIMARY KEY AUTOINCREMENT, -- id
+    createTime TEXT NOT NULL,-- 创建时间
+    name TEXT,
+    beginTime TEXT,
+    endTime TEXT,
+    status INTEGER DEFAULT 0,
+    desc TEXT,
+    info INTEGER DEFAULT 1
+);
+
+
+alter table metoo_device add column ipv6Forward text;
+alter table metoo_gateway_info add column deviceName text;
+alter table metoo_gateway_info_gather add column deviceName text;

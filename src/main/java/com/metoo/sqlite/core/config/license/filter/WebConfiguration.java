@@ -52,14 +52,8 @@ public class WebConfiguration {
 //        registration.addInitParameter("excludedPaths", "/nrsm/admin/gather/mac"); // 设置不需要过滤的路径
         registration.addUrlPatterns("/admin/*"/*,"/nmap/*"*/);// 过滤规则
         registration.setName("License");
-        registration.setOrder(1);
+        registration.setOrder(2);
         return registration;
-    }
-
-    public static void main(String[] args) {
-        final List<String> excludedPaths = Arrays.asList("/nrsm/admin/gather/*");
-//        System.out.println(excludedPaths.stream().anyMatch("/nrsm/"));
-
     }
 
 }
