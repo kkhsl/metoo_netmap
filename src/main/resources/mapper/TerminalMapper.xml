@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.metoo.sqlite.mapper.TerminalMapper">
+
+
+    <select id="selectObjById" parameterType="java.lang.Integer" resultType="com.metoo.sqlite.entity.Terminal">
+        SELECT *
+        FROM metoo_terminal_detail
+        where id = #{id}
+    </select>
+
+    <select id="selectObjByMap" parameterType="java.util.Map" resultType="com.metoo.sqlite.entity.Terminal">
+        SELECT *
+        FROM metoo_terminal_detail
+        <where>
+            <if test="ipv4addr != null and ipv4addr != ''">
+                AND ipv4addr = #{ipv4addr}
+            </if>
+            <if test="ipv4IsNotNull != null and ipv4IsNotNull != ''">
+                AND ipv4addr is not null and ipv6addr is null
+            </if>
+            <if test="ipv4AndIpv6IsNotNull != null and ipv4AndIpv6IsNotNull != ''">
+                AND ipv6addr is not null
+            </if>
+            <if test="ipv6addr != null and ipv6addr != ''">
+                AND ipv6addr = #{ipv6addr}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectGatherByMap" parameterType="java.util.Map" resultType="com.metoo.sqlite.entity.Terminal">
+        SELECT *
+        FROM metoo_terminal_detail_gather
+        <where>
+            <if test="ipv4addr != null and ipv4addr != ''">
+                AND ipv4addr = #{ipv4addr}
+            </if>
+        </where>
+    </select>
+
+    <insert id="insert" parameterType="com.metoo.sqlite.entity.Terminal">
+        INSERT INTO metoo_terminal_detail
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="createTime != null">
+                createTime,
+            </if>
+            <if test="mac != null and mac != ''">
+                mac,
+            </if>
+            <if test="ipv4addr != null and ipv4addr != ''">
+                ipv4addr,
+            </if>
+            <if test="ipv6addr != null and ipv6addr != ''">
+                ipv6addr,
+            </if>
+            <if test="active_port != null and active_port != ''">
+                active_port,
+            </if>
+            <if test="macvendor != null and macvendor != ''">
+                macvendor,
+            </if>
+            <if test="service != null and service != ''">
+                service,
+            </if>
+            <if test="os != null and os != ''">
+                os,
+            </if>
+        </trim>
+        <trim prefix="VALUES(" suffix=")" suffixOverrides=",">
+            <if test="createTime != null">
+                #{createTime},
+            </if>
+            <if test="mac != null and mac != ''">
+                #{mac},
+            </if>
+            <if test="ipv4addr != null and ipv4addr != ''">
+                #{ipv4addr},
+            </if>
+            <if test="ipv6addr != null and ipv6addr != ''">
+                #{ipv6addr},
+            </if>
+            <if test="active_port != null and active_port != ''">
+                #{active_port},
+            </if>
+            <if test="macvendor != null and macvendor != ''">
+                #{macvendor},
+            </if>
+            <if test="service != null and service != ''">
+                #{service},
+            </if>
+            <if test="os != null and os != ''">
+                #{os},
+            </if>
+        </trim>
+    </insert>
+
+    <update id="update" parameterType="com.metoo.sqlite.entity.Terminal">
+        UPDATE metoo_terminal_detail_gather
+        <set>
+            <if test="mac != null and mac != ''">
+                mac = #{mac},
+            </if>
+            <if test="ipv4addr != null and ipv4addr != ''">
+                ipv4addr = #{ipv4addr},
+            </if>
+            <if test="ipv6addr != null and ipv6addr != ''">
+                ipv6addr = #{ipv6addr},
+            </if>
+            <if test="active_port != null and active_port != ''">
+                active_port = #{active_port},
+            </if>
+            <if test="macvendor != null and macvendor != ''">
+                macvendor = #{macvendor},
+            </if>
+            <if test="service != null and service != ''">
+                service = #{service},
+            </if>
+            <if test="os != null and os != ''">
+                os = #{os},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="batchInsertGather" parameterType="java.util.List">
+        INSERT INTO metoo_terminal_detail_gather (
+            createTime,
+            mac,
+            ipv4addr,
+            ipv6addr,
+            active_port,
+            macvendor,
+            service,
+            os
+        )
+        VALUES
+        <foreach collection ="list" item="item" separator ="," >
+            (
+                #{item.createTime},
+                #{item.mac},
+                #{item.ipv4addr},
+                #{item.ipv6addr},
+                #{item.active_port},
+                #{item.macvendor},
+                #{item.service},
+                #{item.os}
+            )
+        </foreach>
+    </insert>
+
+    <delete id="delete">
+        delete from metoo_terminal_detail where id = #{id}
+    </delete>
+
+
+    <delete id="deleteTable">
+        delete from metoo_terminal_detail
+    </delete>
+
+    <update id="deleteTableGather">
+        delete from metoo_terminal_detail_gather
+    </update>
+
+    <insert id="copyGatherData">
+        INSERT INTO metoo_terminal_detail SELECT * FROM metoo_terminal_detail_gather
+    </insert>
+
+</mapper>

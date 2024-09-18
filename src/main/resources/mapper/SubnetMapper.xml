@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.metoo.sqlite.mapper.SubnetMapper">
+
+    <resultMap id="Base_Result_Map" type="com.metoo.sqlite.entity.Subnet">
+        <id column="id" property="id"></id>
+        <result column="createTime" property="createTime"></result>
+        <result column="ip" property="ip"></result>
+        <result column="mask" property="mask"></result>
+        <result column="parentId" property="parentId"></result>
+        <result column="parentIp" property="parentIp"></result>
+        <result column="description" property="description"></result>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, ip, mask, parentId, parentIp, description
+    </sql>
+
+    <sql id="Inet_Column_List">
+        id, ip, mask, parentId, parentIp,  description
+    </sql>
+
+    <select id="selectSubnetByParentId" parameterType="java.lang.Integer" resultMap="Base_Result_Map">
+        SELECT <include refid="Inet_Column_List" />
+        FROM metoo_ipv4_subnet
+        <where>
+            <if test="parentId != null and parentId != ''">
+                parentId = #{parentId}
+            </if>
+            <if test="parentId == null">
+                parentId IS NULL
+            </if>
+        </where>
+        ORDER BY ip + 0 ASC
+    </select>
+
+    <select id="selectSubnetByParentIp" parameterType="java.lang.Integer" resultMap="Base_Result_Map">
+        SELECT <include refid="Inet_Column_List" />
+        FROM metoo_ipv4_subnet
+        <where>
+            <if test="parentIp!= null and parentIp != ''">
+                parent_ip = #{parentIp}
+            </if>
+            <if test="parentIp == null">
+                parentIp IS NULL
+            </if>
+        </where>
+        ORDER BY ip + 0 ASC
+    </select>
+
+
+    <select id="selectObjById" parameterType="java.lang.Integer" resultMap="Base_Result_Map">
+        SELECT <include refid="Inet_Column_List" />
+        FROM metoo_ipv4_subnet
+        WHERE id = #{id}
+    </select>
+
+    <select id="selectObjByIp" resultMap="Base_Result_Map">
+        SELECT *
+        FROM metoo_ipv4_subnet
+        WHERE ip = #{ip}
+    </select>
+
+    <select id="selectObjByIpAndMask" resultMap="Base_Result_Map">
+        SELECT *
+        FROM metoo_ipv4_subnet
+        WHERE ip = #{ip} and mask = #{mask}
+    </select>
+
+    <select id="selectObjByMap" parameterType="java.util.Map" resultMap="Base_Result_Map">
+        SELECT <include refid="Inet_Column_List" />
+        FROM metoo_ipv4_subnet
+        <where>
+            <if test="ip != null and ip != ''">
+                and ip = #{ip}
+            </if>
+            <if test="mask != null and mask != ''">
+                and mask = #{mask}
+            </if>
+        </where>
+    </select>
+
+    <insert id="save" parameterType="com.metoo.sqlite.entity.Subnet" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO metoo_ipv4_subnet
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="createTime != null">
+                createTime,
+            </if>
+            <if test="ip != null and ip != ''">
+                ip,
+            </if>
+            <if test="mask != null and mask != ''">
+                mask,
+            </if>
+            <if test="parentIp != null and parentIp != ''">
+                parentIp,
+            </if>
+            <if test="parentId != null and parentId != ''">
+                parentId,
+            </if>
+            <if test="description != null and description != ''">
+                description,
+            </if>
+        </trim>
+        <trim prefix="VALUES(" suffix=")" suffixOverrides=",">
+            <if test="createTime != null">
+                #{createTime},
+            </if>
+            <if test="ip != null and ip != ''">
+                #{ip},
+            </if>
+            <if test="mask != null and mask != ''">
+                #{mask},
+            </if>
+            <if test="parentIp != null and parentIp != ''">
+                #{parentIp},
+            </if>
+            <if test="parentId != null and parentId != ''">
+                #{parentId},
+            </if>
+            <if test="description != null and description != ''">
+                #{description},
+            </if>
+        </trim>
+    </insert>
+
+    <update id="update" parameterType="com.metoo.sqlite.entity.Subnet">
+        UPDATE metoo_ipv4_subnet
+        <set>
+            <if test="description != null and description != ''">
+                description = #{description},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <delete id="delete" parameterType="java.lang.Integer">
+        delete from metoo_ipv4_subnet where id = #{id}
+    </delete>
+
+    <delete id="deleteTable">
+        delete from metoo_ipv4_subnet
+    </delete>
+
+    <delete id="deleteTableIpv6">
+        delete from metoo_ipv6_subnet
+    </delete>
+
+</mapper>

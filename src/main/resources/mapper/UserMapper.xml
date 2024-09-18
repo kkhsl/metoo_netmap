@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.metoo.sqlite.mapper.UserMapper">
+    <sql id="Base_Column_List">
+        *
+    </sql>
+
+    <select id="selectObjById" parameterType="java.lang.Integer" resultType="com.metoo.sqlite.entity.User">
+        SELECT
+          <include refid="Base_Column_List"/>
+        FROM
+          metoo_user
+        WHERE
+          id = #{id}
+    </select>
+
+    <select id="selectObjByName" parameterType="String" resultType="com.metoo.sqlite.entity.User">
+        SELECT
+         <include refid="Base_Column_List"/>
+        FROM
+          metoo_user
+        WHERE
+          username = #{username}
+    </select>
+
+    <select id="selectObjByMap" parameterType="Map" resultType="com.metoo.sqlite.entity.User">
+        SELECT
+          <include refid="Base_Column_List"/>
+        FROM metoo_user
+        <where>
+            <if test="username != null and username != ''">
+                AND username = #{username}
+            </if>
+            <if test="mobile != null and mobile != ''">
+                AND mobile = #{mobile}
+            </if>
+            <if test="email != null and email != ''">
+                AND email = #{email}
+            </if>
+            <if test="notId != null and notId != ''">
+                AND id != #{notId}
+            </if>
+        </where>
+        ORDER BY createTime DESC
+    </select>
+
+    <select id="selectObjConditionQuery" parameterType="com.metoo.sqlite.dto.UserDto" resultType="com.metoo.sqlite.entity.User">
+        SELECT
+         <include refid="Base_Column_List"/>
+        FROM metoo_user
+        <where>
+            <if test="username != null and username != ''">
+                AND username = #{username}
+            </if>
+        </where>
+        ORDER BY createTime DESC
+    </select>
+
+    <insert id="save" parameterType="com.metoo.sqlite.dto.UserDto" keyProperty="id" useGeneratedKeys="true">
+        INSERT INTO metoo_user
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="createTime != null and createTime != ''">
+                `createTime`,
+            </if>
+            <if test="username != null and username != ''">
+                `username`,
+            </if>
+            <if test="password != null and password != ''">
+                `password`,
+            </if>
+            <if test="salt != null">
+                salt,
+            </if>
+            <if test="age != null">
+                age,
+            </if>
+            <if test="sex != null">
+                sex,
+            </if>
+            <if test="email != null">
+                email,
+            </if>
+            <if test="mobile != null">
+                mobile,
+            </if>
+        </trim>
+        <trim prefix="VALUES(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id},
+            </if>
+            <if test="createTime != null and createTime != ''">
+                #{createTime},
+            </if>
+            <if test="username != null and username != ''">
+                #{username},
+            </if>
+            <if test="password != null and password != ''">
+                #{password},
+            </if>
+            <if test="salt != null and salt != ''">
+                #{salt},
+            </if>
+            <if test="age != null">
+                #{age},
+            </if>
+            <if test="sex != null">
+                #{sex},
+            </if>
+            <if test="email != null">
+                #{email},
+            </if>
+            <if test="mobile != null">
+                #{mobile},
+            </if>
+        </trim>
+    </insert>
+
+    <update id="update" parameterType="com.metoo.sqlite.entity.User">
+        UPDATE metoo_user
+        <set>
+            <if test = "username != null and username != ''">
+                username=#{username},
+            </if>
+            <if test = "password != null and password != ''">
+                password=#{password},
+            </if>
+            <if test = "sex != null">
+                sex=#{sex},
+            </if>
+            <if test = "age != null">
+                age=#{age},
+            </if>
+            <if test = "salt != null">
+                salt=#{salt},
+            </if>
+            <if test="email != null">
+                email=#{email},
+            </if>
+            <if test="mobile != null">
+                mobile=#{mobile},
+            </if>
+        </set> where id = #{id}
+    </update>
+
+    <delete id="delete" parameterType="java.lang.Integer">
+        DELETE FROM metoo_user
+        WHERE id= #{id, jdbcType=INTEGER}
+    </delete>
+
+</mapper>

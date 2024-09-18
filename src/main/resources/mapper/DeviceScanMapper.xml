@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.metoo.sqlite.mapper.DeviceScanMapper">
+
+    <select id="selectObjByMap" parameterType="java.util.Map" resultType="com.metoo.sqlite.entity.DeviceScan">
+        SELECT *
+        FROM metoo_device_scan
+        <where>
+            <if test="device_ipv4 != null and device_ipv4 != ''">
+                and device_ipv4 = #{device_ipv4}
+            </if>
+        </where>
+    </select>
+
+    <insert id="insert" parameterType="com.metoo.sqlite.entity.DeviceScan">
+        INSERT INTO metoo_device_scan
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="createTime != null">
+                createTime,
+            </if>
+            <if test="device_ipv4 != null and device_ipv4 != ''">
+                device_ipv4,
+            </if>
+            <if test="device_ipv6 != null and device_ipv6 != ''">
+                device_ipv6,
+            </if>
+            <if test="device_product != null and device_product != ''">
+                device_product,
+            </if>
+            <if test="device_type != null and device_type != ''">
+                device_type,
+            </if>
+            <if test="mac != null and mac != ''">
+                mac,
+            </if>
+            <if test="macVendor != null and macVendor != ''">
+                macVendor,
+            </if>
+        </trim>
+        <trim prefix="VALUES(" suffix=")" suffixOverrides=",">
+            <if test="createTime != null">
+                #{createTime},
+            </if>
+            <if test="device_ipv4 != null and device_ipv4 != ''">
+                #{device_ipv4},
+            </if>
+            <if test="device_ipv6 != null and device_ipv6 != ''">
+                #{device_ipv6},
+            </if>
+            <if test="device_product != null and device_product != ''">
+                #{device_product},
+            </if>
+            <if test="device_type != null and device_type != ''">
+                #{device_type},
+            </if>
+            <if test="mac != null and mac != ''">
+                #{mac},
+            </if>
+            <if test="macVendor != null and macVendor != ''">
+                #{macVendor},
+            </if>
+        </trim>
+    </insert>
+
+    <update id="update" parameterType="com.metoo.sqlite.entity.DeviceScan">
+        UPDATE metoo_device_scan
+        <set>
+            <if test="device_ipv4 != null and device_ipv4 != ''">
+                device_ipv4 = #{device_ipv4},
+            </if>
+            <if test="device_ipv6 != null and device_ipv6 != ''">
+                device_ipv6 = #{device_ipv6},
+            </if>
+            <if test="device_product != null and device_product != ''">
+                device_product = #{device_product},
+            </if>
+            <if test="device_type != null and device_type != ''">
+                device_type = #{device_type},
+            </if>
+            <if test="mac != null and mac != ''">
+                mac = #{mac},
+            </if>
+            <if test="macVendor != null and macVendor != ''">
+                macVendor = #{macVendor},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="batchInsert" parameterType="java.util.List">
+        INSERT INTO metoo_device_scan (
+        createTime,
+        device_ipv4,
+        device_ipv6,
+        device_product,
+        device_type
+        )
+        VALUES
+        <foreach collection ="list" item="item" separator ="," >
+            (
+                #{item.createTime},
+                #{item.device_ipv4},
+                #{item.device_ipv6},
+                #{item.device_product},
+                #{item.device_type}
+            )
+        </foreach>
+    </insert>
+
+    <delete id="deleteTable">
+        delete from metoo_device_scan
+    </delete>
+
+    <delete id="deleteTableBck">
+        delete from metoo_device_scan_bck
+    </delete>
+
+    <insert id="copyToBck">
+         INSERT INTO metoo_device_scan_bck SELECT * FROM metoo_device_scan
+    </insert>
+
+</mapper>

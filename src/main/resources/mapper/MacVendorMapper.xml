@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.metoo.sqlite.mapper.MacVendorMapper">
+
+
+    <select id="selectObjByMap" parameterType="java.util.Map" resultType="com.metoo.sqlite.entity.MacVendor">
+        SELECT *
+        FROM metoo_mac_vendor
+        <where>
+            <if test="mac != null and mac != ''">
+                AND mac = #{mac} COLLATE NOCASE
+            </if>
+        </where>
+    </select>
+</mapper>
+

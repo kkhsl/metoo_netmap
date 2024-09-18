@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.metoo.sqlite.mapper.UnreachMapper">
+
+    <select id="selectObjByMap" parameterType="java.util.Map" resultType="com.metoo.sqlite.entity.Unreach">
+        SELECT *
+        FROM metoo_unreach
+        <where>
+            <if test="ip_addr != null and ip_addr != ''">
+                AND ip_addr = #{ip_addr}
+            </if>
+        </where>
+    </select>
+
+
+    <insert id="insert" parameterType="com.metoo.sqlite.entity.Unreach">
+        INSERT INTO metoo_unreach
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="createTime != null">
+                createTime,
+            </if>
+            <if test="ip_addr != null and ip_addr != ''">
+                ip_addr,
+            </if>
+            <if test="port_num != null and port_num != ''">
+                port_num,
+            </if>
+            <if test="mac_addr != null and mac_addr != ''">
+                mac_addr,
+            </if>
+            <if test="vendor != null and vendor != ''">
+                vendor,
+            </if>
+            <if test="os_family != null and os_family != ''">
+                os_family,
+            </if>
+            <if test="os_gen != null and os_gen != ''">
+                os_gen,
+            </if>
+            <if test="os_cpe != null and os_cpe != ''">
+                os_cpe,
+            </if>
+            <if test="scan_time != null and scan_time != ''">
+                scan_time,
+            </if>
+            <if test="update_time != null and update_time != ''">
+                update_time,
+            </if>
+            <if test="communicate_protocol != null and communicate_protocol != ''">
+                communicate_protocol,
+            </if>
+            <if test="application_protocol != null and application_protocol != ''">
+                application_protocol,
+            </if>
+            <if test="service_output != null and service_output != ''">
+                service_output,
+            </if>
+            <if test="port_service_cpe != null and port_service_cpe != ''">
+                port_service_cpe,
+            </if>
+            <if test="port_service_product != null and port_service_product != ''">
+                port_service_product,
+            </if>
+            <if test="port_service_version != null and port_service_version != ''">
+                port_service_version,
+            </if>
+            <if test="port_service_vendor != null and port_service_vendor != ''">
+                port_service_vendor,
+            </if>
+            <if test="device_type != null and device_type != ''">
+                device_type,
+            </if>
+            <if test="title != null and title != ''">
+                title,
+            </if>
+            <if test="response != null and response != ''">
+                response,
+            </if>
+            <if test="fingerId != null and fingerId != ''">
+                fingerId,
+            </if>
+            <if test="ttl != null and ttl != ''">
+                ttl,
+            </if>
+            <if test="reliability != null and reliability != ''">
+                reliability,
+            </if>
+            <if test="fingerIdOsScan != null and fingerIdOsScan != ''">
+                fingerIdOsScan,
+            </if>
+            <if test="mac_vendor != null and mac_vendor != ''">
+                mac_vendor,
+            </if>
+        </trim>
+        <trim prefix="VALUES(" suffix=")" suffixOverrides=",">
+            <if test="createTime != null">
+                #{createTime},
+            </if>
+            <if test="ip_addr != null and ip_addr != ''">
+                #{ip_addr},
+            </if>
+            <if test="port_num != null and port_num != ''">
+                #{port_num},
+            </if>
+            <if test="mac_addr != null and mac_addr != ''">
+                #{mac_addr},
+            </if>
+            <if test="vendor != null and vendor != ''">
+                #{vendor},
+            </if>
+            <if test="os_family != null and os_family != ''">
+                #{os_family},
+            </if>
+            <if test="os_gen != null and os_gen != ''">
+                #{os_gen},
+            </if>
+            <if test="os_cpe != null and os_cpe != ''">
+                #{os_cpe},
+            </if>
+            <if test="scan_time != null and scan_time != ''">
+                #{scan_time},
+            </if>
+            <if test="update_time != null and update_time != ''">
+                #{update_time},
+            </if>
+            <if test="communicate_protocol != null and communicate_protocol != ''">
+                #{communicate_protocol},
+            </if>
+            <if test="application_protocol != null and application_protocol != ''">
+                #{application_protocol},
+            </if>
+            <if test="service_output != null and service_output != ''">
+                #{service_output},
+            </if>
+            <if test="port_service_cpe != null and port_service_cpe != ''">
+                #{port_service_cpe},
+            </if>
+            <if test="port_service_product != null and port_service_product != ''">
+                #{port_service_product},
+            </if>
+            <if test="port_service_version != null and port_service_version != ''">
+                #{port_service_version},
+            </if>
+            <if test="port_service_vendor != null and port_service_vendor != ''">
+                #{port_service_vendor},
+            </if>
+            <if test="device_type != null and device_type != ''">
+                #{device_type},
+            </if>
+            <if test="title != null and title != ''">
+                #{title},
+            </if>
+            <if test="response != null and response != ''">
+                #{response},
+            </if>
+            <if test="fingerId != null and fingerId != ''">
+                #{fingerId},
+            </if>
+            <if test="ttl != null and ttl != ''">
+                #{ttl},
+            </if>
+            <if test="reliability != null and reliability != ''">
+                #{reliability},
+            </if>
+            <if test="fingerIdOsScan != null and fingerIdOsScan != ''">
+                #{fingerIdOsScan},
+            </if>
+            <if test="mac_vendor != null and mac_vendor != ''">
+                #{mac_vendor},
+            </if>
+        </trim>
+    </insert>
+
+    <delete id="deleteTable">
+        delete from metoo_unreach
+    </delete>
+
+    <delete id="delete" parameterType="java.lang.Integer">
+        delete from metoo_unreach where id = #{id}
+    </delete>
+
+</mapper>

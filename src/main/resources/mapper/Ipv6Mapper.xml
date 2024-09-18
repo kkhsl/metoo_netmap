@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.metoo.sqlite.mapper.Ipv6Mapper">
+
+    <select id="selectObjByMap" parameterType="java.util.Map" resultType="com.metoo.sqlite.entity.Ipv6">
+        SELECT *
+        FROM metoo_ipv6
+    </select>
+
+    <insert id="insert" parameterType="com.metoo.sqlite.entity.Ipv6">
+        INSERT INTO metoo_ipv6
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="createTime != null">
+                createTime,
+            </if>
+            <if test="ipv6_address != null and ipv6_address != ''">
+                ipv6_address,
+            </if>
+            <if test="ipv6_mac != null and ipv6_mac != ''">
+                ipv6_mac,
+            </if>
+            <if test="port != null and port != ''">
+                port,
+            </if>
+            <if test="vid != null and vid != ''">
+                vid,
+            </if>
+            <if test="type != null and type != ''">
+                type,
+            </if>
+            <if test="age != null and age != ''">
+                age,
+            </if>
+            <if test="vpninstance != null and vpninstance != ''">
+                vpninstance,
+            </if>
+            <if test="deviceUuid != null and age != ''">
+                deviceUuid,
+            </if>
+        </trim>
+        <trim prefix="VALUES(" suffix=")" suffixOverrides=",">
+            <if test="createTime != null">
+                #{createTime},
+            </if>
+            <if test="ipv6_address != null and ipv6_address != ''">
+                #{ipv6_address},
+            </if>
+            <if test="ipv6_mac != null and ipv6_mac != ''">
+                #{ipv6_mac},
+            </if>
+            <if test="port != null and port != ''">
+                #{port},
+            </if>
+            <if test="vid != null and vid != ''">
+                #{vid},
+            </if>
+            <if test="type != null and type != ''">
+                #{type},
+            </if>
+            <if test="age != null and age != ''">
+                #{age},
+            </if>
+            <if test="vpninstance != null and vpninstance != ''">
+                #{vpninstance},
+            </if>
+            <if test="deviceUuid != null and age != ''">
+                #{deviceUuid},
+            </if>
+        </trim>
+    </insert>
+
+    <insert id="batchInsertGather" parameterType="java.util.List">
+        INSERT INTO metoo_ipv6_gather (
+            createTime,
+            ipv6_address,
+            ipv6_mac,
+            port,
+            vid,
+            type,
+            age,
+            vpninstance,
+            deviceUuid
+        )
+        VALUES
+        <foreach collection ="list" item="item" separator ="," >
+            (
+                #{item.createTime},
+                #{item.ipv6_address},
+                #{item.ipv6_mac},
+                #{item.port},
+                #{item.vid},
+                #{item.type},
+                #{item.age},
+                #{item.vpninstance},
+                #{item.deviceUuid}
+            )
+        </foreach>
+    </insert>
+
+    <delete id="deleteTable">
+        delete from metoo_ipv6
+    </delete>
+
+    <update id="deleteTableGather">
+        delete from metoo_ipv6_gather
+    </update>
+
+    <insert id="copyGatherData">
+        INSERT INTO metoo_ipv6 SELECT * FROM metoo_ipv6_gather
+    </insert>
+
+</mapper>

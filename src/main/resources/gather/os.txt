@@ -1,0 +1,17 @@
+linux linux_kernel
+sharp ar-c260m
+microsoft windows_10
+microsoft windows_xp
+google android
+geovision ebd4700
+apc aos
+geovision ebd4700
+microsoft windows_server_2012
+synology diskstation_manager
+hp laserjet_5
+Intel
+oppo
+Dell Inc.
+Zhuhai Pantum Electronics Co., Ltd.
+LCFC(Hefei) Electronics Technology co., ltd
+Hon Hai Precision Industry Co., Ltd.

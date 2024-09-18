@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.metoo.sqlite.mapper.DeviceMapper">
+
+    <select id="selectObjById" parameterType="java.lang.Integer" resultType="com.metoo.sqlite.entity.Device">
+        SELECT *
+        FROM metoo_device
+        WHERE id = #{id}
+    </select>
+
+    <select id="selectObjByMap" parameterType="java.util.Map" resultType="com.metoo.sqlite.entity.Device">
+        SELECT *
+        FROM metoo_device
+        <where>
+            <if test="createTime != null and createTime != ''">
+                AND `createTime` = #{createTime}
+            </if>
+            <if test="name != null and name != ''">
+                AND `name` = #{name}
+            </if>
+            <if test="ip != null and ip != ''">
+                AND `ip` = #{ip}
+            </if>
+            <if test="notId != null and notId != ''">
+                AND `id` != #{notId}
+            </if>
+        </where>
+        ORDER BY createTime desc
+    </select>
+
+    <select id="selectObjConditionQuery" parameterType="com.metoo.sqlite.dto.DeviceDTO" resultType="com.metoo.sqlite.entity.Device">
+        SELECT *
+        FROM metoo_device
+        <where>
+            <if test="createTime != null and createTime != ''">
+                AND `createTime` = #{createTime}
+            </if>
+            <if test="name != null and name != ''">
+                AND `name` = #{name}
+            </if>
+            <if test="ip != null and ip != ''">
+                AND `ip` = #{ip}
+            </if>
+        </where>
+        ORDER BY createTime DESC
+    </select>
+
+    <insert id="save" parameterType="com.metoo.sqlite.entity.Device">
+        INSERT INTO metoo_device
+        <trim prefix="(" suffixOverrides="," suffix=")">
+            <if test="createTime != null and createTime != ''">
+                createTime,
+            </if>
+            <if test="uuid != null and uuid != ''">
+                uuid,
+            </if>
+            <if test="name != null and name != ''">
+                name,
+            </if>
+            <if test="ip != null and ip != ''">
+                ip,
+            </if>
+            <if test="loginType != null and loginType != ''">
+                loginType,
+            </if>
+            <if test="loginPort != null and loginPort != ''">
+                loginPort,
+            </if>
+            <if test="loginName != null and loginName != ''">
+                loginName,
+            </if>
+            <if test="loginPassword != null and loginPassword != ''">
+                loginPassword,
+            </if>
+            <if test="deviceTypeId != null and deviceTypeId != ''">
+                deviceTypeId,
+            </if>
+            <if test="deviceVendorId != null and deviceVendorId != ''">
+                deviceVendorId,
+            </if>
+            <if test="deviceModelId != null and deviceModelId != ''">
+                deviceModelId,
+            </if>
+            <if test="model != null and model != ''">
+                model,
+            </if>
+            <if test="version != null and version != ''">
+                version,
+            </if>
+            <if test="ipv6_keyword != null and ipv6_keyword != ''">
+                ipv6_keyword,
+            </if>
+            <if test="ipv6_address != null and ipv6_address != ''">
+                ipv6_address,
+            </if>
+            <if test="ipv6Forward != null and ipv6Forward != ''">
+                ipv6Forward,
+            </if>
+            <if test="sentlocally != null and sentlocally != ''">
+                sentlocally,
+            </if>
+            <if test="neighboradverts != null and neighboradverts != ''">
+                neighboradverts,
+            </if>
+            <if test="ipv6Addrcount != null and ipv6Addrcount != ''">
+                ipv6Addrcount,
+            </if>
+            <if test="state != null">
+                state,
+            </if>
+        </trim>
+        <trim prefix="VALUES(" suffixOverrides="," suffix=")">
+            <if test="createTime != null and createTime != ''">
+                #{createTime},
+            </if>
+            <if test="uuid != null and uuid != ''">
+                #{uuid},
+            </if>
+            <if test="name != null and name != ''">
+                #{name},
+            </if>
+            <if test="ip != null and ip != ''">
+                #{ip},
+            </if>
+            <if test="loginType != null and loginType != ''">
+                #{loginType},
+            </if>
+            <if test="loginPort != null and loginPort != ''">
+                #{loginPort},
+            </if>
+            <if test="loginName != null and loginName != ''">
+                #{loginName},
+            </if>
+            <if test="loginPassword != null and loginPassword != ''">
+                #{loginPassword},
+            </if>
+            <if test="deviceTypeId != null and deviceTypeId != ''">
+                #{deviceTypeId},
+            </if>
+            <if test="deviceVendorId != null and deviceVendorId != ''">
+                #{deviceVendorId},
+            </if>
+            <if test="deviceModelId != null and deviceModelId != ''">
+                #{deviceModelId},
+            </if>
+            <if test="model != null and model != ''">
+                #{model},
+            </if>
+            <if test="version != null and version != ''">
+                #{version},
+            </if>
+            <if test="ipv6_keyword != null and ipv6_keyword != ''">
+                #{ipv6_keyword},
+            </if>
+            <if test="ipv6_address != null and ipv6_address != ''">
+                #{ipv6_address},
+            </if>
+            <if test="ipv6Forward != null and ipv6Forward != ''">
+                #{ipv6Forward},
+            </if>
+            <if test="sentlocally != null and sentlocally != ''">
+                #{sentlocally},
+            </if>
+            <if test="neighboradverts != null and neighboradverts != ''">
+                #{neighboradverts},
+            </if>
+            <if test="ipv6Addrcount != null and ipv6Addrcount != ''">
+                #{ipv6Addrcount},
+            </if>
+            <if test="state != null">
+                #{state},
+            </if>
+        </trim>
+    </insert>
+
+    <update id="update" parameterType="com.metoo.sqlite.entity.Device">
+        UPDATE metoo_device
+        <set>
+            <if test="createTime != null and createTime != ''">
+                createTime = #{createTime},
+            </if>
+            <if test="name != null and name != ''">
+                name = #{name},
+            </if>
+            <if test="ip != null and ip != ''">
+                ip = #{ip},
+            </if>
+            <if test="loginType != null and loginType != ''">
+                loginType = #{loginType},
+            </if>
+            <if test="loginPort != null and loginPort != ''">
+                loginPort = #{loginPort},
+            </if>
+            <if test="loginName != null and loginName != ''">
+                loginName = #{loginName},
+            </if>
+            <if test="loginPassword != null and loginPassword != ''">
+                loginPassword = #{loginPassword},
+            </if>
+            <if test="deviceTypeId != null and deviceTypeId != ''">
+                deviceTypeId = #{deviceTypeId},
+            </if>
+            <if test="deviceVendorId != null and deviceVendorId != ''">
+                deviceVendorId = #{deviceVendorId},
+            </if>
+            <if test="deviceModelId != null and deviceModelId != ''">
+                deviceModelId = #{deviceModelId},
+            </if>
+            <if test="model != ''">
+                model = #{model},
+            </if>
+            <if test="version != ''">
+                version = #{version},
+            </if>
+            <if test="ipv6_keyword != ''">
+                ipv6_keyword = #{ipv6_keyword},
+            </if>
+            <if test="ipv6_address != ''">
+                ipv6_address = #{ipv6_address},
+            </if>
+            <if test="ipv6_address != ''">
+                ipv6_address = #{ipv6_address},
+            </if>
+            <if test="ipv6Forward != ''">
+                ipv6Forward = #{ipv6Forward},
+            </if>
+            <if test="sentlocally != ''">
+                sentlocally = #{sentlocally},
+            </if>
+            <if test="neighboradverts != ''">
+                neighboradverts = #{neighboradverts},
+            </if>
+            <if test="ipv6Addrcount != ''">
+                ipv6Addrcount = #{ipv6Addrcount},
+            </if>
+            <if test="state != null">
+                state = #{state},
+            </if>
+        </set> WHERE id = #{id}
+    </update>
+
+    <delete id="delete" parameterType="java.lang.Integer">
+        DELETE FROM metoo_device WHERE id = #{id}
+    </delete>
+</mapper>

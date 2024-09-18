@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.metoo.sqlite.mapper.ArpMapper">
+
+    <select id="selectObjByMap" parameterType="java.util.Map" resultType="com.metoo.sqlite.entity.Arp">
+        SELECT *
+        FROM metoo_arp
+        <where>
+            <if test="ip != null and ip != ''">
+                AND ip = #{ip}
+            </if>
+
+            <if test="likeIp != null and likeIp != ''">
+                AND ip like #{likeIp}
+            </if>
+
+            <if test="isNotIp != null and isNotIp != ''">
+                AND ip is not #{isNotIp}
+            </if>
+        </where>
+    </select>
+
+    <insert id="batchInsert" parameterType="java.util.List">
+        INSERT INTO metoo_arp (
+        createTime,
+        ip,
+        ipv6,
+        mac,
+        port,
+        deviceUuid,
+        macVendor
+        )
+        VALUES
+        <foreach collection ="list" item="item" separator ="," >
+            (
+            #{item.createTime},
+            #{item.ip},
+            #{item.ipv6},
+            #{item.mac},
+            #{item.port},
+            #{item.deviceUuid},
+            #{item.macVendor}
+            )
+        </foreach>
+    </insert>
+
+    <delete id="deleteTable">
+        delete from metoo_arp
+    </delete>
+
+    <delete id="delete" parameterType="java.lang.Integer">
+        delete from metoo_arp where id = #{id}
+    </delete>
+
+    <delete id="deleteTableBack">
+        delete from metoo_arp_back
+    </delete>
+
+    <insert id="copyToBck">
+         INSERT INTO metoo_arp_back SELECT * FROM metoo_arp
+    </insert>
+
+</mapper>

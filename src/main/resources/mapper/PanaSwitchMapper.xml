@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.metoo.sqlite.mapper.PanaSwitchMapper">
+
+    <select id="selectObjByOne" resultType="com.metoo.sqlite.entity.PanaSwitch">
+        select * from metoo_pana_switch limit 1
+    </select>
+
+    <select id="selectObjByMap" parameterType="java.util.Map" resultType="com.metoo.sqlite.entity.PanaSwitch">
+        SELECT *
+        FROM metoo_pana_switch
+    </select>
+
+    <insert id="insert" parameterType="com.metoo.sqlite.entity.PanaSwitch">
+        INSERT INTO metoo_pana_switch
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="state != null">
+                state,
+            </if>
+        </trim>
+        <trim prefix="VALUES(" suffix=")" suffixOverrides=",">
+            <if test="state != null">
+                #{state},
+            </if>
+        </trim>
+    </insert>
+
+    <update id="update" parameterType="com.metoo.sqlite.entity.PanaSwitch">
+        UPDATE metoo_pana_switch
+        <set>
+            <if test="state != null">
+                state = #{state}
+            </if>
+        </set>
+    </update>
+
+
+</mapper>

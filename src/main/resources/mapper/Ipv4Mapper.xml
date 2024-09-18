@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.metoo.sqlite.mapper.Ipv4Mapper">
+
+    <select id="selectObjByMap" parameterType="java.util.Map" resultType="com.metoo.sqlite.entity.Ipv4">
+        SELECT *
+        FROM metoo_ipv4
+        <where>
+            <if test="ip != null and ip != ''">
+                AND ip = #{ip}
+            </if>
+        </where>
+    </select>
+
+    <insert id="insert" parameterType="com.metoo.sqlite.entity.Ipv4">
+        INSERT INTO metoo_ipv4
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="createTime != null">
+                createTime,
+            </if>
+            <if test="ip != null and ip != ''">
+                ip,
+            </if>
+            <if test="mac != null and mac != ''">
+                mac,
+            </if>
+            <if test="port != null and port != ''">
+                port,
+            </if>
+            <if test="deviceUuid != null and deviceUuid != ''">
+                deviceUuid,
+            </if>
+            <if test="vlan != null and vlan != ''">
+                vlan,
+            </if>
+            <if test="aging != null and aging != ''">
+                aging,
+            </if>
+            <if test="type != null and type != ''">
+                type,
+            </if>
+        </trim>
+        <trim prefix="VALUES(" suffix=")" suffixOverrides=",">
+            <if test="createTime != null">
+                #{createTime},
+            </if>
+            <if test="ip != null and ip != ''">
+                #{ip},
+            </if>
+            <if test="mac != null and mac != ''">
+                #{mac},
+            </if>
+            <if test="port != null and port != ''">
+                #{port},
+            </if>
+            <if test="deviceUuid != null and deviceUuid != ''">
+                #{deviceUuid},
+            </if>
+            <if test="vlan != null and vlan != ''">
+                #{vlan},
+            </if>
+            <if test="aging != null and aging != ''">
+                #{aging},
+            </if>
+            <if test="type != null and type != ''">
+                #{type},
+            </if>
+        </trim>
+    </insert>
+
+    <update id="update" parameterType="com.metoo.sqlite.entity.Ipv4">
+        update metoo_ipv4
+        <set>
+            <if test="createTime != null">
+                createTime = #{createTime},
+            </if>
+            <if test="ip != null and ip != ''">
+                ip = #{ip},
+            </if>
+            <if test="mac != null and mac != ''">
+                mac = #{mac},
+            </if>
+            <if test="port != null and port != ''">
+                port =  #{port},
+            </if>
+            <if test="deviceUuid != null and deviceUuid != ''">
+                deviceUuid = #{deviceUuid},
+            </if>
+            <if test="vlan != null and vlan != ''">
+                vlan = #{vlan},
+            </if>
+            <if test="aging != null and aging != ''">
+                aging =  #{aging},
+            </if>
+            <if test="type != null and type != ''">
+                type = #{type},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="batchInsertGather" parameterType="java.util.List">
+        INSERT INTO metoo_ipv4_gather (
+            createTime,
+            ip,
+            mac,
+            port,
+            deviceUuid,
+            vlan,
+            aging,
+            type
+        )
+        VALUES
+        <foreach collection ="list" item="item" separator ="," >
+            (
+                #{item.createTime},
+                #{item.ip},
+                #{item.mac},
+                #{item.port},
+                #{item.deviceUuid},
+                #{item.vlan},
+                #{item.aging},
+                #{item.type}
+            )
+        </foreach>
+    </insert>
+
+    <delete id="deleteTable">
+        delete from metoo_ipv4
+    </delete>
+
+    <update id="deleteTableGather">
+        delete from metoo_ipv4_gather
+    </update>
+
+    <insert id="copyGatherData">
+        INSERT INTO metoo_ipv4 SELECT * FROM metoo_ipv4_gather group by ip, mac
+    </insert>
+
+</mapper>

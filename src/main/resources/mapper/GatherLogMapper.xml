@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.metoo.sqlite.mapper.GatherLogMapper">
+
+    <select id="selectObjById" parameterType="java.lang.Integer" resultType="com.metoo.sqlite.entity.GatherLog">
+        SELECT *
+        FROM metoo_gather_log
+        WHERE id = #{id}
+    </select>
+
+    <select id="selectObjByMap" parameterType="java.util.Map" resultType="com.metoo.sqlite.entity.GatherLog">
+        SELECT *
+        FROM metoo_gather_log
+        <where>
+            <if test="createTime != null and createTime != ''">
+                AND `createTime` = #{createTime}
+            </if>
+        </where>
+        ORDER BY createTime desc
+    </select>
+
+    <select id="selectObjConditionQuery" parameterType="com.metoo.sqlite.dto.GatherLogDTO" resultType="com.metoo.sqlite.entity.GatherLog">
+        SELECT *
+        FROM metoo_gather_log
+        <where>
+            <if test="createTime != null and createTime != ''">
+                AND `createTime` = #{createTime}
+            </if>
+        </where>
+        ORDER BY createTime DESC
+    </select>
+
+    <insert id="insert" parameterType="com.metoo.sqlite.entity.GatherLog">
+        INSERT INTO metoo_gather_log
+        <trim prefix="(" suffixOverrides="," suffix=")">
+            <if test="createTime != null and createTime != ''">
+                createTime,
+            </if>
+            <if test="beginTime != null and beginTime != ''">
+                beginTime,
+            </if>
+            <if test="endTime != null and endTime != ''">
+                endTime,
+            </if>
+            <if test="type != null and type != ''">
+                type,
+            </if>
+            <if test="result != null and result != ''">
+                result,
+            </if>
+            <if test="details != null and details != ''">
+                details,
+            </if>
+            <if test="data != null and data != ''">
+                data,
+            </if>
+        </trim>
+        <trim prefix="VALUES(" suffixOverrides="," suffix=")">
+            <if test="createTime != null and createTime != ''">
+                #{createTime},
+            </if>
+            <if test="beginTime != null and beginTime != ''">
+                #{beginTime},
+            </if>
+            <if test="endTime != null and endTime != ''">
+                #{endTime},
+            </if>
+            <if test="type != null and type != ''">
+                #{type},
+            </if>
+            <if test="result != null and result != ''">
+                #{result},
+            </if>
+            <if test="details != null and details != ''">
+                #{details},
+            </if>
+            <if test="data != null and data != ''">
+                #{data},
+            </if>
+        </trim>
+    </insert>
+
+    <update id="update" parameterType="com.metoo.sqlite.entity.GatherLog">
+        UPDATE metoo_gather_log
+        <set>
+            <if test="createTime != null and createTime != ''">
+                createTime = #{createTime},
+            </if>
+            <if test="beginTime != null and beginTime != ''">
+                beginTime = #{beginTime},
+            </if>
+            <if test="endTime != null and endTime != ''">
+                endTime = #{endTime},
+            </if>
+            <if test="type != null and type != ''">
+                type = #{type},
+            </if>
+            <if test="result != null and result != ''">
+                result = #{result},
+            </if>
+            <if test="details != null and details != ''">
+                details = #{details},
+            </if>
+            <if test="data != null and data != ''">
+                data = #{data},
+            </if>
+        </set> WHERE id = #{id}
+    </update>
+
+    <delete id="delete" parameterType="java.lang.Integer">
+        DELETE FROM metoo_gather_log WHERE id = #{id}
+    </delete>
+
+
+    <delete id="deleteTable" parameterType="java.lang.Integer">
+        DELETE FROM metoo_gather_log
+    </delete>
+
+</mapper>

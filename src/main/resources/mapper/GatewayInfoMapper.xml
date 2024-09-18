@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.metoo.sqlite.mapper.GatewayInfoMapper">
+
+    <select id="selectObjByMap" parameterType="java.util.Map" resultType="com.metoo.sqlite.entity.GatewayInfo">
+        SELECT *
+        FROM metoo_gateway_info
+    </select>
+
+    <insert id="insert" parameterType="com.metoo.sqlite.entity.GatewayInfo">
+        INSERT INTO metoo_gateway_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="createTime != null and createTime != ''">
+                createTime,
+            </if>
+            <if test="port != null and port != ''">
+                port,
+            </if>
+            <if test="ip_address != null and ip_address != ''">
+                ip_address,
+            </if>
+            <if test="description != null and description != ''">
+                description,
+            </if>
+            <if test="operator != null and operator != ''">
+                operator,
+            </if>
+            <if test="ipv6_address != null and ipv6_address != ''">
+                ipv6_address,
+            </if>
+            <if test="ipv6_subnet != null and ipv6_subnet != ''">
+                ipv6_subnet,
+            </if>
+            <if test="deviceName != null and deviceName != ''">
+                deviceName,
+            </if>
+        </trim>
+        <trim prefix="VALUES(" suffix=")" suffixOverrides=",">
+            <if test="createTime != null and createTime != ''">
+                #{createTime},
+            </if>
+            <if test="port != null and port != ''">
+                #{port},
+            </if>
+            <if test="ip_address != null and ip_address != ''">
+                #{ip_address},
+            </if>
+            <if test="description != null and description != ''">
+                #{description},
+            </if>
+            <if test="operator != null and operator != ''">
+                #{operator},
+            </if>
+            <if test="ipv6_address != null and ipv6_address != ''">
+                #{ipv6_address},
+            </if>
+            <if test="ipv6_subnet != null and ipv6_subnet != ''">
+                #{ipv6_subnet},
+            </if>
+            <if test="deviceName != null and deviceName != ''">
+                #{deviceName},
+            </if>
+        </trim>
+    </insert>
+
+    <update id="update" parameterType="com.metoo.sqlite.entity.GatewayInfo">
+        UPDATE metoo_gateway_info
+        <set>
+            <if test="createTime != null and createTime != ''">
+                createTime = #{createTime},
+            </if>
+            <if test="port != null and port != ''">
+                port = #{port},
+            </if>
+            <if test="ip_address != null and ip_address != ''">
+                ip_address = #{ip_address},
+            </if>
+            <if test="description != null and description != ''">
+                description = #{description},
+            </if>
+            <if test="operator != null and operator != ''">
+                operator = #{operator},
+            </if>
+            <if test="ipv6_address != null and ipv6_address != ''">
+                ipv6_address = #{ipv6_address},
+            </if>
+            <if test="ipv6_subnet != null and ipv6_subnet != ''">
+                ipv6_subnet = #{ipv6_subnet},
+            </if>
+            <if test="deviceName != null and deviceName != ''">
+                deviceName = #{deviceName},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="batchInsertGather" parameterType="java.util.List">
+        INSERT INTO metoo_gateway_info_gather (
+            createTime,
+            port,
+            ip_address,
+            description,
+            operator,
+            ipv6_address,
+            ipv6_subnet,
+            deviceName
+        )
+        VALUES
+        <foreach collection ="list" item="item" separator ="," >
+            (
+                #{item.createTime},
+                #{item.port},
+                #{item.ip_address},
+                #{item.description},
+                #{item.operator},
+                #{item.ipv6_address},
+                #{item.ipv6_subnet},
+                #{item.deviceName}
+            )
+        </foreach>
+    </insert>
+
+    <delete id="deleteTable">
+        delete from metoo_gateway_info
+    </delete>
+
+    <update id="deleteTableGather">
+        delete from metoo_gateway_info_gather
+    </update>
+
+    <insert id="copyGatherData">
+        INSERT INTO metoo_gateway_info SELECT * FROM metoo_gateway_info_gather
+    </insert>
+
+</mapper>
