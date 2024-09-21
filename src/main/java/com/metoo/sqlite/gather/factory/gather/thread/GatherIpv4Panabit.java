@@ -94,7 +94,7 @@ public class GatherIpv4Panabit implements Gather {
                 && (device.getDeviceTypeAlias().equals("router") || device.getDeviceTypeAlias().equals("switch"))) {
             return new Ipv4CollectionStrategy(ipv4Service, pyExecUtils);
         } else if ((device.getDeviceTypeAlias().equals("firewall") || device.getDeviceTypeAlias().equals("linux"))
-                && (device.getDeviceVendorAlias().matches("huawei|h3c|sanfor|sanforip|stone|leadsec"))
+                && (device.getDeviceVendorAlias().matches("huawei|h3c|sanfor|sanforip|stone|leadsec|hd"))
                 && (device.getLoginType().equals("ssh") || device.getLoginType().equals("telnet"))) {
             return new Ipv4ByVendorCollectionStrategy(ipv4Service, pyExecUtils);
         }

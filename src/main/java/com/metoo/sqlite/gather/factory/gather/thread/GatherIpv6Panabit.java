@@ -85,6 +85,7 @@ public class GatherIpv6Panabit implements Gather {
 
                             || device.getDeviceVendorAlias().equals("stone")
                             || device.getDeviceVendorAlias().equals("leadsec")
+                            || device.getDeviceVendorAlias().equals("hd")
 
                             && (device.getLoginType().equals("ssh") || device.getLoginType().equals("telnet"))) {
 
