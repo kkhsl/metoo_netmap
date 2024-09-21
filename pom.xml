@@ -235,10 +235,6 @@
             <artifactId>bcprov-jdk15on</artifactId>
             <version>1.69</version> <!-- 替换为最新版本 -->
         </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-        </dependency>
         <!--kafka-->
         <dependency>
             <groupId>org.apache.kafka</groupId>
@@ -275,21 +271,20 @@
         <!--</dependency>-->
 
         <!--&lt;!&ndash; Spring Boot Starter Data Elasticsearch &ndash;&gt;-->
-        <!--<dependency>-->
-            <!--<groupId>org.springframework.boot</groupId>-->
-            <!--<artifactId>spring-boot-starter-data-elasticsearch</artifactId>-->
-            <!--<version>2.4.3</version>-->
-        <!--</dependency>-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-elasticsearch</artifactId>
+        </dependency>
         <!--<dependency>-->
             <!--<groupId>co.elastic.clients</groupId>-->
             <!--<artifactId>elasticsearch-java</artifactId>-->
             <!--<version>7.9.0</version> &lt;!&ndash; 替换为可用的最新版本 &ndash;&gt;-->
         <!--</dependency>-->
         <!--引入 rest high level client 操作 elasticsearch-->
-        <dependency>
-            <groupId>org.elasticsearch.client</groupId>
-            <artifactId>elasticsearch-rest-high-level-client</artifactId>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.elasticsearch.client</groupId>-->
+            <!--<artifactId>elasticsearch-rest-high-level-client</artifactId>-->
+        <!--</dependency>-->
 
         <dependency>
             <groupId>org.glassfish</groupId>

@@ -18,41 +18,9 @@ import java.util.Base64;
 public class MuyunService {
 
 
-    public static void main(String[] args) {
-        String username = "apiuser";
-        String password = "ufAPI@9588";
-        String path = "/api/v1/arp/";
-        String host = "https://171.34.163.38:9000";
-
-        String ip = "171.34.163.38";
-        String port = "9000";
-    }
-
-
     public String getArp(String ip, Integer port, String loginName, String loginPassword){
-
-//        ip = "171.34.163.38";
-//        port = 9000;
-//        loginName = "apiuser";
-//        loginPassword = "ufAPI@9588";
-
         String path = "/api/v1/arp/";
-//        String url = Global.muyun_scheme + ip + ":" + port + path;
-
-        try {
-//            URI uri = new URI(Global.muyun_scheme,null, ip, port, path, null, null);
-
-            URL url = new URL(Global.muyun_scheme, ip, port, path);
-            String result = get(url, loginName, loginPassword);
-            MuyunResult muyunResult = JSONObject.parseObject(result, MuyunResult.class);
-            if(muyunResult.getCode() == 0){
-                return muyunResult.getData();
-            }
-            return result;
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        }
-        return "";
+        return get(ip, port, path, loginName, loginPassword);
     }
 
     public String sendApi(String ip, Integer port, String loginName, String loginPassword){
@@ -63,13 +31,11 @@ public class MuyunService {
     }
 
     public String getIpv6_neighbor(String ip, Integer port, String loginName, String loginPassword){
-
-//        ip = "171.34.163.38";
-//        port = 9000;
-//        loginName = "apiuser";
-//        loginPassword = "ufAPI@9588";
-
         String path = "/api/v1/ipv6_neighbor/";
+        return get(ip, port, path, loginName, loginPassword);
+    }
+
+    public String get(String ip, Integer port, String path, String loginName, String loginPassword){
         try {
             URL url = new URL(Global.muyun_scheme, ip, port, path);
             String result = get(url, loginName, loginPassword);
@@ -81,7 +47,6 @@ public class MuyunService {
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
-
         return "";
     }
 
@@ -122,5 +87,14 @@ public class MuyunService {
             e.printStackTrace();
         }
         return "";
+    }
+
+    public static void main(String[] args) {
+        String username = "apiuser";
+        String password = "ufAPI@9588";
+        String path = "/api/v1/arp/";
+        String host = "https://171.34.163.38:9000";
+        String ip = "171.34.163.38";
+        String port = "9000";
     }
 }

@@ -36,7 +36,6 @@ public class VerifyVendorUtils {
         }
     }
 
-
     public void insertDeviceScan(Terminal terminal, String macVendor){
         DeviceScan deviceScan = new DeviceScan();
         deviceScan.setDevice_ipv4(terminal.getIpv4addr());
@@ -110,8 +109,6 @@ public class VerifyVendorUtils {
             return "Tiandy";
         } else if (vendor.toLowerCase().contains("Cannon".toLowerCase())) {
             return "Cannon";
-        } else if (vendor.toLowerCase().contains("Hewlett".toLowerCase())) {
-            return "Hewlett";
         } else if (vendor.toLowerCase().contains("Samsung".toLowerCase())) {
             return "Samsung";
         } else if (vendor.toLowerCase().contains("RICOH".toLowerCase())) {

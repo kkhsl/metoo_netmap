@@ -28,21 +28,6 @@ import java.util.zip.ZipInputStream;
 @Slf4j
 public class DownloadAndExecuteBatFromZip {
 
-
-    public static void main(String[] args) {
-        // 启动你的 Java 应用程序逻辑
-        // ... 你的应用程序代码 ...
-
-        // 当你需要重启时，调用 restart() 方法
-//        restart();
-
-        String currentVersion = "0.0.4.9";
-        String version = "1.1.0.0";
-        if(currentVersion.compareTo(version) < 0){
-            System.out.println(1);
-        }
-    }
-
     public static void restart() {
         try {
             // 调用 restart.bat 脚本

@@ -40,14 +40,14 @@ public class ElasticsearchService {
 
         // 创建聚合请求
         searchRequest.source().aggregation(
-                AggregationBuilders.terms("destip_agg").field("destIp.keyword").size(10) // 统计字段出现次数，并获取前三个
+                AggregationBuilders.terms("destip").field("destIp.keyword").size(10) // 统计字段出现次数，并获取前三个
         ).query(QueryBuilders.matchAllQuery()); // 替换为你的查询条件
 
         // 执行搜索请求
         SearchResponse searchResponse = restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT);
 
         // 获取聚合结果
-        Terms terms = (Terms) searchResponse.getAggregations().get("destip_agg");
+        Terms terms = (Terms) searchResponse.getAggregations().get("destip");
         List<? extends Terms.Bucket> buckets = terms.getBuckets();
 
         // 输出结果

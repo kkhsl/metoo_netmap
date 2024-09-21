@@ -262,8 +262,8 @@ public class Gather6ManagerController {
                                             insertTerminal(probe, "Chicony");
                                         }else if(vendor.toLowerCase().toLowerCase().contains("Liteon".toLowerCase())){
                                             insertTerminal(probe, "Liteon");
-                                        }else if(vendor.toLowerCase().toLowerCase().contains("Lite-OnHUAWEI TECHNOLOGIES".toLowerCase())){
-                                            insertTerminal(probe, "Lite-OnHUAWEI TECHNOLOGIES");
+                                        }else if(vendor.toLowerCase().toLowerCase().contains("HUAWEI TECHNOLOGIES".toLowerCase())){
+                                            insertTerminal(probe, "HUAWEI TECHNOLOGIES");
                                         }
                                     }
                                 }

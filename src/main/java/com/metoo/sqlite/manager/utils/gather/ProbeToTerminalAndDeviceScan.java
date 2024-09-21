@@ -116,8 +116,6 @@ public class ProbeToTerminalAndDeviceScan {
                                             insertDeviceScan(arp, vendor, arp.getMac(), "Tiandy");
                                         } else if (vendor.toLowerCase().contains("Cannon".toLowerCase())) {
                                             insertDeviceScan(arp, vendor, arp.getMac(), "Cannon");
-                                        } else if (vendor.toLowerCase().contains("Hewlett".toLowerCase())) {
-                                            insertDeviceScan(arp, vendor, arp.getMac(), "Hewlett");
                                         } else if (vendor.toLowerCase().contains("Samsung".toLowerCase())) {
                                             insertDeviceScan(arp, vendor, arp.getMac(), "Samsung");
                                         } else if (vendor.toLowerCase().contains("RICOH".toLowerCase())) {
@@ -209,7 +207,6 @@ public class ProbeToTerminalAndDeviceScan {
                                         } else if (vendor.toLowerCase().contains("Shanghai WDK Industrial".toLowerCase())) {
                                             insertDeviceScan(arp, vendor, arp.getMac(), "Shanghai WDK Industrial");
                                         } else
-
                                         if (vendor.toLowerCase().contains("Zhejiang Uniview".toLowerCase())) {
                                             insertDeviceScan(arp, vendor, arp.getMac(), "Zhejiang Uniview");
                                         } else if (vendor.toLowerCase().contains("Zhejiang Dahua".toLowerCase())) {
@@ -250,11 +247,13 @@ public class ProbeToTerminalAndDeviceScan {
                                             insertDeviceScan(arp, vendor, arp.getMac(), "DAVICOM SEMICONDUCTOR");
                                         }else if(vendor.toLowerCase().toLowerCase().contains("openbsd".toLowerCase())){
                                             insertDeviceScan(arp, vendor, arp.getMac(),"openbsd");
-                                        }
-
-                                        if (vendor.toLowerCase().contains("LCFC(Hefei) Electronics".toLowerCase())) {
+                                        } if (vendor.toLowerCase().contains("LCFC(Hefei) Electronics".toLowerCase())) {
                                             insertDeviceScan(arp, vendor, arp.getMac(), "LCFC(Hefei) Electronics");
-                                        }else if(vendor.toLowerCase().toLowerCase().contains("LCFC(Hefei) Electronics".toLowerCase())){
+                                        }else
+
+                                        if (vendor.toLowerCase().contains("Hewlett Packard".toLowerCase())) {
+                                           insertTerminal(probe, "Hewlett Packard");
+                                       } else if(vendor.toLowerCase().toLowerCase().contains("LCFC(Hefei) Electronics".toLowerCase())){
                                             insertTerminal(probe, "LCFC(Hefei) Electronics");
                                         }else if(vendor.toLowerCase().toLowerCase().contains("CLOUD".toLowerCase())){
                                             insertTerminal(probe, "CLOUD");
@@ -274,8 +273,8 @@ public class ProbeToTerminalAndDeviceScan {
                                             insertTerminal(probe, "Chicony");
                                         }else if(vendor.toLowerCase().toLowerCase().contains("Liteon".toLowerCase())){
                                             insertTerminal(probe, "Liteon");
-                                        }else if(vendor.toLowerCase().toLowerCase().contains("Lite-OnHUAWEI TECHNOLOGIES".toLowerCase())){
-                                            insertTerminal(probe, "Lite-OnHUAWEI TECHNOLOGIES");
+                                        }else if(vendor.toLowerCase().toLowerCase().contains("HUAWEI TECHNOLOGIES".toLowerCase())){
+                                            insertTerminal(probe, "HUAWEI TECHNOLOGIES");
                                         }
                                     }
                                 }
@@ -373,8 +372,6 @@ public class ProbeToTerminalAndDeviceScan {
                             insertDeviceScan(arp, vendor, arp.getMac(), "Tiandy");
                         } else if (vendor.toLowerCase().contains("Cannon".toLowerCase())) {
                             insertDeviceScan(arp, vendor, arp.getMac(), "Cannon");
-                        } else if (vendor.toLowerCase().contains("Hewlett".toLowerCase())) {
-                            insertDeviceScan(arp, vendor, arp.getMac(), "Hewlett");
                         } else if (vendor.toLowerCase().contains("Samsung".toLowerCase())) {
                             insertDeviceScan(arp, vendor, arp.getMac(), "Samsung");
                         } else if (vendor.toLowerCase().contains("RICOH".toLowerCase())) {

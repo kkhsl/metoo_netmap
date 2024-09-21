@@ -138,7 +138,7 @@ public class ArpUtils {
     public List<Arp> getArpVersion(){
         Map params = new HashMap();
 
-         List<Arp> arpList = new ArrayList<>();
+        List<Arp> arpList = new ArrayList<>();
         List<Arp> arpList2 = new ArrayList<>();
 
         List<Ipv4> ipv4List = this.ipv4Service.selectObjByMap(null);

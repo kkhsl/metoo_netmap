@@ -16,6 +16,7 @@ import com.metoo.sqlite.utils.Global;
 import com.metoo.sqlite.utils.ResponseUtil;
 import com.metoo.sqlite.utils.date.DateTools;
 import com.metoo.sqlite.utils.elasticsearch.ElasticsearchService;
+import com.metoo.sqlite.utils.elasticsearch.EsQuery;
 import com.metoo.sqlite.utils.file.DataFileWrite;
 import com.metoo.sqlite.utils.file.FileToDatabase;
 import com.metoo.sqlite.utils.muyun.MuyunService;
@@ -76,6 +77,13 @@ public class TestManagerController {
     private PyExecUtils pyExecUtils;
     @Autowired
     private ElasticsearchService elasticsearchService;
+    @Autowired
+    private EsQuery esQuery;
+
+    @GetMapping("/esClientConfig")
+    public void esClientConfig() {
+        this.esQuery.test();;
+    }
 
     @GetMapping("/elasticsearch")
     public void elasticsearch() throws IOException {
