@@ -1,0 +1,340 @@
+
+
+NULL: 空值。
+INTEGER: 有符号整数，根据存储的整数大小可以存储为1、2、3、4、6或8字节。
+REAL: 浮点数，存储为8字节的浮点数。
+TEXT: 文本字符串，存储使用数据库编码（UTF-8、UTF-16BE 或 UTF-16LE）。
+BLOB: 二进制大对象，存储完全根据输入。
+
+# 修改表名 ALTER TABLE metoo_deivce_model RENAME TO metoo_device_model;
+# 增加字段 ALTER TABLE metoo_device_vendor ADD alias TEXT NOT NULL;
+CREATE TABLE metoo_user (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    createTime TEXT NOT NULL,
+    username TEXT NOT NULL,
+    password TEXT NOT NULL,
+    email TEXT UNIQUE,
+    mobile TEXT UNIQUE,
+    age INTEGER,
+    sex INTEGER,
+    salt TEXT UNIQUE
+);
+
+CREATE TABLE metoo_license (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    systemSN TEXT,
+    license TEXT,
+    `from` INTEGERE,
+    status INTEGER
+);
+
+# 设备类型
+CREATE TABLE metoo_device_type (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,-- 设备名
+    alias TEXT NOT NULL,
+    sequence INTEGER(1) DEFAULT 0
+);
+
+# 品牌
+CREATE TABLE metoo_device_vendor (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,--品牌名
+    alias TEXT NOT NULL,
+    sequence INTEGER(1) DEFAULT 0
+);
+
+# 型号
+CREATE TABLE metoo_device_model (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,--型号
+    sequence INTEGER(1) DEFAULT 0
+);
+
+# 设备
+# 设备名，设备ip，登录方式（ssh，telnet），登录端口，用户名，密码
+CREATE TABLE metoo_device_temp (
+    id INTEGER PRIMARY KEY AUTOINCREMENT, -- id
+    name TEXT NOT NULL, -- 设备名称
+    ip TEXT NOT NULL, -- 设备ip
+    loginType TEXT NOT NULL,-- 登录方式
+    loginPort INTEGER(5),-- 登录端口
+    loginName TEXT NOT NULL,-- 登录名称
+    loginPassword TEXT NOT NULL,-- 登录密码
+    deviceTypeId INTEGER(11),-- 设备类型Id
+    deviceVendorId INTEGER(11),-- 设备品牌Id
+    deviceModelId INTEGER(11),-- 设备型号Id
+    createTime TEXT NOT NULL,-- 创建时间
+    model TEXT,
+    version TEXT,
+    ipv6_keyword TEXT,
+    ipv6_address TEXT,
+    sentlocally TEXT,
+    neighboradverts TEXT
+);
+
+
+-- ipv4
+DROP TABLE IF EXISTS "main"."metoo_port_ipv4";
+CREATE TABLE metoo_port_ipv4 (
+    id INTEGER PRIMARY KEY AUTOINCREMENT, -- id
+    createTime TEXT NOT NULL, -- 创建时间
+    ip TEXT, -- ip
+    port TEXT NOT NULL,-- 端口
+    status INTEGER(1) DEFAULT 1,-- 状态 "1：up 2：down
+    mask TEXT,-- 掩码
+    description TEXT,
+    deviceUuid TEXT
+);
+
+DROP TABLE IF EXISTS "main"."metoo_port_ipv4_gather";
+CREATE TABLE metoo_port_ipv4_gather (
+    id INTEGER PRIMARY KEY AUTOINCREMENT, -- id
+    createTime TEXT NOT NULL, -- 创建时间
+    ip TEXT, -- ip
+    port TEXT NOT NULL,-- 端口
+    status INTEGER(1) DEFAULT 1,-- 状态 "1：up 2：down
+    mask TEXT,-- 掩码
+    description TEXT,
+    deviceUuid TEXT
+);
+
+-- ipv6
+DROP TABLE IF EXISTS "main"."metoo_port_ipv6";
+CREATE TABLE metoo_port_ipv6 (
+    id INTEGER PRIMARY KEY AUTOINCREMENT, -- id
+    createTime TEXT NOT NULL, -- 创建时间
+    ipv6_address TEXT, -- ip
+    port TEXT NOT NULL,-- 端口
+    status INTEGER(1) DEFAULT 1,-- 状态 "1：up 2：down
+    ipv6_subnet TEXT,-- 掩码
+    description TEXT,
+    deviceUuid TEXT
+);
+
+DROP TABLE IF EXISTS "main"."metoo_port_ipv6_gather";
+CREATE TABLE metoo_port_ipv6_gather (
+    id INTEGER PRIMARY KEY AUTOINCREMENT, -- id
+    createTime TEXT NOT NULL, -- 创建时间
+    ipv6_address TEXT, -- ip
+    port TEXT NOT NULL,-- 端口
+    status INTEGER(1) DEFAULT 1,-- 状态 "1：up 2：down
+    ipv6_subnet TEXT,-- 掩码
+    description TEXT,
+    deviceUuid TEXT
+);
+
+#ipv4
+DROP TABLE IF EXISTS "main"."metoo_ipv4_subnet";
+CREATE TABLE metoo_ipv4_subnet (
+    id INTEGER PRIMARY KEY AUTOINCREMENT, -- id
+    createTime TEXT NOT NULL,-- 创建时间
+    ip TEXT NOT NULL, -- ip地址
+    mask TEXT,-- 掩码
+    parentId INTEGER(5),-- 所属网段Id
+    parentIp TEXT,
+    description TEXT-- 描述
+);
+
+CREATE TABLE metoo_ipv6_subnet (
+    id INTEGER PRIMARY KEY AUTOINCREMENT, -- id
+    createTime TEXT NOT NULL,-- 创建时间
+    ip TEXT,
+    mask TEXT,
+    parentId INTEGER(11),
+    description TEXT
+);
+
+# arp
+CREATE TABLE metoo_ipv4 (
+    id INTEGER PRIMARY KEY AUTOINCREMENT, -- id
+    createTime TEXT NOT NULL,-- 创建时间
+    ip TEXT,
+    mac TEXT,
+    port TEXT,
+    vlan TEXT,
+    aging TEXT,
+    type TEXT,
+    deviceUuid TEXT
+);
+
+CREATE TABLE metoo_ipv6 (
+    id INTEGER PRIMARY KEY AUTOINCREMENT, -- id
+    createTime TEXT NOT NULL,-- 创建时间
+    ip TEXT,
+    mac TEXT,
+    port TEXT,
+    vid TEXT,
+    type TEXT,
+    age TEXT,
+    vpninstance TEXT,
+    deviceUuid TEXT
+);
+
+
+CREATE TABLE metoo_arp (
+      id INTEGER PRIMARY KEY AUTOINCREMENT, -- id
+      createTime TEXT NOT NULL,-- 创建时间
+      ip TEXT,
+      ipv6 TEXT,
+      mac TEXT,
+      port TEXT,
+      macVendor TEXT,
+      deviceUuid TEXT
+  );
+
+
+DROP TABLE IF EXISTS "main"."metoo_probe";
+CREATE TABLE metoo_probe (
+    id INTEGER PRIMARY KEY AUTOINCREMENT, -- id
+    createTime TEXT NOT NULL,-- 创建时间
+    ip_addr TEXT,
+    port_num TEXT,
+    mac_addr TEXT,
+    vendor TEXT,
+    os_family TEXT,
+    os_gen TEXT,
+    os_cpe TEXT,
+    scan_time TEXT,
+    update_time TEXT,
+    communicate_protocol TEXT,
+    application_protocol TEXT,
+    service_output TEXT,
+    port_service_cpe TEXT,
+    port_service_product TEXT,
+    port_service_version TEXT,
+    port_service_vendor TEXT,
+    device_type TEXT,
+    title TEXT,
+    response TEXT,
+    fingerId TEXT,
+    ttl TEXT,
+    reliability Integer
+);
+
+
+CREATE TABLE metoo_operation_log (
+    id INTEGER PRIMARY KEY AUTOINCREMENT, -- id
+    createTime TEXT NOT NULL,-- 创建时间
+    account TEXT,
+    name TEXT,
+    mac_addr TEXT,
+    action TEXT,
+    desc TEXT,
+    type TEXT,
+    ip TEXT
+);
+
+
+CREATE TABLE metoo_gateway_info (
+    id INTEGER PRIMARY KEY AUTOINCREMENT, -- id
+    createTime TEXT NOT NULL,-- 创建时间
+    interface TEXT,
+    state TEXT,
+    ip_address TEXT,
+    description TEXT,
+    operator TEXT,
+    ipv6_address TEXT,
+    ipv6_subnet TEXT
+);
+
+
+CREATE TABLE metoo_gateway_info_gather (
+    id INTEGER PRIMARY KEY AUTOINCREMENT, -- id
+    createTime TEXT NOT NULL,-- 创建时间
+    interface TEXT,
+    state TEXT,
+    ip_address TEXT,
+    description TEXT,
+    operator TEXT,
+    ipv6_address TEXT,
+    ipv6_subnet TEXT
+);
+
+alter table metoo_device add column model text;
+alter table metoo_device add column version text;
+alter table metoo_device add column ipv6_keyword text;
+alter table metoo_device add column ipv6_address text;
+alter table metoo_device add column sentlocally text;
+alter table metoo_device add column neighboradverts text;
+
+
+
+CREATE TABLE metoo_device_scan (
+    id INTEGER PRIMARY KEY AUTOINCREMENT, -- id
+    createTime TEXT NOT NULL,-- 创建时间
+    device_ipv4 TEXT,
+    device_ipv6 TEXT,
+    device_product TEXT,
+    device_type TEXT
+);
+
+CREATE TABLE metoo_device_scan_gather (
+    id INTEGER PRIMARY KEY AUTOINCREMENT, -- id
+    createTime TEXT NOT NULL,-- 创建时间
+    device_ipv4 TEXT,
+    device_ipv6 TEXT,
+    device_product TEXT,
+    device_type TEXT
+);
+
+
+CREATE TABLE metoo_terminal_detail (
+    id INTEGER PRIMARY KEY AUTOINCREMENT, -- id
+    createTime TEXT NOT NULL,-- 创建时间
+    mac TEXT,
+    ipv4addr TEXT,
+    ipv6addr TEXT,
+    active_port TEXT,
+    macvendor TEXT,
+    service TEXT,
+    os TEXT
+);
+
+CREATE TABLE metoo_terminal_detail_gather (
+    id INTEGER PRIMARY KEY AUTOINCREMENT, -- id
+    createTime TEXT NOT NULL,-- 创建时间
+    mac TEXT,
+    ipv4addr TEXT,
+    ipv6addr TEXT,
+    active_port TEXT,
+    macvendor TEXT,
+    service TEXT,
+    os TEXT
+);
+
+CREATE TABLE metoo_probe_result (
+    result INTEGER(11)
+);
+
+CREATE TABLE metoo_gather_log (
+    id INTEGER PRIMARY KEY AUTOINCREMENT, -- id
+    createTime TEXT NOT NULL,-- 创建时间
+    beginTime TEXT,
+    endTime TEXT,
+    type TEXT,
+    result TEXT,
+    details TEXT,
+    data TEXT
+);
+
+CREATE TABLE metoo_gather_semaphore (
+    semaphore INTEGER(11)
+);
+
+DROP TABLE IF EXISTS "main"."metoo_sureying_log";
+CREATE TABLE metoo_sureying_log (
+    id INTEGER PRIMARY KEY AUTOINCREMENT, -- id
+    createTime TEXT NOT NULL,-- 创建时间
+    name TEXT,
+    beginTime TEXT,
+    endTime TEXT,
+    status INTEGER DEFAULT 0,
+    desc TEXT,
+    info INTEGER DEFAULT 1
+);
+
+
+alter table metoo_device add column ipv6Forward text;
+alter table metoo_gateway_info add column deviceName text;
+alter table metoo_gateway_info_gather add column deviceName text;
