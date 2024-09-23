@@ -2,10 +2,12 @@ package com.metoo.sqlite.manager;
 
 import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.util.StringUtil;
+import com.metoo.sqlite.core.config.enums.VersionResultType;
 import com.metoo.sqlite.entity.Version;
 import com.metoo.sqlite.manager.api.ApiService;
 import com.metoo.sqlite.manager.utils.file.FileVersionUtils;
 import com.metoo.sqlite.service.IVersionService;
+import com.metoo.sqlite.service.impl.UpdateVersionService;
 import com.metoo.sqlite.utils.Global;
 import com.metoo.sqlite.utils.ResponseUtil;
 import com.metoo.sqlite.utils.version.DownloadAndExecuteBatFromZip;
@@ -35,7 +37,8 @@ public class VersionManagerController {
 
     @Autowired
     private IVersionService versionService;
-
+    @Autowired
+    private UpdateVersionService updateVersionService;
     @GetMapping
     public Result get(){
         Version currentVersion = this.versionService.selectObjByOne();
@@ -62,132 +65,140 @@ public class VersionManagerController {
      *   下载时间戳
      *
      */
-    @GetMapping("/maual/update")
-    public Result maualUpdat() throws InterruptedException {
-
-        if (lock.tryLock()) {
-
-            // 保存当前线程的引用
-            threadVersion = Thread.currentThread();
-
-           // 初始为1，开始下载
-            boolean state = FileVersionUtils.writeUpdateVersion(Global.version_state, Global.version_state_name, "1");
-
-            if(!state){
-                return ResponseUtil.error("更新失败");
-            }
-
-            // 读取本地版本，以及远程版本信息
-            try {
-                String version = this.getVersionInfo();
-
-                Version obj = this.versionService.selectObjByOne();
-
-                if(obj != null){
-                    String localVersion = obj.getVersion();
-                    if(StringUtil.isNotEmpty(localVersion) && localVersion.compareTo(version) >= 0){
-                        return ResponseUtil.ok("已是最新版本");
-                    }
-                }
-
-                // 判断版本号是否以下载
-                boolean updateFlag = true;
-                String readState = readUpdateState();
-                String downVersion = readUpdateVersion();
-                if(StringUtil.isNotEmpty(readState)
-                        && Math.abs(Integer.parseInt(readState)) >= 1){
-                    if(StringUtil.isNotEmpty(downVersion) && downVersion.compareTo(version) >= 0){
-                        // 不在执行下载
-                        updateFlag = false;
-                    }
-                }
-
-
-                // 写入文件，开始下载：0
-//                state = writeUpdateState("0");
-
-                if(updateFlag){
-
-                    if(!state){
-                        return ResponseUtil.badArgument("更新失败");
-                    }
-
-                    state = FileVersionUtils.writeUpdateVersion(Global.version_state, Global.version_state_name, "1");
-
-                    // 开始下载
-                    try {
-
-                        DownloadAndExecuteBatFromZip.versionUpdate();
-
-                        state = FileVersionUtils.writeUpdateVersion(Global.version_state, Global.version_state_name, "2");// 下载完成
-
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                        state = FileVersionUtils.writeUpdateVersion(Global.version_state, Global.version_state_name, "-2");
-                        return ResponseUtil.badArgument(-2,"更新失败");
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                        state = FileVersionUtils.writeUpdateVersion(Global.version_state, Global.version_state_name, "-2");
-                        return ResponseUtil.badArgument(-2,"更新失败");
-                    }
-
-                }else{
-
-                    state = FileVersionUtils.writeUpdateVersion(Global.version_state, Global.version_state_name, "1");
-                }
-
-//        if(StringUtil.isNotEmpty(readState)
-//                && Math.abs(Integer.parseInt(readState)) >= 3){
-// 开始执行脚本
-
-
-//            String extractDirectory = Global.versionUnzip;
-//            DownloadAndExecuteBatFromZip.execVBS(extractDirectory, Global.versionScriptName);
-
-                try {
-                    // 执行
-                    String extractDirectory = Global.versionUnzip;
-                    // 执行 .bat 文件
-                    String batFilePath = extractDirectory + File.separator + Global.versionScriptName;
-
-                    DownloadAndExecuteBatFromZip.executeBatchFile(batFilePath);
-
-                    state = writeUpdateState("3");
-                    writeUpdateVersion(version);
-
-                } catch (IOException e) {
-                    e.printStackTrace();
-
-                    state = FileVersionUtils.writeUpdateVersion(Global.version_state, Global.version_state, "-3");
-                    return ResponseUtil.badArgument(-3,"更新失败");
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-
-                    state = FileVersionUtils.writeUpdateVersion(Global.version_state, Global.version_state, "-3");
-                    return ResponseUtil.badArgument(-3,"更新失败");
-                }
+//    @GetMapping("/maual/update")
+//    public Result maualUpdat() throws InterruptedException {
+//
+//        if (lock.tryLock()) {
+//
+//            // 保存当前线程的引用
+//            threadVersion = Thread.currentThread();
+//
+//           // 初始为1，开始下载
+//            boolean state = FileVersionUtils.writeUpdateVersion(Global.version_state, Global.version_state_name, "1");
+//
+//            if(!state){
+//                return ResponseUtil.error("更新失败");
+//            }
+//
+//            // 读取本地版本，以及远程版本信息
+//            try {
+//                String version = this.getVersionInfo();
+//
+//                Version obj = this.versionService.selectObjByOne();
+//
+//                if(obj != null){
+//                    String localVersion = obj.getVersion();
+//                    if(StringUtil.isNotEmpty(localVersion) && localVersion.compareTo(version) >= 0){
+//                        return ResponseUtil.ok("已是最新版本");
+//                    }
+//                }
+//
+//                // 判断版本号是否以下载
+//                boolean updateFlag = true;
+//                String readState = readUpdateState();
+//                String downVersion = readUpdateVersion();
+//                if(StringUtil.isNotEmpty(readState)
+//                        && Math.abs(Integer.parseInt(readState)) >= 1){
+//                    if(StringUtil.isNotEmpty(downVersion) && downVersion.compareTo(version) >= 0){
+//                        // 不在执行下载
+//                        updateFlag = false;
+//                    }
+//                }
+//
+//
+//                // 写入文件，开始下载：0
+////                state = writeUpdateState("0");
+//
+//                if(updateFlag){
+//
+//                    if(!state){
+//                        return ResponseUtil.badArgument("更新失败");
+//                    }
+//
+//                    state = FileVersionUtils.writeUpdateVersion(Global.version_state, Global.version_state_name, "1");
+//
+//                    // 开始下载
+//                    try {
+//
+//                        DownloadAndExecuteBatFromZip.versionUpdate();
+//
+//                        state = FileVersionUtils.writeUpdateVersion(Global.version_state, Global.version_state_name, "2");// 下载完成
+//
+//                    } catch (IOException e) {
+//                        e.printStackTrace();
+//                        state = FileVersionUtils.writeUpdateVersion(Global.version_state, Global.version_state_name, "-2");
+//                        return ResponseUtil.badArgument(-2,"更新失败");
+//                    } catch (InterruptedException e) {
+//                        e.printStackTrace();
+//                        state = FileVersionUtils.writeUpdateVersion(Global.version_state, Global.version_state_name, "-2");
+//                        return ResponseUtil.badArgument(-2,"更新失败");
+//                    }
+//
+//                }else{
+//
+//                    state = FileVersionUtils.writeUpdateVersion(Global.version_state, Global.version_state_name, "1");
+//                }
+//
+////        if(StringUtil.isNotEmpty(readState)
+////                && Math.abs(Integer.parseInt(readState)) >= 3){
+//// 开始执行脚本
+//
+//
+////            String extractDirectory = Global.versionUnzip;
+////            DownloadAndExecuteBatFromZip.execVBS(extractDirectory, Global.versionScriptName);
+//
+//                try {
+//                    // 执行
+//                    String extractDirectory = Global.versionUnzip;
+//                    // 执行 .bat 文件
+//                    String batFilePath = extractDirectory + File.separator + Global.versionScriptName;
+//
+//                    DownloadAndExecuteBatFromZip.executeBatchFile(batFilePath);
+//
+//                    state = writeUpdateState("3");
+//                    writeUpdateVersion(version);
+//
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//
+//                    state = FileVersionUtils.writeUpdateVersion(Global.version_state, Global.version_state, "-3");
+//                    return ResponseUtil.badArgument(-3,"更新失败");
+//                } catch (InterruptedException e) {
+//                    e.printStackTrace();
+//
+//                    state = FileVersionUtils.writeUpdateVersion(Global.version_state, Global.version_state, "-3");
+//                    return ResponseUtil.badArgument(-3,"更新失败");
+//                }
+////        }
+//
+////        Map data = new HashMap();
+////        data.put("state", state);
+//                return ResponseUtil.ok(200,"更新完成");
+//            } catch (NumberFormatException e) {
+//                e.printStackTrace();
+//                return ResponseUtil.error(1003, "更新失败");
+//            } finally {
+//                if (lock.isHeldByCurrentThread()) {
+//                    lock.unlock();
+//                }
+//                if(threadVersion != null){
+//                    // 清空线程引用
+//                    threadVersion = null;
+//                }
+//            }
+//        }else{
+//            return ResponseUtil.ok(1002, "正在更新");
 //        }
-
-//        Map data = new HashMap();
-//        data.put("state", state);
-                return ResponseUtil.ok(200,"更新完成");
-            } catch (NumberFormatException e) {
-                e.printStackTrace();
-                return ResponseUtil.error(1003, "更新失败");
-            } finally {
-                if (lock.isHeldByCurrentThread()) {
-                    lock.unlock();
-                }
-                if(threadVersion != null){
-                    // 清空线程引用
-                    threadVersion = null;
-                }
-            }
+//    }
+    @GetMapping("/maual/update")
+    public Result maualUpdat() {
+        int result=updateVersionService.updateVersion();
+        if(VersionResultType.SUCCESS.equals(result)){
+            return ResponseUtil.ok(200,"更新完成");
         }else{
-            return ResponseUtil.ok(1002, "正在更新");
+            return ResponseUtil.error(1003, VersionResultType.getValueByCode(result));
         }
     }
-
     @GetMapping("/cancel")
     public Result cancel() {
         if (threadVersion != null) {
@@ -230,7 +241,7 @@ public class VersionManagerController {
      *
      */
     public String getVersionInfo(){
-        String url = Global.versionNumUrl;
+    /*    String url = Global.versionNumUrl;
         RestTemplate restTemplate = new RestTemplate();
         ApiService apiService = new ApiService(restTemplate);
         String result = apiService.callApi(url);
@@ -239,7 +250,8 @@ public class VersionManagerController {
             String version = json.getString("version");
             return version;
         }
-        return "";
+        return "";*/
+       return updateVersionService.getLastVersionInfo();
     }
 
     /**

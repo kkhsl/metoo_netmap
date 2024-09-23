@@ -231,7 +231,7 @@ public class DownloadAndExecuteBatFromZip {
 //        }
 //    }
 
-    private static void downloadFile(String fileUrl, String filePath) throws IOException {
+    public static void downloadFile(String fileUrl, String filePath) throws IOException {
         URL url = new URL(fileUrl);
         URLConnection connection = url.openConnection();
 //        connection.setConnectTimeout(timeoutMillis); // 设置连接超时时间
@@ -264,7 +264,7 @@ public class DownloadAndExecuteBatFromZip {
     }
 
 
-    private static void unzip(String zipFilePath, String extractDirectory) throws IOException {
+    public static void unzip(String zipFilePath, String extractDirectory) throws IOException {
 
         log.info("unzip start");
 

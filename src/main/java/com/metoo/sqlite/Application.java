@@ -1,11 +1,13 @@
 package com.metoo.sqlite;
 
+import cn.hutool.core.thread.ThreadUtil;
 import com.github.pagehelper.util.StringUtil;
 import com.metoo.sqlite.entity.SurveyingLog;
 import com.metoo.sqlite.entity.Version;
 import com.metoo.sqlite.manager.utils.file.FileVersionUtils;
 import com.metoo.sqlite.service.ISurveyingLogService;
 import com.metoo.sqlite.service.IVersionService;
+import com.metoo.sqlite.service.impl.UpdateVersionService;
 import com.metoo.sqlite.utils.Global;
 import com.metoo.sqlite.utils.ResponseUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +19,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.ServletComponentScan;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -28,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 
 @Slf4j
+@EnableSwagger2
 @MapperScan("com.metoo.sqlite.mapper")
 @EnableScheduling // 开启定时任务（启动类增加该注解，使项目启动后执行定时任务）
 @SpringBootApplication
@@ -45,7 +49,8 @@ public class Application  implements CommandLineRunner {
     private ISurveyingLogService surveyingLogService;
     @Autowired
     private IVersionService versionService;
-
+    @Autowired
+    private UpdateVersionService updateVersionService;
     @Override
     public void run(String... args) throws Exception {
         try {
@@ -85,6 +90,8 @@ public class Application  implements CommandLineRunner {
                     }
                 }
             }
+            //启动完成后更新数据状态
+           ThreadUtil.execAsync(() -> {updateVersionService.updateVersionToServer();});
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -98,7 +98,7 @@ public class Gather6ManagerController {
                 if (lock.isHeldByCurrentThread()) {
                     lock.unlock();
                 }
-                return ResponseUtil.ok(1001);
+                return ResponseUtil.ok(1001, "没有采集");
             }
 
             try {
