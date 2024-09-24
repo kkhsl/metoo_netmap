@@ -48,6 +48,30 @@ public class GatherTestManagerController {
         return ResponseUtil.ok();
     }
 
+    @GetMapping("/terminal")
+    public void gatherTerminal() {
+
+        this.gatherDeviceScan();
+
+        GatherFactory factory = new GatherFactory();
+
+        try {
+            executeGatherTask(factory, Global.TERMINAL);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        this.probeToTerminalAndDeviceScan.finalProbe();
+            this.verifyVendorUtils.finalTerminal();
+
+    }
+
+    public void executeGatherTask(GatherFactory factory, String gatherType) throws Exception {
+        Gather gather = factory.getGather(gatherType);
+        gather.executeMethod();
+    }
+
+
     @GetMapping("/ipv4_pana2")
     public Result ipv4_pana() {
         this.ipv4_pana2();
@@ -75,26 +99,6 @@ public class GatherTestManagerController {
     public Result deviceScanTest() {
         this.gatherDeviceScan();
         return ResponseUtil.ok();
-    }
-
-    @GetMapping("/terminal")
-    public Result terminalTest() {
-        this.gatherTerminal();
-        return ResponseUtil.ok();
-    }
-
-
-    public void gatherTerminal(){
-        try {
-
-            this.gatherDeviceScan();
-
-            this.probeToTerminalAndDeviceScan.finalProbe();
-            this.verifyVendorUtils.finalTerminal();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
 

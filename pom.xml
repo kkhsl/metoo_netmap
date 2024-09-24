@@ -301,6 +301,12 @@
             <version>5.4.3</version>
         </dependency>
 
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-core</artifactId>
+            <version>5.8.9</version> <!-- 请根据最新版本进行调整 -->
+        </dependency>
+
     </dependencies>
 
     <build>

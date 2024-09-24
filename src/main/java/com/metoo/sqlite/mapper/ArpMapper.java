@@ -14,6 +14,8 @@ public interface ArpMapper {
 
     List<Arp> selectObjByMap(Map params);
 
+    int insert(Arp instance);
+
     int delete(Integer Id);
 
     int batchInsert(List<Arp> list);

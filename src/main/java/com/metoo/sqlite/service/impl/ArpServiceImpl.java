@@ -79,7 +79,17 @@ public class ArpServiceImpl implements IArpService {
             this.deleteTable();
 
             if(arps.size() > 0){
-                this.batchInsert(arps);
+                if(arps.size() > 0){
+                    List<Arp> filteredArpList = arps.stream()
+                            .filter(arp -> !"0.0.0.0".equals(arp.getIp()))
+                            .collect(Collectors.toList());
+                    if(filteredArpList.size() > 0){
+                        for (Arp arp : filteredArpList) {
+                            arp.setCreateTime(DateTools.getCreateTime());
+                            this.arpMapper.insert(arp);
+                        }
+                    }
+                }
             }
 //            this.arpMapper.deleteTableBack();
 //            this.arpMapper.copyToBck();

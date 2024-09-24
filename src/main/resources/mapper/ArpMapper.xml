@@ -22,6 +22,56 @@
         </where>
     </select>
 
+    <insert id="insert" parameterType="com.metoo.sqlite.entity.Arp">
+        INSERT INTO metoo_arp
+        <trim prefix="(" suffixOverrides="," suffix=")">
+            <if test="createTime != null">
+                createTime,
+            </if>
+            <if test="ip != null">
+                ip,
+            </if>
+            <if test="ipv6 != null">
+                ipv6,
+            </if>
+            <if test="mac != null">
+                mac,
+            </if>
+            <if test="port != null">
+                port,
+            </if>
+            <if test="deviceUuid != null">
+                deviceUuid,
+            </if>
+            <if test="macVendor != null">
+                macVendor,
+            </if>
+        </trim>
+        <trim prefix="VALUES(" suffixOverrides="," suffix=")">
+            <if test="createTime != null">
+                #{createTime},
+            </if>
+            <if test="ip != null">
+                #{ip},
+            </if>
+            <if test="ipv6 != null">
+                #{ipv6},
+            </if>
+            <if test="mac != null">
+                #{mac},
+            </if>
+            <if test="port != null">
+                #{port},
+            </if>
+            <if test="deviceUuid != null">
+                #{deviceUuid},
+            </if>
+            <if test="macVendor != null">
+                #{macVendor},
+            </if>
+        </trim>
+    </insert>
+
     <insert id="batchInsert" parameterType="java.util.List">
         INSERT INTO metoo_arp (
         createTime,
