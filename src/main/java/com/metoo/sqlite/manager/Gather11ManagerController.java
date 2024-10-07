@@ -14,6 +14,7 @@ import com.metoo.sqlite.manager.utils.gather.ProbeToTerminalAndDeviceScan;
 import com.metoo.sqlite.manager.utils.gather.VerifyVendorUtils;
 import com.metoo.sqlite.manager.utils.jx.JXDataUtils;
 import com.metoo.sqlite.service.*;
+import com.metoo.sqlite.service.impl.GatherAllInOneService;
 import com.metoo.sqlite.utils.Global;
 import com.metoo.sqlite.utils.ResponseUtil;
 import com.metoo.sqlite.utils.date.DateTools;
@@ -75,6 +76,8 @@ public class Gather11ManagerController {
     private ProbeToTerminalAndDeviceScan probeToTerminalAndDeviceScan;
     @Autowired
     private VerifyVendorUtils verifyVendorUtils;
+    @Autowired
+    private GatherAllInOneService allInOneService;
 
     @Autowired
     public Gather11ManagerController(ApiService apiService) {
@@ -83,42 +86,42 @@ public class Gather11ManagerController {
 
     @GetMapping("/main")
     public Result main(@RequestParam(value = "type", required = false) Integer type) {
-
-        if (!lock.tryLock()) {
-            return ResponseUtil.ok(1002, "正在测绘");
-        }
-        try {
-            if (type != null && type == 1) {
-                return handleTypeOne();
-            }
-
-            if (!hasDevices()) {
-                return ResponseUtil.ok(1003, "请先添加设备");
-            }
-
-            boolean flag = checkDeviceVendor();
-
-            // 清空测绘日志
-            clearLogs();
-
-            if (flag) {
-                runSelfTerminalUtils();
-                return ResponseUtil.ok("测绘完成");
-            }
-
-            performDataCollection();
-
-            return ResponseUtil.ok("测绘完成");
-
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-            e.printStackTrace();
-            return ResponseUtil.error("测绘失败");
-        }finally {
-            if (lock.isHeldByCurrentThread()) {
-                lock.unlock();
-            }
-        }
+        return  allInOneService.startGather(type);
+//        if (!lock.tryLock()) {
+//            return ResponseUtil.ok(1002, "正在测绘");
+//        }
+//        try {
+//            if (type != null && type == 1) {
+//                return handleTypeOne();
+//            }
+//
+//            if (!hasDevices()) {
+//                return ResponseUtil.ok(1003, "请先添加设备");
+//            }
+//
+//            boolean flag = checkDeviceVendor();
+//
+//            // 清空测绘日志
+//            clearLogs();
+//
+//            if (flag) {
+//                runSelfTerminalUtils();
+//                return ResponseUtil.ok("测绘完成");
+//            }
+//
+//            performDataCollection();
+//
+//            return ResponseUtil.ok("测绘完成");
+//
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//            e.printStackTrace();
+//            return ResponseUtil.error("测绘失败");
+//        }finally {
+//            if (lock.isHeldByCurrentThread()) {
+//                lock.unlock();
+//            }
+//        }
     }
 
     public static String getDate() {
@@ -207,7 +210,6 @@ public class Gather11ManagerController {
 
             executeGatherTask(factory, Global.IPV4_PANABIT);
             executeGatherTask(factory, Global.PY_SUFFIX_ALIVEINT);
-
             // ipv4 网段梳理
             this.subnetService.comb();
 
@@ -287,9 +289,9 @@ public class Gather11ManagerController {
 
             this.careateSureyingLog("网络设备分析", beginTime, 1);
 
-            GatherFactory factory = new GatherFactory();
+           // GatherFactory factory = new GatherFactory();
 
-            executeGatherTask(factory, Global.PY_SUFFIX_GET_SWITCH);
+           // executeGatherTask(factory, Global.PY_SUFFIX_GET_SWITCH);
 
             String endTime = DateTools.getCreateTime();
 

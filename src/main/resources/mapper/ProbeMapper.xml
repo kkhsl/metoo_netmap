@@ -95,6 +95,15 @@
             <if test="fingerIdOsScan != null and fingerIdOsScan != ''">
                 fingerIdOsScan,
             </if>
+            <if test="ipv6 != null and ipv6 != ''">
+                ipv6,
+            </if>
+            <if test="mac != null and mac != ''">
+                mac,
+            </if>
+            <if test="macVendor != null and macVendor != ''">
+                mac_vendor,
+            </if>
         </trim>
         <trim prefix="VALUES(" suffix=")" suffixOverrides=",">
             <if test="createTime != null">
@@ -168,6 +177,15 @@
             </if>
             <if test="fingerIdOsScan != null and fingerIdOsScan != ''">
                 #{fingerIdOsScan},
+            </if>
+            <if test="ipv6 != null and ipv6 != ''">
+                #{ipv6},
+            </if>
+            <if test="mac != null and mac != ''">
+                #{mac},
+            </if>
+            <if test="macVendor != null and macVendor != ''">
+                #{macVendor},
             </if>
         </trim>
     </insert>

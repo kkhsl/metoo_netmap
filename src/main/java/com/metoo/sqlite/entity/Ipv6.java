@@ -36,9 +36,10 @@ public class Ipv6 {
     private String age;
     private String vpninstance;;
 
+    private String state;
+
     @ApiModelProperty("设备Uuid")
     private String deviceUuid;
-
     public Ipv6(String ipv6_address, String ipv6_mac, String port) {
         this.ipv6_address = ipv6_address;
         this.ipv6_mac = ipv6_mac;

@@ -1,6 +1,11 @@
 package com.metoo.sqlite.manager;
 
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.convert.Convert;
+import cn.hutool.core.map.MapUtil;
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSONObject;
+import com.metoo.sqlite.entity.Arp;
 import com.metoo.sqlite.entity.Probe;
 import com.metoo.sqlite.entity.ProbeBody;
 import com.metoo.sqlite.entity.ProbeResult;
@@ -62,11 +67,35 @@ public class ProbeManagerController {
             log.info("chuangfa result size ---------------------------：" + probeDataList.size());
             if (probeDataList.size() > 0) {
                 for (Probe probe : probeDataList) {
+                    // 根据ip地址查询arp表数据获取mac、ipv6等信息
+                    if(StrUtil.isNotEmpty(probe.getIp_addr())) {
+                        List<Arp> arpList = arpService.selectObjByMap(MapUtil.of("ip", probe.getIp_addr()));
+                        if(CollUtil.isNotEmpty(arpList)){
+                            probe.setIpv6(arpList.get(0).getIpv6());
+                            probe.setMac(arpList.get(0).getMac());
+                            probe.setMacVendor(arpList.get(0).getMacVendor());
+                            // 删除已找到匹配的arp数据
+                            arpService.delete(arpList.get(0).getId());
+                        }
+                    }
                     this.probeService.insert(probe);
+                }
+                //补充针对arp表中剩余的条目再放入probe表中，端口写2，再进行os-scanner扫描
+                List<Arp> arpAllList = arpService.selectObjByMap(null);
+                if(CollUtil.isNotEmpty(arpAllList)){
+                    for (Arp arp : arpAllList){
+                        Probe probe = Convert.convert(Probe.class, arp);
+                        probe.setIp_addr(arp.getIp());
+                        probe.setPort_num("2");
+                        List<Probe> arpList = probeService.selectObjByMap(MapUtil.of("ip_addr", probe.getIp_addr()));
+                        if(CollUtil.isEmpty(arpList)){
+                            // 不存在，则插入到probe表
+                            this.probeService.insert(probe);
+                        }
+                    }
                 }
             }
         }
-
 
         ProbeResult probeResult = this.probeResultService.selectObjByOne();
         probeResult.setResult(probeResult.getResult() + 1);

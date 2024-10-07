@@ -169,6 +169,11 @@ public class Global {
         Global.isConcurrent = isConcurrent;
     }
 
+    public static String resultFile;
+    @Value("${result.file}")
+    public void setResultFile(String resultFile) {
+        Global.resultFile=resultFile;
+    }
 
     public static final String PY_SUFFIX_ALIVEINT = "aliveint"; // 端口ipv4
     public static final String PY_SUFFIX_IPV4 = "arp";// ipv4
@@ -194,6 +199,8 @@ public class Global {
 
     public static final String IPV4_ARP = "fw_arp";
     public static final String IPV6_ARP = "fw_ipv6_neighbors";
-
-
+    /**
+     * arp，ipv6 neighbors，alivein 所有采集入口
+     */
+    public static final String ALL_IN_ONE = "0";
 }
