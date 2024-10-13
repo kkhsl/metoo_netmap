@@ -15,7 +15,7 @@
         order by createTime asc
     </select>
 
-    <insert id="insert" parameterType="com.metoo.sqlite.entity.SurveyingLog">
+    <insert id="insert" parameterType="com.metoo.sqlite.entity.SurveyingLog" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO metoo_sureying_log
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="createTime != null">
@@ -39,6 +39,9 @@
             <if test="info != null and info != ''">
                 info,
             </if>
+            <if test="parentId != null and parentId != ''">
+                parentId,
+            </if>
         </trim>
         <trim prefix="VALUES(" suffix=")" suffixOverrides=",">
             <if test="createTime != null">
@@ -61,6 +64,9 @@
             </if>
             <if test="info != null and info != ''">
                 #{info},
+            </if>
+            <if test="parentId != null and parentId != ''">
+                #{parentId},
             </if>
         </trim>
     </insert>
@@ -88,6 +94,9 @@
             </if>
             <if test="info != null and info != ''">
                 info = #{info},
+            </if>
+            <if test="parentId != null and parentId != ''">
+                parentId = #{parentId},
             </if>
         </set>
         where id = #{id}

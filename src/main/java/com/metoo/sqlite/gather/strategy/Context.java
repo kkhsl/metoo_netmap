@@ -26,7 +26,7 @@ public class Context<T> {
     private CountDownLatch latch;
 
     private String path;
-
+    private Integer logId;
     public Context() {
     }
 

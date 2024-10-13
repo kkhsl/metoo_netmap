@@ -11,11 +11,14 @@ import org.springframework.data.elasticsearch.config.AbstractElasticsearchConfig
 @Configuration
 public class EsClientConfig extends AbstractElasticsearchConfiguration {
 
+    @Value("${elasticsearch.host}")
+    private String host;
+
     @Override
     @Bean
     public RestHighLevelClient elasticsearchClient() {
         final ClientConfiguration clientConfiguration = ClientConfiguration
-                .builder().connectedTo("192.168.5.205:9200").build();
+                .builder().connectedTo(host).build();
         return RestClients.create(clientConfiguration).rest();
     }
 }

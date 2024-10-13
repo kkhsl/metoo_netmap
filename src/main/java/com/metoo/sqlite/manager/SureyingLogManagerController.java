@@ -2,9 +2,11 @@ package com.metoo.sqlite.manager;
 
 
 import com.metoo.sqlite.entity.SurveyingLog;
+import com.metoo.sqlite.gather.common.GatherCacheManager;
 import com.metoo.sqlite.service.ISurveyingLogService;
 import com.metoo.sqlite.utils.ResponseUtil;
 import com.metoo.sqlite.vo.Result;
+import com.metoo.sqlite.vo.SurveyingLogVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,38 +24,25 @@ public class SureyingLogManagerController {
     // false true结束轮询
     @GetMapping
     public Result logs(){
-        List<SurveyingLog> surveyingLogList = this.surveyingLogService.selectObjByMap(null);
+        // 获取测绘日志
+        List<SurveyingLogVo> surveyingLogList=surveyingLogService.queryLogInfo();
         Map result = new HashMap();
         boolean finish = false;
         result.put("data", surveyingLogList);
-//        if(surveyingLogList.size() > 0){
-//            if(surveyingLogList.size() == 8){
-//                result.put("finish", true);
-//                for (SurveyingLog surveyingLog : surveyingLogList) {
-//                    if(surveyingLog.getStatus() == 2 || surveyingLog.getStatus() == 3){
-//                        finish = true;
-//                    }else{
-//                        finish = false;
-//                        break;
-//                    }
-//                }
-//            }
-//        }
 
         if(surveyingLogList.size() > 0){
-            if(surveyingLogList.size() == 7){
-                result.put("finish", true);
-                for (SurveyingLog surveyingLog : surveyingLogList) {
-                    if(surveyingLog.getStatus() == 2 || surveyingLog.getStatus() == 3){
-                        finish = true;
-                    }else{
-                        finish = false;
-                        break;
-                    }
+            result.put("finish", true);
+            for (SurveyingLogVo surveyingLog : surveyingLogList) {
+                if(surveyingLog.getStatus() == 3){
+                    finish = false;
+                    break;
                 }
             }
         }
-
+        if(!GatherCacheManager.running){
+            // 任务手动终止，采集失败
+            finish = false;
+        }
         result.put("finish", finish);
         return ResponseUtil.ok(result);
     }

@@ -2,6 +2,7 @@ package com.metoo.sqlite.gather.utils;
 
 import lombok.experimental.UtilityClass;
 
+import java.util.concurrent.*;
 import java.util.regex.Pattern;
 
 /**
@@ -49,23 +50,37 @@ public class VersionUtils {
         return VERSION_PATTERN.matcher(version).matches();
     }
     public static void main(String[] args) {
-        // 测试版本号
-        String[] versions = {"V1.2.3", "v2.0.0", "V10.1.1", "V1.0", "v1.2", "V1.2.3.4"};
+            ExecutorService executor = Executors.newSingleThreadExecutor();
+            Callable<Void> task = () -> {
+                for (int i = 0; i < 100; i++) {
+                    if (Thread.currentThread().isInterrupted()) {
+                        System.out.println("Task interrupted!");
+                        return null;
+                    }
+                    try {
+                        Thread.sleep(100); // 模拟长时间运行的任务
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt(); // 保留中断状态
+                        System.out.println("Sleep interrupted!");
+                        return null;
+                    }
+                    System.out.println("Running...");
+                }
+                return null;
+            };
 
-        for (String version : versions) {
-            System.out.println(version + " is valid: " + isValid(version));
-        }
-        String version1 = "V1.2.3";
-        String version2 = "v1.2.10";
+            Future<Void> future = executor.submit(task);
 
-        int result = compare(version1, version2);
-        if (result < 0) {
-            System.out.println(version1 + " is older than " + version2);
-        } else if (result > 0) {
-            System.out.println(version1 + " is newer than " + version2);
-        } else {
-            System.out.println(version1 + " is the same version as " + version2);
+            // 模拟一段时间后中断任务
+        try {
+            Thread.sleep(3000);
+            future.cancel(true); // 尝试中断任务
+            // 等待任务完成，这里主要是为了演示，实际使用中可能需要更复杂的逻辑
+            future.get();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+
+            executor.shutdown();
     }
-
 }

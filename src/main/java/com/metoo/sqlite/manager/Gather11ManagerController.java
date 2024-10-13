@@ -19,13 +19,12 @@ import com.metoo.sqlite.utils.Global;
 import com.metoo.sqlite.utils.ResponseUtil;
 import com.metoo.sqlite.utils.date.DateTools;
 import com.metoo.sqlite.vo.Result;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -38,7 +37,7 @@ import java.util.stream.Collectors;
  * @date 2024-06-24 12:50
  */
 
-
+@Api(tags = "测绘管理")
 @Slf4j
 @RequestMapping("/admin/gather")
 @RestController
@@ -85,6 +84,7 @@ public class Gather11ManagerController {
     }
 
     @GetMapping("/main")
+    @ApiOperation(value = "开始测绘", notes = "开始测绘")
     public Result main(@RequestParam(value = "type", required = false) Integer type) {
         return  allInOneService.startGather(type);
 //        if (!lock.tryLock()) {
@@ -124,6 +124,12 @@ public class Gather11ManagerController {
 //        }
     }
 
+    @PostMapping("/stop")
+    @ApiOperation(value = "停止测绘", notes = "停止测绘")
+    public Result stop() {
+       boolean result=allInOneService.stopGather();
+       return result?ResponseUtil.ok("停止测绘成功"):ResponseUtil.error("停止测绘失败");
+    }
     public static String getDate() {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String date = simpleDateFormat.format(new Date());

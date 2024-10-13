@@ -1,9 +1,13 @@
 package com.metoo.sqlite.service.impl;
 
+import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.util.StringUtil;
+import com.metoo.sqlite.core.config.enums.LogStatusType;
+import com.metoo.sqlite.dto.SessionInfoDto;
 import com.metoo.sqlite.entity.*;
+import com.metoo.sqlite.gather.common.GatherCacheManager;
 import com.metoo.sqlite.gather.factory.gather.thread.Gather;
 import com.metoo.sqlite.gather.factory.gather.thread.GatherFactory;
 import com.metoo.sqlite.gather.self.SelfTerminalUtils;
@@ -12,6 +16,7 @@ import com.metoo.sqlite.manager.api.JsonRequest;
 import com.metoo.sqlite.manager.utils.gather.ProbeToTerminalAndDeviceScan;
 import com.metoo.sqlite.manager.utils.gather.VerifyVendorUtils;
 import com.metoo.sqlite.manager.utils.jx.JXDataUtils;
+import com.metoo.sqlite.model.es.EsQueryService;
 import com.metoo.sqlite.service.*;
 import com.metoo.sqlite.utils.Global;
 import com.metoo.sqlite.utils.ResponseUtil;
@@ -27,6 +32,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
@@ -47,7 +56,7 @@ public class GatherAllInOneService {
     @Autowired
     private IDeviceService deviceService;
     @Autowired
-    private ISurveyingLogService surveyingLogService;
+    private PublicService publicService;
 
     @Autowired
     private IProbeService probeService;
@@ -68,9 +77,6 @@ public class GatherAllInOneService {
 
     @Autowired
     private ISubnetIpv6Service subnetIpv6Service;
-
-    @Autowired
-    private IGatherLogService gatherLogService;
     @Autowired
     private IGatewayInfoService gatewayInfoService;
     @Autowired
@@ -79,6 +85,12 @@ public class GatherAllInOneService {
     private GatherAllInOneExecuteService executeService;
     @Autowired
     private SelfTerminalUtils selfTerminalUtils;
+
+    @Autowired
+    private EsQueryService esQuery;
+    private Future<?> runningTask = null;
+
+    private ExecutorService executorService;
 
     /**
      * 测绘主逻辑
@@ -101,65 +113,154 @@ public class GatherAllInOneService {
             if (devices.size() < 1) {
                 return ResponseUtil.ok(1003, "请先添加设备");
             }
-            boolean flag = checkDeviceVendor();
-            // 清空测绘日志
-            clearLogs();
-            if (flag) {
-                runSelfTerminalUtils();
-                return ResponseUtil.ok("测绘完成");
+            if (runningTask != null && !runningTask.isDone()) {
+                log.error("当前测绘任务正在进行");
+                return ResponseUtil.ok(1002, "正在测绘");
             }
-            // cf-scanner环境判断
-            this.careateSureyingLog("采集模块检测", DateTools.getCreateTime(), 1);
-            if (!existCFScannerFile()) {
-                this.updateSureyingLog("采集模块检测", DateTools.getCreateTime(), 3);
-                return ResponseUtil.error("采集模块出现问题");
-            } else {
-                this.updateSureyingLog("采集模块检测", DateTools.getCreateTime(), 2);
-            }
-            // os-scanner环境判断
-            this.careateSureyingLog("扫描模块检测", DateTools.getCreateTime(), 1);
-            if (!existOSScannerFile()) {
-                this.updateSureyingLog("扫描模块检测", DateTools.getCreateTime(), 3);
-                return ResponseUtil.error("扫描模块出现问题");
-            } else {
-                this.updateSureyingLog("扫描模块检测", DateTools.getCreateTime(), 2);
-            }
-            // elk服务启动
-            String beginTime = DateTools.getCreateTime();
-            // 调用main.pyc执行脚本
-            this.careateSureyingLog("ipv4网段分析", beginTime, 1);
-            //对json结果文件进行解析入库
+            executorService = ThreadUtil.newSingleExecutor();
+            Callable<Void> task = () -> {
+                if (Thread.currentThread().isInterrupted()) {
+                    log.error("任务中断");
+                    return null;
+                }
+                try {
+                    gatherMethod();
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt(); // 保留中断状态
+                    log.error("具体任务中断");
+                    return null;
+                }
+                return null;
+            };
+            runningTask = executorService.submit(task);
             try {
-                // 调用arp，ipv6 neighbors，alivein 采集
-                executeService.callMainExecute();
-                gatherIPv4();
-            } catch (Exception e) {
-                log.error("ipv4网段分析 出现错误：{}", e);
-                String endTime = DateTools.getCreateTime();
-                this.updateSureyingLog("ipv4网段分析", endTime, 3);
+                // 等待任务执行完毕
+                runningTask.get();
+                log.info("测绘任务完成情况========");
+            } catch (InterruptedException | ExecutionException e) {
+                // 处理可能的异常
+                log.error("等待测绘任务执行完毕出错：{}", e);
+                // 如果被中断，则保留中断状态
+                Thread.currentThread().interrupt();
+                return ResponseUtil.error("测绘已终止");
             }
-            gatherIPv6();
-            gatherArp();
-            //gatherPing();
-            getProbeResult();
-            gatherSwitch();
-            gatherTerminal();
-            String endTime = DateTools.getCreateTime();
-            String data = jxDataUtils.getEncryptedData();
-            gatherUploadData(data);
-
-            String surveying = getSurveyingResult();
-            logGatheringResults(beginTime, endTime, data, surveying);
             return ResponseUtil.ok("测绘完成");
-
         } catch (Exception e) {
             log.error("测绘失败：{}", e);
             return ResponseUtil.error("测绘失败");
         } finally {
+            // 清除引用，以便可以提交新的任务
+            runningTask = null;
             if (lock.isHeldByCurrentThread()) {
                 lock.unlock();
             }
+            GatherCacheManager.running = true;
+            executorService.shutdown();
+
         }
+    }
+
+    /**
+     * 测绘任务方法
+     *
+     * @throws Exception
+     */
+    private void gatherMethod() throws Exception {
+        // boolean flag = checkDeviceVendor();
+        // 清空测绘日志
+        publicService.clearLogs();
+//        if (flag) {
+//            runSelfTerminalUtils();
+//        }else {
+        // cf-scanner环境判断
+        if(!GatherCacheManager.running) {
+            throw new RuntimeException("测绘已手动中止");
+        }
+        int cjLogId = publicService.createSureyingLog("采集模块检测", DateTools.getCreateTime(), LogStatusType.init.getCode(), null);
+        if (!existCFScannerFile()) {
+            publicService.updateSureyingLog(cjLogId, LogStatusType.FAIL.getCode());
+            throw new Exception("采集模块检测出错");
+        } else {
+            publicService.updateSureyingLog(cjLogId, LogStatusType.SUCCESS.getCode());
+        }
+        if(!GatherCacheManager.running) {
+            throw new RuntimeException("测绘已手动中止");
+        }
+        // os-scanner环境判断
+        int scLogId = publicService.createSureyingLog("扫描模块检测", DateTools.getCreateTime(), LogStatusType.init.getCode(), null);
+        if (!existOSScannerFile()) {
+            publicService.updateSureyingLog(scLogId, LogStatusType.FAIL.getCode());
+            throw new Exception("扫描模块检测出错");
+        } else {
+            publicService.updateSureyingLog(scLogId, LogStatusType.SUCCESS.getCode());
+        }
+        // TODO: elk设备启动
+        // 启动日志模块日志
+        String beginTime = DateTools.getCreateTime();
+        // 调用main.pyc执行脚本
+        int logId = publicService.createSureyingLog("启动日志模块", beginTime, LogStatusType.init.getCode(), null);
+        //对json结果文件进行解析入库
+        try {
+            // 调用arp，ipv6 neighbors，alivein 采集
+            executeService.callMainExecute(logId);
+            if(!GatherCacheManager.running) {
+                throw new RuntimeException("测绘已手动中止");
+            }
+            gatherIPv4();
+        } catch (Exception e) {
+            log.error("启动日志模块 出现错误：{}", e);
+            publicService.updateSureyingLog(logId, LogStatusType.FAIL.getCode());
+        }
+        // 启动日志成功
+        publicService.updateSureyingLog(logId, LogStatusType.SUCCESS.getCode());
+        if(!GatherCacheManager.running) {
+            throw new RuntimeException("测绘已手动中止");
+        }
+        gatherIPv6();
+        if(!GatherCacheManager.running) {
+            throw new RuntimeException("测绘已手动中止");
+        }
+        gatherArp();
+        //gatherPing();
+        if(!GatherCacheManager.running) {
+            throw new RuntimeException("测绘已手动中止");
+        }
+        getProbeResult();
+        //gatherSwitch();
+        if(!GatherCacheManager.running) {
+            throw new RuntimeException("测绘已手动中止");
+        }
+        gatherTerminal();
+        if(!GatherCacheManager.running) {
+            throw new RuntimeException("测绘已手动中止");
+        }
+        String endTime = DateTools.getCreateTime();
+        String data = jxDataUtils.getEncryptedData();
+        gatherUploadData(data);
+        if(!GatherCacheManager.running) {
+            throw new RuntimeException("测绘已手动中止");
+        }
+        String surveying = getSurveyingResult();
+        publicService.logGatheringResults(beginTime, endTime, data, surveying);
+        //  }
+    }
+
+    /**
+     * 手动停止测绘
+     *
+     * @return
+     */
+    public boolean stopGather() {
+        if (runningTask != null && !runningTask.isDone()) {
+            // 表示如果必要则中断正在运行的线程
+            runningTask.cancel(true);
+            // 清除引用，以便可以提交新的任务
+            runningTask = null;
+
+        }
+        executorService.shutdownNow();
+        GatherCacheManager.running = false;
+        return true;
     }
 
     private void runSelfTerminalUtils() {
@@ -173,31 +274,6 @@ public class GatherAllInOneService {
     private boolean checkDeviceVendor() {
         List<Device> devices = deviceService.selectObjByMap(null);
         return devices.stream().anyMatch(device -> device.getDeviceVendorSequence() == 1);
-    }
-
-    private void clearLogs() {
-        try {
-            surveyingLogService.deleteTable();
-            gatherLogService.deleteTable();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void logGatheringResults(String beginTime, String endTime, String data, String surveying) {
-        try {
-            GatherLog gatherLog = new GatherLog();
-            gatherLog.setCreateTime(beginTime);
-            gatherLog.setBeginTime(beginTime);
-            gatherLog.setEndTime(endTime);
-            gatherLog.setType("手动");
-            gatherLog.setResult("成功");
-            gatherLog.setDetails(surveying);
-            gatherLog.setData(data);
-            gatherLogService.insert(gatherLog);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     public List<Subnet> genericSubnet(Subnet subnet) {
@@ -233,6 +309,9 @@ public class GatherAllInOneService {
             details.put("subme_ipv6", this.subnet_ipv6());
             List<GatewayInfo> gatewayInfoList = this.gatewayInfoService.selectObjByMap(null);
             details.put("gatewayInfo", gatewayInfoList);
+            // 补充es查询后数据
+            SessionInfoDto SessionInfoDto = esQuery.querySessionInfo();
+            details.put("sessionInfo", SessionInfoDto);
             Map params = new HashMap();
             params.clear();
             params.put("ipv4IsNotNull", "ipv4addr");
@@ -275,39 +354,30 @@ public class GatherAllInOneService {
 
     public void gatherUploadData(String data) {
         String beginTime = DateTools.getCreateTime();
-        this.careateSureyingLog("生成加密结果文件", beginTime, 1);
-
-        try {
-            Thread.sleep(1);//0000
-            String endTime = DateTools.getCreateTime();
-            this.updateSureyingLog("生成加密结果文件", endTime, 2);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        int ecLogId = publicService.createSureyingLog("生成加密结果文件", beginTime, 1, null);
+        publicService.updateSureyingLog(ecLogId, 2);
 
     }
 
     public String getProbeResult() {
         log.info("Probe start===============");
         String begin_time = DateTools.getCreateTime();
-        this.careateSureyingLog("全网资产扫描", begin_time, 1);
+        int probeLogId = publicService.createSureyingLog("全网资产扫描", begin_time, 1, null);
         try {
             List<Arp> arpList = this.arpService.selectObjByMap(null);
             if (arpList.isEmpty()) {
-                String endTime = DateTools.getCreateTime();
-                this.updateSureyingLog("全网资产扫描", endTime, 2);
+                publicService.updateSureyingLog(probeLogId, 2);
                 return null;
             }
             if (arpList.size() >= 200) {
                 processInBatches(arpList);
             } else {
-                processSingleBatch(arpList);
+                processSingleBatch(arpList, probeLogId);
             }
             log.info("Probe end===============");
             return null;
         } catch (Exception e) {
-            String endTime = DateTools.getCreateTime();
-            this.updateSureyingLog("全网资产扫描", endTime, 3);
+            publicService.updateSureyingLog(probeLogId, 3);
         }
         log.info("Probe end===============");
         return null;
@@ -374,60 +444,44 @@ public class GatherAllInOneService {
         }
     }
 
-    private void processSingleBatch(List<Arp> arpList) {
+    private void processSingleBatch(List<Arp> arpList, int probeLogId) {
         String ipAddressString = extractIpAddresses(arpList);
         if (StringUtil.isNotEmpty(ipAddressString)) {
             boolean flag = this.callChuangfaSingle(ipAddressString);
-            String endTime = DateTools.getCreateTime();
-            this.updateSureyingLog("全网资产扫描", endTime, flag ? 2 : 3);
+            publicService.updateSureyingLog(probeLogId, flag ? 2 : 3);
         }
     }
-
-    public void gatherSwitch() {
-
-        try {
-            String beginTime = DateTools.getCreateTime();
-
-            this.careateSureyingLog("网络设备分析", beginTime, 1);
-
-            // GatherFactory factory = new GatherFactory();
-
-            // executeGatherTask(factory, Global.PY_SUFFIX_GET_SWITCH);
-
-            String endTime = DateTools.getCreateTime();
-
-            this.updateSureyingLog("网络设备分析", endTime, 2);
-        } catch (Exception e) {
-            e.printStackTrace();
-            String endTime = DateTools.getCreateTime();
-            this.updateSureyingLog("网络设备分析", endTime, 3);
-        }
-    }
+//
+//    public void gatherSwitch() {
+//
+//        try {
+//            String beginTime = DateTools.getCreateTime();
+//
+//            publicService.createSureyingLog("网络设备分析", beginTime, 1,null);
+//
+//            String endTime = DateTools.getCreateTime();
+//
+//            publicService.updateSureyingLog("网络设备分析", endTime, 2);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            String endTime = DateTools.getCreateTime();
+//        }
+//    }
 
     public void gatherIPv4() {
-        // 梳理结果，存入采集日志
-        String endTime = DateTools.getCreateTime();
         // ipv4 网段梳理
         this.subnetService.comb();
-        this.updateSureyingLog("ipv4网段分析", endTime, 2);
-
     }
 
     public void gatherIPv6() {
         try {
 
-            String beginTime = DateTools.getCreateTime();
-            this.careateSureyingLog("ipv6网段分析", beginTime, 1);
             GatherFactory factory = new GatherFactory();
             Gather gather = factory.getGather(Global.SUBNET_IPV6);
             gather.executeMethod();
-            String endTime = DateTools.getCreateTime();
-            this.updateSureyingLog("ipv6网段分析", endTime, 2);
 
         } catch (Exception e) {
             e.printStackTrace();
-            String endTime = DateTools.getCreateTime();
-            this.updateSureyingLog("ipv6网段分析", endTime, 3);
         }
     }
 
@@ -437,35 +491,6 @@ public class GatherAllInOneService {
             Gather gather = factory.getGather(Global.ARP);
             gather.executeMethod();
         } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void careateSureyingLog(String name, String beginTime, Integer status) {
-        SurveyingLog surveyingLog = new SurveyingLog().createTime(DateTools.getCreateTime()).name(name).beginTime(beginTime).status(status);
-        this.surveyingLogService.insert(surveyingLog);
-    }
-
-    public void updateSureyingLog(String name, String endTime, Integer status) {
-
-        try {
-            Thread.sleep(10000); // 手动设置测绘休眠
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-        endTime = DateTools.getCreateTime();
-
-        Map params = new HashMap();
-        params.put("name", name);
-        List<SurveyingLog> surveyingLogs = this.surveyingLogService.selectObjByMap(params);
-        if (surveyingLogs.size() > 0) {
-            SurveyingLog surveyingLog = surveyingLogs.get(0).endTime(endTime).status(status);
-            this.surveyingLogService.update(surveyingLog);
-        }
-        try {
-            Thread.sleep(200); // 手动设置测绘休眠
-        } catch (InterruptedException e) {
             e.printStackTrace();
         }
     }
@@ -511,7 +536,9 @@ public class GatherAllInOneService {
             // 等待
             Map params = new HashMap();
             while (true) {
-
+                if(!GatherCacheManager.running) {
+                    throw new RuntimeException("测绘已手动中止");
+                }
                 try {
                     Thread.sleep(5000);
                     log.info("wait......");
@@ -568,12 +595,12 @@ public class GatherAllInOneService {
             // 等待
             Map params = new HashMap();
             while (true) {
-
-                try {
-                    Thread.sleep(5000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+//
+//                try {
+//                    Thread.sleep(5000);
+//                } catch (InterruptedException e) {
+//                    e.printStackTrace();
+//                }
 
                 params.clear();
                 params.put("result", probeResult.getResult() + 1);
@@ -608,26 +635,20 @@ public class GatherAllInOneService {
     }
 
     public void gatherTerminal() {
+        String beginTime = DateTools.getCreateTime();
+        int temLogId = publicService.createSureyingLog("终端分析", beginTime, 1, null);
         try {
-            String beginTime = DateTools.getCreateTime();
-
-            this.careateSureyingLog("终端分析", beginTime, 1);
-
             //this.gatherArp();
-
             this.gatherDeviceScan();
-
             GatherFactory factory = new GatherFactory();
             Gather gather = factory.getGather(Global.TERMINAL);
             gather.executeMethod();
             this.probeToTerminalAndDeviceScan.finalProbe();
             this.verifyVendorUtils.finalTerminal();
-            String endTime = DateTools.getCreateTime();
-            this.updateSureyingLog("终端分析", endTime, 2);
+            publicService.updateSureyingLog(temLogId, 2);
         } catch (Exception e) {
             e.printStackTrace();
-            String endTime = DateTools.getCreateTime();
-            this.updateSureyingLog("终端分析", endTime, 3);
+            publicService.updateSureyingLog(temLogId, 3);
         }
     }
 

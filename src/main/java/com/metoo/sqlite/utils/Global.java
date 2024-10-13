@@ -175,6 +175,38 @@ public class Global {
         Global.resultFile=resultFile;
     }
 
+    /**
+     * 补丁版本解压路径-只需解压，不需要重启的版本
+     */
+    public static String versionPatchUnZip;
+    @Value("${version.patch.unZip}")
+    public void setVersionPatchUnZip(String versionPatchUnZip) {
+        Global.versionPatchUnZip = versionPatchUnZip;
+    }
+    /**
+     * 补丁版本数据库脚本解压路径-只需解压，不需要重启的版本
+     */
+    public static String versionPatchDb;
+    @Value("${version.patch.db}")
+    public void setVersionPatchDb(String versionPatchDb) {
+        Global.versionPatchDb = versionPatchDb;
+    }
+    /**
+     * 错误图片地址
+     */
+    public static String errorImageUrl;
+    @Value("${error.img.url}")
+    public void setErrorImageUrl(String errorImageUrl) {
+        Global.errorImageUrl = errorImageUrl;
+    }
+    /**
+     * 错误图片文件名
+     */
+    public static String errorImageFileName;
+    @Value("${error.img.fileName}")
+    public void setErrorImageFileName(String errorImageFileName) {
+        Global.errorImageFileName = errorImageFileName;
+    }
     public static final String PY_SUFFIX_ALIVEINT = "aliveint"; // 端口ipv4
     public static final String PY_SUFFIX_IPV4 = "arp";// ipv4
     public static final String PY_SUFFIX_IPV6_NEIGHBORS = "ipv6_neighbors";// ipv6
@@ -203,4 +235,8 @@ public class Global {
      * arp，ipv6 neighbors，alivein 所有采集入口
      */
     public static final String ALL_IN_ONE = "0";
+    /**
+     * arp，ipv6 neighbors，alivein 所有采集入口
+     */
+    public static final String ERROR_LOG = "0";
 }
