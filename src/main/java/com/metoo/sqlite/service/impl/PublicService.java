@@ -3,6 +3,7 @@ package com.metoo.sqlite.service.impl;
 import com.metoo.sqlite.core.config.enums.LogStatusType;
 import com.metoo.sqlite.entity.GatherLog;
 import com.metoo.sqlite.entity.SurveyingLog;
+import com.metoo.sqlite.gather.common.GatherCacheManager;
 import com.metoo.sqlite.service.IGatherLogService;
 import com.metoo.sqlite.service.ISurveyingLogService;
 import com.metoo.sqlite.utils.Global;
@@ -56,6 +57,9 @@ public class PublicService {
     }
 
     public int createSureyingLog(String name, String beginTime, Integer status, Integer parentId) {
+        if(!GatherCacheManager.running) {
+            throw new RuntimeException("测绘已手动中止");
+        }
         SurveyingLog surveyingLog = new SurveyingLog()
                 .createTime(DateTools.getCreateTime())
                 .name(name).beginTime(beginTime)
@@ -71,7 +75,9 @@ public class PublicService {
     }
 
     public void updateSureyingLog(Integer id, Integer status) {
-
+        if(!GatherCacheManager.running) {
+            throw new RuntimeException("测绘已手动中止");
+        }
         SurveyingLog surveyingLog = new SurveyingLog();
         surveyingLog.setId(id);
         surveyingLog.endTime(DateTools.getCreateTime()).status(status);

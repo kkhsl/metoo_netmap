@@ -173,18 +173,12 @@ public class GatherAllInOneService {
 //            runSelfTerminalUtils();
 //        }else {
         // cf-scanner环境判断
-        if(!GatherCacheManager.running) {
-            throw new RuntimeException("测绘已手动中止");
-        }
         int cjLogId = publicService.createSureyingLog("采集模块检测", DateTools.getCreateTime(), LogStatusType.init.getCode(), null);
         if (!existCFScannerFile()) {
             publicService.updateSureyingLog(cjLogId, LogStatusType.FAIL.getCode());
             throw new Exception("采集模块检测出错");
         } else {
             publicService.updateSureyingLog(cjLogId, LogStatusType.SUCCESS.getCode());
-        }
-        if(!GatherCacheManager.running) {
-            throw new RuntimeException("测绘已手动中止");
         }
         // os-scanner环境判断
         int scLogId = publicService.createSureyingLog("扫描模块检测", DateTools.getCreateTime(), LogStatusType.init.getCode(), null);
@@ -203,9 +197,6 @@ public class GatherAllInOneService {
         try {
             // 调用arp，ipv6 neighbors，alivein 采集
             executeService.callMainExecute(logId);
-            if(!GatherCacheManager.running) {
-                throw new RuntimeException("测绘已手动中止");
-            }
             gatherIPv4();
         } catch (Exception e) {
             log.error("启动日志模块 出现错误：{}", e);
@@ -213,23 +204,11 @@ public class GatherAllInOneService {
         }
         // 启动日志成功
         publicService.updateSureyingLog(logId, LogStatusType.SUCCESS.getCode());
-        if(!GatherCacheManager.running) {
-            throw new RuntimeException("测绘已手动中止");
-        }
         gatherIPv6();
-        if(!GatherCacheManager.running) {
-            throw new RuntimeException("测绘已手动中止");
-        }
         gatherArp();
         //gatherPing();
-        if(!GatherCacheManager.running) {
-            throw new RuntimeException("测绘已手动中止");
-        }
         getProbeResult();
         //gatherSwitch();
-        if(!GatherCacheManager.running) {
-            throw new RuntimeException("测绘已手动中止");
-        }
         gatherTerminal();
         if(!GatherCacheManager.running) {
             throw new RuntimeException("测绘已手动中止");
@@ -237,9 +216,6 @@ public class GatherAllInOneService {
         String endTime = DateTools.getCreateTime();
         String data = jxDataUtils.getEncryptedData();
         gatherUploadData(data);
-        if(!GatherCacheManager.running) {
-            throw new RuntimeException("测绘已手动中止");
-        }
         String surveying = getSurveyingResult();
         publicService.logGatheringResults(beginTime, endTime, data, surveying);
         //  }
