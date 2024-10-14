@@ -71,7 +71,11 @@ public class Probe {
 
     @ApiModelProperty("os可用率")
     private Float reliability;
-
+    @ApiModelProperty("ipv6")
+    private String ipv6;
+    @ApiModelProperty("mac地址")
+    private String mac;
+    private String macVendor;
     public Probe(String port_num) {
         this.port_num = port_num;
     }

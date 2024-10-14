@@ -1,7 +1,6 @@
 package com.metoo.sqlite.entity;
 
 
-import io.swagger.annotations.ApiModel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -18,7 +17,7 @@ public class OsScan {
     private String IP;
     private String openPort;
     private String closePort;
-    private String Dst_GW_MAC;
+    private String DstOrGW_MAC;
     private String manufacturer;
     private String ttl;
     private String FingerID;

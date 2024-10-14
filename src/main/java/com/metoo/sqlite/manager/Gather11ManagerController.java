@@ -14,17 +14,17 @@ import com.metoo.sqlite.manager.utils.gather.ProbeToTerminalAndDeviceScan;
 import com.metoo.sqlite.manager.utils.gather.VerifyVendorUtils;
 import com.metoo.sqlite.manager.utils.jx.JXDataUtils;
 import com.metoo.sqlite.service.*;
+import com.metoo.sqlite.service.impl.GatherAllInOneService;
 import com.metoo.sqlite.utils.Global;
 import com.metoo.sqlite.utils.ResponseUtil;
 import com.metoo.sqlite.utils.date.DateTools;
 import com.metoo.sqlite.vo.Result;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -37,7 +37,7 @@ import java.util.stream.Collectors;
  * @date 2024-06-24 12:50
  */
 
-
+@Api(tags = "测绘管理")
 @Slf4j
 @RequestMapping("/admin/gather")
 @RestController
@@ -75,6 +75,8 @@ public class Gather11ManagerController {
     private ProbeToTerminalAndDeviceScan probeToTerminalAndDeviceScan;
     @Autowired
     private VerifyVendorUtils verifyVendorUtils;
+    @Autowired
+    private GatherAllInOneService allInOneService;
 
     @Autowired
     public Gather11ManagerController(ApiService apiService) {
@@ -82,45 +84,52 @@ public class Gather11ManagerController {
     }
 
     @GetMapping("/main")
+    @ApiOperation(value = "开始测绘", notes = "开始测绘")
     public Result main(@RequestParam(value = "type", required = false) Integer type) {
-
-        if (!lock.tryLock()) {
-            return ResponseUtil.ok(1002, "正在测绘");
-        }
-        try {
-            if (type != null && type == 1) {
-                return handleTypeOne();
-            }
-
-            if (!hasDevices()) {
-                return ResponseUtil.ok(1003, "请先添加设备");
-            }
-
-            boolean flag = checkDeviceVendor();
-
-            // 清空测绘日志
-            clearLogs();
-
-            if (flag) {
-                runSelfTerminalUtils();
-                return ResponseUtil.ok("测绘完成");
-            }
-
-            performDataCollection();
-
-            return ResponseUtil.ok("测绘完成");
-
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-            e.printStackTrace();
-            return ResponseUtil.error("测绘失败");
-        }finally {
-            if (lock.isHeldByCurrentThread()) {
-                lock.unlock();
-            }
-        }
+        return  allInOneService.startGather(type);
+//        if (!lock.tryLock()) {
+//            return ResponseUtil.ok(1002, "正在测绘");
+//        }
+//        try {
+//            if (type != null && type == 1) {
+//                return handleTypeOne();
+//            }
+//
+//            if (!hasDevices()) {
+//                return ResponseUtil.ok(1003, "请先添加设备");
+//            }
+//
+//            boolean flag = checkDeviceVendor();
+//
+//            // 清空测绘日志
+//            clearLogs();
+//
+//            if (flag) {
+//                runSelfTerminalUtils();
+//                return ResponseUtil.ok("测绘完成");
+//            }
+//
+//            performDataCollection();
+//
+//            return ResponseUtil.ok("测绘完成");
+//
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//            e.printStackTrace();
+//            return ResponseUtil.error("测绘失败");
+//        }finally {
+//            if (lock.isHeldByCurrentThread()) {
+//                lock.unlock();
+//            }
+//        }
     }
 
+    @PostMapping("/stop")
+    @ApiOperation(value = "停止测绘", notes = "停止测绘")
+    public Result stop() {
+       boolean result=allInOneService.stopGather();
+       return result?ResponseUtil.ok("停止测绘成功"):ResponseUtil.error("停止测绘失败");
+    }
     public static String getDate() {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String date = simpleDateFormat.format(new Date());
@@ -207,7 +216,6 @@ public class Gather11ManagerController {
 
             executeGatherTask(factory, Global.IPV4_PANABIT);
             executeGatherTask(factory, Global.PY_SUFFIX_ALIVEINT);
-
             // ipv4 网段梳理
             this.subnetService.comb();
 
@@ -287,9 +295,9 @@ public class Gather11ManagerController {
 
             this.careateSureyingLog("网络设备分析", beginTime, 1);
 
-            GatherFactory factory = new GatherFactory();
+           // GatherFactory factory = new GatherFactory();
 
-            executeGatherTask(factory, Global.PY_SUFFIX_GET_SWITCH);
+           // executeGatherTask(factory, Global.PY_SUFFIX_GET_SWITCH);
 
             String endTime = DateTools.getCreateTime();
 

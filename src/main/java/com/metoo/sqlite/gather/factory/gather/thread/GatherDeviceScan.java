@@ -85,18 +85,10 @@ public class GatherDeviceScan implements Gather {
                                 deviceScan.setCreateTime(DateTools.getCreateTime());
                                 deviceScan.setDevice_ipv4(probe.getIp_addr());
                                 deviceScan.setDevice_type(probe.getDevice_type());
-
-                                params.clear();
-                                params.put("likeIp", "%" + deviceScan.getDevice_ipv4() + "%");
-                                List<Arp> arps = arpService.selectObjByMap(params);
-                                if(arps.size() > 0){
-                                    Arp arp = arps.get(0);
-                                    deviceScan.setMac(arp.getMac());
-                                    deviceScan.setMacVendor(arp.getMacVendor());
-                                    deviceScan.setDevice_product(arp.getMacVendor());
-                                    deviceScan.setDevice_ipv6(arp.getIpv6());
-                                }
-
+                                deviceScan.setMac(probe.getMac());
+                                deviceScan.setMacVendor(probe.getMacVendor());
+                                deviceScan.setDevice_product(probe.getMacVendor());
+                                deviceScan.setDevice_ipv6(probe.getIpv6());
                                 deviceScanService.insert(deviceScan);
 
                                 deleteSet.add(probe.getIp_addr());
@@ -110,18 +102,10 @@ public class GatherDeviceScan implements Gather {
                                 deviceScan.setCreateTime(DateTools.getCreateTime());
                                 deviceScan.setDevice_ipv4(probe.getIp_addr());
                                 deviceScan.setDevice_type(probe.getDevice_type());
-
-                                params.clear();
-                                params.put("likeIp", "%" + deviceScan.getDevice_ipv4() + "%");
-                                List<Arp> arps = arpService.selectObjByMap(params);
-                                if(arps.size() > 0){
-                                    Arp arp = arps.get(0);
-                                    deviceScan.setMac(arp.getMac());
-                                    deviceScan.setMacVendor(arp.getMacVendor());
-                                    deviceScan.setDevice_product(arp.getMacVendor());
-                                    deviceScan.setDevice_ipv6(arp.getIpv6());
-                                }
-
+                                deviceScan.setMac(probe.getMac());
+                                deviceScan.setMacVendor(probe.getMacVendor());
+                                deviceScan.setDevice_product(probe.getMacVendor());
+                                deviceScan.setDevice_ipv6(probe.getIpv6());
                                 deviceScanService.insert(deviceScan);
 
                                 deleteSet.add(probe.getIp_addr());

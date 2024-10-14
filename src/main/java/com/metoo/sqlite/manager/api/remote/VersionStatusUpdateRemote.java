@@ -104,6 +104,14 @@ public class VersionStatusUpdateRemote extends BaseCall {
 
     @Override
     public Map<String, Object> buildBody(HttpMethod httpMethod,Map<String, Object> requestBody, Map<String, Object> maps) {
+        if (HttpMethod.POST == httpMethod) {
+            Map<String, Object> requestBodyNew = new HashMap<>(8);
+            //添加属性条件
+            maps.forEach((k, v) -> {
+                requestBodyNew.put(k, v);
+            });
+            return requestBodyNew;
+        }
         return requestBody!=null ?requestBody:new HashMap<>(8);
     }
 }

@@ -91,8 +91,8 @@ public class ArpServiceImpl implements IArpService {
                     }
                 }
             }
-//            this.arpMapper.deleteTableBack();
-//            this.arpMapper.copyToBck();
+            this.arpMapper.deleteTableBack();
+            this.arpMapper.copyToBck();
             return 1;
         } catch (Exception e) {
             e.printStackTrace();

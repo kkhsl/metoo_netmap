@@ -25,22 +25,20 @@ public class ProbeToTerminalAndDeviceScan {
     @Autowired
     private ITerminalService terminalService;
     @Autowired
-    private IArpService arpService;
-    @Autowired
     private IMacVendorService macVendorService;
 
 
 
-    public void insertDeviceScan(Arp arp, String macVendor, String mac, String os){
+    public void insertDeviceScan(Probe probe, String macVendor, String mac, String os){
         DeviceScan deviceScan = new DeviceScan();
-        deviceScan.setDevice_ipv6(arp.getIpv6());
+        deviceScan.setDevice_ipv6(probe.getIpv6());
         deviceScan.setDevice_product(macVendor);
         deviceScan.setMac(mac);
         deviceScan.setMacVendor(macVendor);
         deviceScan.setOs(os);
         try {
             Map params = new HashMap();
-            params.put("device_ipv4", arp.getIp());
+            params.put("device_ipv4", probe.getIp_addr());
             List<DeviceScan> deviceScanList = this.deviceScanService.selectObjByMap(params);
             if(deviceScanList.size() <= 0){
                 this.deviceScanService.insert(deviceScan);
@@ -50,7 +48,7 @@ public class ProbeToTerminalAndDeviceScan {
             e.printStackTrace();
         }
         try {
-            this.deleteProbe(arp.getIp());
+            this.deleteProbe(probe.getIp_addr());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -72,183 +70,178 @@ public class ProbeToTerminalAndDeviceScan {
                     .collect(Collectors.toList());
             for (Probe probe : uniqueDevices) {
                 if (StringUtil.isNotEmpty(probe.getIp_addr())) {
-                    params.clear();
-                    params.put("ip", probe.getIp_addr());
-                    List<Arp> arps = this.arpService.selectObjByMap(params);
-                    if (arps.size() > 0) {
-                        Arp arp = arps.get(0);
-                        if (StringUtil.isNotEmpty(arp.getMac())) {
-                            if (!MacUtils.getMac(arp.getMac()).equals("") && MacUtils.isValidMACAddress(arp.getMac())) {
+                        if (StringUtil.isNotEmpty(probe.getMac())) {
+                            if (!MacUtils.getMac(probe.getMac()).equals("") && MacUtils.isValidMACAddress(probe.getMac())) {
                                 params.clear();
-                                params.put("mac", MacUtils.getMac(arp.getMac()));
+                                params.put("mac", MacUtils.getMac(probe.getMac()));
                                 List<MacVendor> macVendorList = macVendorService.selectObjByMap(params);
                                 if (macVendorList.size() > 0) {
                                     MacVendor macVendor = macVendorList.get(0);
                                     if (macVendor.getVendor() != null) {
                                         String vendor = macVendor.getVendor();
                                         if (vendor.toLowerCase().contains("Tenda".toLowerCase())) {
-                                            insertDeviceScan(arp, vendor, arp.getMac(), "Tenda");
+                                            insertDeviceScan(probe, vendor, probe.getMac(), "Tenda");
                                         } else if (vendor.toLowerCase().toLowerCase().contains("h3c".toLowerCase())) {
-                                            insertDeviceScan(arp, vendor, arp.getMac(), "h3c");
+                                            insertDeviceScan(probe, vendor, probe.getMac(), "h3c");
                                         } else if (vendor.toLowerCase().toLowerCase().contains("TP-LINK".toLowerCase())) {
-                                            insertDeviceScan(arp, vendor, arp.getMac(), "TP-LINK");
+                                            insertDeviceScan(probe, vendor, probe.getMac(), "TP-LINK");
                                         } else if (vendor.toLowerCase().toLowerCase().contains("Lite-On".toLowerCase())) {
-                                            insertDeviceScan(arp, vendor, arp.getMac(), "Lite-On");
+                                            insertDeviceScan(probe, vendor, probe.getMac(), "Lite-On");
                                         } else if (vendor.toLowerCase().toLowerCase().contains("mercury".toLowerCase())) {
-                                            insertDeviceScan(arp, vendor, arp.getMac(), "mercury");
+                                            insertDeviceScan(probe, vendor, probe.getMac(), "mercury");
                                         } else if (vendor.toLowerCase().toLowerCase().contains("Huawei Device".toLowerCase())) {
-                                            insertDeviceScan(arp, vendor, arp.getMac(), "Huawei Device");
+                                            insertDeviceScan(probe, vendor, probe.getMac(), "Huawei Device");
                                         } else if (vendor.toLowerCase().contains("ruijie".toLowerCase())) {
-                                            insertDeviceScan(arp, vendor, arp.getMac(), "ruijie");
+                                            insertDeviceScan(probe, vendor, probe.getMac(), "ruijie");
                                         } else if (vendor.toLowerCase().contains("PUTIAN".toLowerCase())) {
-                                            insertDeviceScan(arp, vendor, arp.getMac(), "PUTIAN");
+                                            insertDeviceScan(probe, vendor, probe.getMac(), "PUTIAN");
                                         } else if (vendor.toLowerCase().toLowerCase().contains("Hikvision".toLowerCase())) {
-                                            insertDeviceScan(arp, vendor, arp.getMac(), "Hikvision");
+                                            insertDeviceScan(probe, vendor, probe.getMac(), "Hikvision");
                                         } else if (vendor.toLowerCase().toLowerCase().contains("Dahua".toLowerCase())) {
-                                            insertDeviceScan(arp, vendor, arp.getMac(), "Dahua");
+                                            insertDeviceScan(probe, vendor, probe.getMac(), "Dahua");
                                         } else if (vendor.toLowerCase().toLowerCase().contains("Ezviz".toLowerCase())) {
-                                            insertDeviceScan(arp, vendor, arp.getMac(), "Ezviz");
+                                            insertDeviceScan(probe, vendor, probe.getMac(), "Ezviz");
                                         } else if (vendor.toLowerCase().toLowerCase().contains("Panasonic".toLowerCase())) {
-                                            insertDeviceScan(arp, vendor, arp.getMac(), "Panasonic");
+                                            insertDeviceScan(probe, vendor, probe.getMac(), "Panasonic");
                                         } else if (vendor.toLowerCase().toLowerCase().contains("Logitech".toLowerCase())) {
-                                            insertDeviceScan(arp, vendor, arp.getMac(), "Logitech");
+                                            insertDeviceScan(probe, vendor, probe.getMac(), "Logitech");
                                         } else if (vendor.toLowerCase().contains("Tiandy".toLowerCase())) {
-                                            insertDeviceScan(arp, vendor, arp.getMac(), "Tiandy");
+                                            insertDeviceScan(probe, vendor, probe.getMac(), "Tiandy");
                                         } else if (vendor.toLowerCase().contains("Cannon".toLowerCase())) {
-                                            insertDeviceScan(arp, vendor, arp.getMac(), "Cannon");
+                                            insertDeviceScan(probe, vendor, probe.getMac(), "Cannon");
                                         } else if (vendor.toLowerCase().contains("Samsung".toLowerCase())) {
-                                            insertDeviceScan(arp, vendor, arp.getMac(), "Samsung");
+                                            insertDeviceScan(probe, vendor, probe.getMac(), "Samsung");
                                         } else if (vendor.toLowerCase().contains("RICOH".toLowerCase())) {
-                                            insertDeviceScan(arp, vendor, arp.getMac(), "RICOH");
+                                            insertDeviceScan(probe, vendor, probe.getMac(), "RICOH");
                                         } else if (vendor.toLowerCase().contains("Epson".toLowerCase())) {
-                                            insertDeviceScan(arp, vendor, arp.getMac(), "Epson");
+                                            insertDeviceScan(probe, vendor, probe.getMac(), "Epson");
                                         } else if (vendor.toLowerCase().contains("Brother".toLowerCase())) {
-                                            insertDeviceScan(arp, vendor, arp.getMac(), "Brother");
+                                            insertDeviceScan(probe, vendor, probe.getMac(), "Brother");
                                         } else if (vendor.toLowerCase().contains("KONICA".toLowerCase())) {
-                                            insertDeviceScan(arp, vendor, arp.getMac(), "KONICA");
+                                            insertDeviceScan(probe, vendor, probe.getMac(), "KONICA");
                                         } else if (vendor.toLowerCase().contains("MINOLTA".toLowerCase())) {
-                                            insertDeviceScan(arp, vendor, arp.getMac(), "MINOLTA");
+                                            insertDeviceScan(probe, vendor, probe.getMac(), "MINOLTA");
                                         } else if (vendor.toLowerCase().contains("LEXMARK".toLowerCase())) {
-                                            insertDeviceScan(arp, vendor, arp.getMac(), "LEXMARK");
+                                            insertDeviceScan(probe, vendor, probe.getMac(), "LEXMARK");
                                         } else if (vendor.toLowerCase().contains("Sundray".toLowerCase())) {
-                                            insertDeviceScan(arp, vendor, arp.getMac(), "Sundray");
+                                            insertDeviceScan(probe, vendor, probe.getMac(), "Sundray");
                                         } else if (vendor.toLowerCase().contains("IEIT SYSTEMS".toLowerCase())) {
-                                            insertDeviceScan(arp, vendor, arp.getMac(), "IEIT SYSTEMS");
+                                            insertDeviceScan(probe, vendor, probe.getMac(), "IEIT SYSTEMS");
                                         } else if (vendor.toLowerCase().contains("Topsec".toLowerCase())) {
-                                            insertDeviceScan(arp, vendor, arp.getMac(), "Topsec");
+                                            insertDeviceScan(probe, vendor, probe.getMac(), "Topsec");
                                         } else if (vendor.toLowerCase().contains("Sangfor".toLowerCase())) {
-                                            insertDeviceScan(arp, vendor, arp.getMac(), "Sangfor");
+                                            insertDeviceScan(probe, vendor, probe.getMac(), "Sangfor");
                                         } else if (vendor.toLowerCase().contains("Jiangxi".toLowerCase())) {
-                                            insertDeviceScan(arp, vendor, arp.getMac(), "Jiangxi");
+                                            insertDeviceScan(probe, vendor, probe.getMac(), "Jiangxi");
                                         } else if (vendor.toLowerCase().contains("Xunte".toLowerCase())) {
-                                            insertDeviceScan(arp, vendor, arp.getMac(), "Xunte");
+                                            insertDeviceScan(probe, vendor, probe.getMac(), "Xunte");
                                         } else if (vendor.toLowerCase().contains("DPtech".toLowerCase())) {
-                                            insertDeviceScan(arp, vendor, arp.getMac(), "DPtech");
+                                            insertDeviceScan(probe, vendor, probe.getMac(), "DPtech");
                                         } else if (vendor.toLowerCase().contains("D-Link".toLowerCase())) {
-                                            insertDeviceScan(arp, vendor, arp.getMac(), "D-Link");
+                                            insertDeviceScan(probe, vendor, probe.getMac(), "D-Link");
                                         } else if (vendor.toLowerCase().contains("Tenda".toLowerCase())) {
-                                            insertDeviceScan(arp, vendor, arp.getMac(), "Tenda");
+                                            insertDeviceScan(probe, vendor, probe.getMac(), "Tenda");
                                         } else if (vendor.toLowerCase().contains("NETGEAR".toLowerCase())) {
-                                            insertDeviceScan(arp, vendor, arp.getMac(), "NETGEAR");
+                                            insertDeviceScan(probe, vendor, probe.getMac(), "NETGEAR");
                                         } else if (vendor.toLowerCase().contains("NETCORE".toLowerCase())) {
-                                            insertDeviceScan(arp, vendor, arp.getMac(), "NETCORE");
+                                            insertDeviceScan(probe, vendor, probe.getMac(), "NETCORE");
                                         } else if (vendor.toLowerCase().contains("MERCURY".toLowerCase())) {
-                                            insertDeviceScan(arp, vendor, arp.getMac(), "MERCURY");
+                                            insertDeviceScan(probe, vendor, probe.getMac(), "MERCURY");
                                         } else if (vendor.toLowerCase().contains("zte".toLowerCase())) {
-                                            insertDeviceScan(arp, vendor, arp.getMac(), "zte");
+                                            insertDeviceScan(probe, vendor, probe.getMac(), "zte");
                                         } else if (vendor.toLowerCase().contains("Fiberhome".toLowerCase())) {
-                                            insertDeviceScan(arp, vendor, arp.getMac(), "Fiberhome");
+                                            insertDeviceScan(probe, vendor, probe.getMac(), "Fiberhome");
                                         } else if (vendor.toLowerCase().contains("Ericsson".toLowerCase())) {
-                                            insertDeviceScan(arp, vendor, arp.getMac(), "Ericsson");
+                                            insertDeviceScan(probe, vendor, probe.getMac(), "Ericsson");
                                         } else if (vendor.toLowerCase().contains("Cisco".toLowerCase())) {
-                                            insertDeviceScan(arp, vendor, arp.getMac(), "Cisco");
+                                            insertDeviceScan(probe, vendor, probe.getMac(), "Cisco");
                                         } else if (vendor.toLowerCase().contains("Juniper".toLowerCase())) {
-                                            insertDeviceScan(arp, vendor, arp.getMac(), "Juniper");
+                                            insertDeviceScan(probe, vendor, probe.getMac(), "Juniper");
                                         } else if (vendor.toLowerCase().contains("Brocade".toLowerCase())) {
-                                            insertDeviceScan(arp, vendor, arp.getMac(), "Brocade");
+                                            insertDeviceScan(probe, vendor, probe.getMac(), "Brocade");
                                         } else if (vendor.toLowerCase().contains("Extreme".toLowerCase())) {
-                                            insertDeviceScan(arp, vendor, arp.getMac(), "Extreme");
+                                            insertDeviceScan(probe, vendor, probe.getMac(), "Extreme");
                                         } else if (vendor.toLowerCase().contains("ProCurve".toLowerCase())) {
-                                            insertDeviceScan(arp, vendor, arp.getMac(), "ProCurve");
+                                            insertDeviceScan(probe, vendor, probe.getMac(), "ProCurve");
                                         } else if (vendor.toLowerCase().contains("Maipu".toLowerCase())) {
-                                            insertDeviceScan(arp, vendor, arp.getMac(), "Maipu");
+                                            insertDeviceScan(probe, vendor, probe.getMac(), "Maipu");
                                         } else if (vendor.toLowerCase().contains("Ruijie".toLowerCase())) {
-                                            insertDeviceScan(arp, vendor, arp.getMac(), "Ruijie");
+                                            insertDeviceScan(probe, vendor, probe.getMac(), "Ruijie");
                                         } else if (vendor.toLowerCase().contains("Venustech".toLowerCase())) {
-                                            insertDeviceScan(arp, vendor, arp.getMac(), "Venustech");
+                                            insertDeviceScan(probe, vendor, probe.getMac(), "Venustech");
                                         } else if (vendor.toLowerCase().contains("Shenou".toLowerCase())) {
-                                            insertDeviceScan(arp, vendor, arp.getMac(), "Shenou");
+                                            insertDeviceScan(probe, vendor, probe.getMac(), "Shenou");
                                         } else if (vendor.toLowerCase().contains("Communication".toLowerCase())) {
-                                            insertDeviceScan(arp, vendor, arp.getMac(), "Communication");
+                                            insertDeviceScan(probe, vendor, probe.getMac(), "Communication");
                                         } else if (vendor.toLowerCase().contains("REALTEK".toLowerCase())) {
-                                            insertDeviceScan(arp, vendor, arp.getMac(), "REALTEK");
+                                            insertDeviceScan(probe, vendor, probe.getMac(), "REALTEK");
                                         } else if (vendor.toLowerCase().contains("Lite-On".toLowerCase())) {
-                                            insertDeviceScan(arp, vendor, arp.getMac(), "LINK");
-                                        } else if (vendor.toLowerCase().contains("Sharp".toLowerCase())) {
-                                            insertDeviceScan(arp, vendor, arp.getMac(), "INK");
+                                            insertDeviceScan(probe, vendor, probe.getMac(), "LINK");
+                                        } else if (vendor.toLowerCase().contains("Shprobe".toLowerCase())) {
+                                            insertDeviceScan(probe, vendor, probe.getMac(), "INK");
                                         } else if (vendor.toLowerCase().contains("Tiger NetCom".toLowerCase())) {
-                                            insertDeviceScan(arp, vendor, arp.getMac(), "LINK");
+                                            insertDeviceScan(probe, vendor, probe.getMac(), "LINK");
                                         } else if (vendor.toLowerCase().contains("AI-Link".toLowerCase())) {
-                                            insertDeviceScan(arp, vendor, arp.getMac(), "AI-Link");
+                                            insertDeviceScan(probe, vendor, probe.getMac(), "AI-Link");
                                         } else if (vendor.toLowerCase().contains("Century Xinyang".toLowerCase())) {
-                                            insertDeviceScan(arp, vendor, arp.getMac(), "Century Xinyang");
+                                            insertDeviceScan(probe, vendor, probe.getMac(), "Century Xinyang");
                                         } else if (vendor.toLowerCase().contains("BaoLun".toLowerCase())) {
-                                            insertDeviceScan(arp, vendor, arp.getMac(), "BaoLun");
+                                            insertDeviceScan(probe, vendor, probe.getMac(), "BaoLun");
                                         } else if (vendor.toLowerCase().contains("Shiyuan Electronic".toLowerCase())) {
-                                            insertDeviceScan(arp, vendor, arp.getMac(), "Shiyuan Electronic");
+                                            insertDeviceScan(probe, vendor, probe.getMac(), "Shiyuan Electronic");
                                         } else if (vendor.toLowerCase().contains("SHENZHEN FAST".toLowerCase())) {
-                                            insertDeviceScan(arp, vendor, arp.getMac(), "SHENZHEN FAST");
+                                            insertDeviceScan(probe, vendor, probe.getMac(), "SHENZHEN FAST");
                                         } else if (vendor.toLowerCase().contains("AMPAK".toLowerCase())) {
-                                            insertDeviceScan(arp, vendor, arp.getMac(), "AMPAK");
+                                            insertDeviceScan(probe, vendor, probe.getMac(), "AMPAK");
                                         } else if (vendor.toLowerCase().contains("Midea".toLowerCase())) {
-                                            insertDeviceScan(arp, vendor, arp.getMac(), "Midea");
+                                            insertDeviceScan(probe, vendor, probe.getMac(), "Midea");
                                         } else if (vendor.toLowerCase().contains("ASIX ELECTRONICS".toLowerCase())) {
-                                            insertDeviceScan(arp, vendor, arp.getMac(), "ASIX ELECTRONICS");
+                                            insertDeviceScan(probe, vendor, probe.getMac(), "ASIX ELECTRONICS");
                                         } else if (vendor.toLowerCase().contains("Shanghai WDK Industrial".toLowerCase())) {
-                                            insertDeviceScan(arp, vendor, arp.getMac(), "Shanghai WDK Industrial");
+                                            insertDeviceScan(probe, vendor, probe.getMac(), "Shanghai WDK Industrial");
                                         } else
                                         if (vendor.toLowerCase().contains("Zhejiang Uniview".toLowerCase())) {
-                                            insertDeviceScan(arp, vendor, arp.getMac(), "Zhejiang Uniview");
+                                            insertDeviceScan(probe, vendor, probe.getMac(), "Zhejiang Uniview");
                                         } else if (vendor.toLowerCase().contains("Zhejiang Dahua".toLowerCase())) {
-                                            insertDeviceScan(arp, vendor, arp.getMac(), "Zhejiang Dahua");
+                                            insertDeviceScan(probe, vendor, probe.getMac(), "Zhejiang Dahua");
                                         } else if (vendor.toLowerCase().contains("SUNIX".toLowerCase())) {
-                                            insertDeviceScan(arp, vendor, arp.getMac(), "SUNIX");
+                                            insertDeviceScan(probe, vendor, probe.getMac(), "SUNIX");
                                         } else if (vendor.toLowerCase().contains("YEALINK".toLowerCase())) {
-                                            insertDeviceScan(arp, vendor, arp.getMac(), "YEALINK");
+                                            insertDeviceScan(probe, vendor, probe.getMac(), "YEALINK");
                                         }  else if (vendor.toLowerCase().contains("Uniview".toLowerCase())) {
-                                            insertDeviceScan(arp, vendor, arp.getMac(), "Uniview");
+                                            insertDeviceScan(probe, vendor, probe.getMac(), "Uniview");
                                         }  else if (vendor.toLowerCase().contains("Camille Bauer".toLowerCase())) {
-                                            insertDeviceScan(arp, vendor, arp.getMac(), "Camille Bauer");
+                                            insertDeviceScan(probe, vendor, probe.getMac(), "Camille Bauer");
                                         }  else if (vendor.toLowerCase().contains("Microchip  ".toLowerCase())) {
-                                            insertDeviceScan(arp, vendor, arp.getMac(), "Microchip");
+                                            insertDeviceScan(probe, vendor, probe.getMac(), "Microchip");
                                         }  else if (vendor.toLowerCase().contains("AMPAK".toLowerCase())) {
-                                            insertDeviceScan(arp, vendor, arp.getMac(), "AMPAK");
+                                            insertDeviceScan(probe, vendor, probe.getMac(), "AMPAK");
                                         }  else if (vendor.toLowerCase().contains("Electronics ".toLowerCase())) {
-                                            insertDeviceScan(arp, vendor, arp.getMac(), "Electronics");
+                                            insertDeviceScan(probe, vendor, probe.getMac(), "Electronics");
                                         }  else if (vendor.toLowerCase().contains("Shenzhen Decnta".toLowerCase())) {
-                                            insertDeviceScan(arp, vendor, arp.getMac(), "Shenzhen Decnta");
+                                            insertDeviceScan(probe, vendor, probe.getMac(), "Shenzhen Decnta");
                                         }  else if (vendor.toLowerCase().contains("Shenzhen Seavo".toLowerCase())) {
-                                            insertDeviceScan(arp, vendor, arp.getMac(), "Shenzhen Seavo");
+                                            insertDeviceScan(probe, vendor, probe.getMac(), "Shenzhen Seavo");
                                         }  else if (vendor.toLowerCase().contains("Shenzhen WiSiYiLink".toLowerCase())) {
-                                            insertDeviceScan(arp, vendor, arp.getMac(), "Shenzhen WiSiYiLink");
+                                            insertDeviceScan(probe, vendor, probe.getMac(), "Shenzhen WiSiYiLink");
                                         }  else if (vendor.toLowerCase().contains("Realme Chongqing Mobile".toLowerCase())) {
-                                            insertDeviceScan(arp, vendor, arp.getMac(), "Realme Chongqing Mobile");
+                                            insertDeviceScan(probe, vendor, probe.getMac(), "Realme Chongqing Mobile");
                                         }  else if (vendor.toLowerCase().contains("ELECTRONIC".toLowerCase())) {
-                                            insertDeviceScan(arp, vendor, arp.getMac(), "ELECTRONIC");
+                                            insertDeviceScan(probe, vendor, probe.getMac(), "ELECTRONIC");
                                         }  else if (vendor.toLowerCase().contains("IEEE Registration".toLowerCase())) {
-                                            insertDeviceScan(arp, vendor, arp.getMac(), "IEEE Registration");
+                                            insertDeviceScan(probe, vendor, probe.getMac(), "IEEE Registration");
                                         }  else if (vendor.toLowerCase().contains("Alcatel-Lucent".toLowerCase())) {
-                                            insertDeviceScan(arp, vendor, arp.getMac(), "Alcatel-Lucent");
+                                            insertDeviceScan(probe, vendor, probe.getMac(), "Alcatel-Lucent");
                                         }  else if (vendor.toLowerCase().contains("Toshiba Teli".toLowerCase())) {
-                                            insertDeviceScan(arp, vendor, arp.getMac(), "Toshiba Teli");
+                                            insertDeviceScan(probe, vendor, probe.getMac(), "Toshiba Teli");
                                         }  else if (vendor.toLowerCase().contains("Shenzhen Sunchip Technology".toLowerCase())) {
-                                            insertDeviceScan(arp, vendor, arp.getMac(), "Shenzhen Sunchip Technology");
+                                            insertDeviceScan(probe, vendor, probe.getMac(), "Shenzhen Sunchip Technology");
                                         }  else if (vendor.toLowerCase().contains("DAVICOM SEMICONDUCTOR".toLowerCase())) {
-                                            insertDeviceScan(arp, vendor, arp.getMac(), "DAVICOM SEMICONDUCTOR");
+                                            insertDeviceScan(probe, vendor, probe.getMac(), "DAVICOM SEMICONDUCTOR");
                                         }else if(vendor.toLowerCase().toLowerCase().contains("openbsd".toLowerCase())){
-                                            insertDeviceScan(arp, vendor, arp.getMac(),"openbsd");
+                                            insertDeviceScan(probe, vendor, probe.getMac(),"openbsd");
                                         } if (vendor.toLowerCase().contains("LCFC(Hefei) Electronics".toLowerCase())) {
-                                            insertDeviceScan(arp, vendor, arp.getMac(), "LCFC(Hefei) Electronics");
+                                            insertDeviceScan(probe, vendor, probe.getMac(), "LCFC(Hefei) Electronics");
                                         }else
 
                                         if (vendor.toLowerCase().contains("Hewlett Packard".toLowerCase())) {
@@ -282,22 +275,16 @@ public class ProbeToTerminalAndDeviceScan {
 
                         }
                     }
+                // probe表中只有ipv6地址没有ipv4地址的条目放入terminal_detail，os填mac_vendor的内容
+                if(StringUtil.isEmpty(probe.getIp_addr()) && StringUtil.isNotEmpty(probe.getIpv6())){
+//                    insertTerminal(probe); 直接插入终端表
+                    v6ToTerminal(probe);
                 }
             }
+            // 剩余probe写入终端
+            this.probeUtils.insertTerminal();
+        }
 
-            this.probeUtils.insertTerminal();// 剩余probe写入终端
-        }
-        // arp表中只有ipv6地址没有ipv4地址的条目放入terminal_detail，os填mac_vendor的内容
-        params.clear();
-        List<Arp> arps = this.arpService.selectObjByMap(params);
-        if(arps.size() > 0){
-            for (Arp arp : arps) {
-                if(StringUtil.isEmpty(arp.getIp()) && StringUtil.isNotEmpty(arp.getIpv6())){
-//                    insertTerminal(arp); 直接插入终端表
-                    v6ToTerminal(arp);
-                }
-            }
-        }
     }
 
     public void insertTerminal(Probe probe, String os){
@@ -306,17 +293,10 @@ public class ProbeToTerminalAndDeviceScan {
         terminal.setOs(os);
         if(StringUtil.isNotEmpty(probe.getIp_addr())){
             terminal.setIpv4addr(probe.getIp_addr());
-            params.clear();
-            params.put("likeIp", "%" + probe.getIp_addr() + "%");
-            List<Arp> arps = arpService.selectObjByMap(params);
-            if(arps.size() > 0){
-                Arp arp = arps.get(0);
-                terminal.setIpv6addr(arp.getIpv6());
-                terminal.setMac(arp.getMac());
-                terminal.setMacvendor(arp.getMacVendor());
-            }
+            terminal.setIpv6addr(probe.getIpv6());
+            terminal.setMac(probe.getMac());
+            terminal.setMacvendor(probe.getMacVendor());
         }
-
         params.clear();
         params.put("ipv4addr", probe.getIp_addr());
         List<Terminal> terminals = this.terminalService.selectObjByMap(params);
@@ -331,201 +311,201 @@ public class ProbeToTerminalAndDeviceScan {
 //        this.probeService.delete(probe.getId());
     }
 
-    public void v6ToTerminal(Arp arp){
+    public void v6ToTerminal(Probe probe){
         Map params = new HashMap();
-        if(StringUtil.isNotEmpty(arp.getMac())){
-            if(!MacUtils.getMac(arp.getMac()).equals("") && MacUtils.isValidMACAddress(arp.getMac())){
+        if(StringUtil.isNotEmpty(probe.getMac())){
+            if(!MacUtils.getMac(probe.getMac()).equals("") && MacUtils.isValidMACAddress(probe.getMac())){
                 params.clear();
-                params.put("mac", MacUtils.getMac(arp.getMac()));
+                params.put("mac", MacUtils.getMac(probe.getMac()));
                 List<MacVendor> macVendorList = macVendorService.selectObjByMap(params);
                 if(macVendorList.size() > 0){
                     MacVendor macVendor = macVendorList.get(0);
                     if(macVendor.getVendor() != null){
                         String vendor = macVendor.getVendor();
                         if (vendor.toLowerCase().contains("Tenda".toLowerCase())) {
-                            insertDeviceScan(arp, vendor, arp.getMac(), "Tenda");
+                            insertDeviceScan(probe, vendor, probe.getMac(), "Tenda");
                         } else if (vendor.toLowerCase().toLowerCase().contains("h3c".toLowerCase())) {
-                            insertDeviceScan(arp, vendor, arp.getMac(), "h3c");
+                            insertDeviceScan(probe, vendor, probe.getMac(), "h3c");
                         } else if (vendor.toLowerCase().toLowerCase().contains("TP-LINK".toLowerCase())) {
-                            insertDeviceScan(arp, vendor, arp.getMac(), "TP-LINK");
+                            insertDeviceScan(probe, vendor, probe.getMac(), "TP-LINK");
                         } else if (vendor.toLowerCase().toLowerCase().contains("Lite-On".toLowerCase())) {
-                            insertDeviceScan(arp, vendor, arp.getMac(), "Lite-On");
+                            insertDeviceScan(probe, vendor, probe.getMac(), "Lite-On");
                         } else if (vendor.toLowerCase().toLowerCase().contains("mercury".toLowerCase())) {
-                            insertDeviceScan(arp, vendor, arp.getMac(), "mercury");
+                            insertDeviceScan(probe, vendor, probe.getMac(), "mercury");
                         } else if (vendor.toLowerCase().toLowerCase().contains("Huawei Device".toLowerCase())) {
-                            insertDeviceScan(arp, vendor, arp.getMac(), "Huawei Device");
+                            insertDeviceScan(probe, vendor, probe.getMac(), "Huawei Device");
                         } else if (vendor.toLowerCase().contains("ruijie".toLowerCase())) {
-                            insertDeviceScan(arp, vendor, arp.getMac(), "ruijie");
+                            insertDeviceScan(probe, vendor, probe.getMac(), "ruijie");
                         } else if (vendor.toLowerCase().contains("PUTIAN".toLowerCase())) {
-                            insertDeviceScan(arp, vendor, arp.getMac(), "PUTIAN");
+                            insertDeviceScan(probe, vendor, probe.getMac(), "PUTIAN");
                         } else if (vendor.toLowerCase().toLowerCase().contains("Hikvision".toLowerCase())) {
-                            insertDeviceScan(arp, vendor, arp.getMac(), "Hikvision");
+                            insertDeviceScan(probe, vendor, probe.getMac(), "Hikvision");
                         } else if (vendor.toLowerCase().toLowerCase().contains("Dahua".toLowerCase())) {
-                            insertDeviceScan(arp, vendor, arp.getMac(), "Dahua");
+                            insertDeviceScan(probe, vendor, probe.getMac(), "Dahua");
                         } else if (vendor.toLowerCase().toLowerCase().contains("Ezviz".toLowerCase())) {
-                            insertDeviceScan(arp, vendor, arp.getMac(), "Ezviz");
+                            insertDeviceScan(probe, vendor, probe.getMac(), "Ezviz");
                         } else if (vendor.toLowerCase().toLowerCase().contains("Panasonic".toLowerCase())) {
-                            insertDeviceScan(arp, vendor, arp.getMac(), "Panasonic");
+                            insertDeviceScan(probe, vendor, probe.getMac(), "Panasonic");
                         } else if (vendor.toLowerCase().toLowerCase().contains("Logitech".toLowerCase())) {
-                            insertDeviceScan(arp, vendor, arp.getMac(), "Logitech");
+                            insertDeviceScan(probe, vendor, probe.getMac(), "Logitech");
                         } else if (vendor.toLowerCase().contains("Tiandy".toLowerCase())) {
-                            insertDeviceScan(arp, vendor, arp.getMac(), "Tiandy");
+                            insertDeviceScan(probe, vendor, probe.getMac(), "Tiandy");
                         } else if (vendor.toLowerCase().contains("Cannon".toLowerCase())) {
-                            insertDeviceScan(arp, vendor, arp.getMac(), "Cannon");
+                            insertDeviceScan(probe, vendor, probe.getMac(), "Cannon");
                         } else if (vendor.toLowerCase().contains("Samsung".toLowerCase())) {
-                            insertDeviceScan(arp, vendor, arp.getMac(), "Samsung");
+                            insertDeviceScan(probe, vendor, probe.getMac(), "Samsung");
                         } else if (vendor.toLowerCase().contains("RICOH".toLowerCase())) {
-                            insertDeviceScan(arp, vendor, arp.getMac(), "RICOH");
+                            insertDeviceScan(probe, vendor, probe.getMac(), "RICOH");
                         } else if (vendor.toLowerCase().contains("Epson".toLowerCase())) {
-                            insertDeviceScan(arp, vendor, arp.getMac(), "Epson");
+                            insertDeviceScan(probe, vendor, probe.getMac(), "Epson");
                         } else if (vendor.toLowerCase().contains("Brother".toLowerCase())) {
-                            insertDeviceScan(arp, vendor, arp.getMac(), "Brother");
+                            insertDeviceScan(probe, vendor, probe.getMac(), "Brother");
                         } else if (vendor.toLowerCase().contains("KONICA".toLowerCase())) {
-                            insertDeviceScan(arp, vendor, arp.getMac(), "KONICA");
+                            insertDeviceScan(probe, vendor, probe.getMac(), "KONICA");
                         } else if (vendor.toLowerCase().contains("MINOLTA".toLowerCase())) {
-                            insertDeviceScan(arp, vendor, arp.getMac(), "MINOLTA");
+                            insertDeviceScan(probe, vendor, probe.getMac(), "MINOLTA");
                         } else if (vendor.toLowerCase().contains("LEXMARK".toLowerCase())) {
-                            insertDeviceScan(arp, vendor, arp.getMac(), "LEXMARK");
+                            insertDeviceScan(probe, vendor, probe.getMac(), "LEXMARK");
                         } else if (vendor.toLowerCase().contains("Sundray".toLowerCase())) {
-                            insertDeviceScan(arp, vendor, arp.getMac(), "Sundray");
+                            insertDeviceScan(probe, vendor, probe.getMac(), "Sundray");
                         } else if (vendor.toLowerCase().contains("IEIT SYSTEMS".toLowerCase())) {
-                            insertDeviceScan(arp, vendor, arp.getMac(), "IEIT SYSTEMS");
+                            insertDeviceScan(probe, vendor, probe.getMac(), "IEIT SYSTEMS");
                         } else if (vendor.toLowerCase().contains("Topsec".toLowerCase())) {
-                            insertDeviceScan(arp, vendor, arp.getMac(), "Topsec");
+                            insertDeviceScan(probe, vendor, probe.getMac(), "Topsec");
                         } else if (vendor.toLowerCase().contains("Sangfor".toLowerCase())) {
-                            insertDeviceScan(arp, vendor, arp.getMac(), "Sangfor");
+                            insertDeviceScan(probe, vendor, probe.getMac(), "Sangfor");
                         } else if (vendor.toLowerCase().contains("Jiangxi".toLowerCase())) {
-                            insertDeviceScan(arp, vendor, arp.getMac(), "Jiangxi");
+                            insertDeviceScan(probe, vendor, probe.getMac(), "Jiangxi");
                         } else if (vendor.toLowerCase().contains("Xunte".toLowerCase())) {
-                            insertDeviceScan(arp, vendor, arp.getMac(), "Xunte");
+                            insertDeviceScan(probe, vendor, probe.getMac(), "Xunte");
                         } else if (vendor.toLowerCase().contains("DPtech".toLowerCase())) {
-                            insertDeviceScan(arp, vendor, arp.getMac(), "DPtech");
+                            insertDeviceScan(probe, vendor, probe.getMac(), "DPtech");
                         } else if (vendor.toLowerCase().contains("D-Link".toLowerCase())) {
-                            insertDeviceScan(arp, vendor, arp.getMac(), "D-Link");
+                            insertDeviceScan(probe, vendor, probe.getMac(), "D-Link");
                         } else if (vendor.toLowerCase().contains("Tenda".toLowerCase())) {
-                            insertDeviceScan(arp, vendor, arp.getMac(), "Tenda");
+                            insertDeviceScan(probe, vendor, probe.getMac(), "Tenda");
                         } else if (vendor.toLowerCase().contains("NETGEAR".toLowerCase())) {
-                            insertDeviceScan(arp, vendor, arp.getMac(), "NETGEAR");
+                            insertDeviceScan(probe, vendor, probe.getMac(), "NETGEAR");
                         } else if (vendor.toLowerCase().contains("NETCORE".toLowerCase())) {
-                            insertDeviceScan(arp, vendor, arp.getMac(), "NETCORE");
+                            insertDeviceScan(probe, vendor, probe.getMac(), "NETCORE");
                         } else if (vendor.toLowerCase().contains("MERCURY".toLowerCase())) {
-                            insertDeviceScan(arp, vendor, arp.getMac(), "MERCURY");
+                            insertDeviceScan(probe, vendor, probe.getMac(), "MERCURY");
                         } else if (vendor.toLowerCase().contains("zte".toLowerCase())) {
-                            insertDeviceScan(arp, vendor, arp.getMac(), "zte");
+                            insertDeviceScan(probe, vendor, probe.getMac(), "zte");
                         } else if (vendor.toLowerCase().contains("Fiberhome".toLowerCase())) {
-                            insertDeviceScan(arp, vendor, arp.getMac(), "Fiberhome");
+                            insertDeviceScan(probe, vendor, probe.getMac(), "Fiberhome");
                         } else if (vendor.toLowerCase().contains("Ericsson".toLowerCase())) {
-                            insertDeviceScan(arp, vendor, arp.getMac(), "Ericsson");
+                            insertDeviceScan(probe, vendor, probe.getMac(), "Ericsson");
                         } else if (vendor.toLowerCase().contains("Cisco".toLowerCase())) {
-                            insertDeviceScan(arp, vendor, arp.getMac(), "Cisco");
+                            insertDeviceScan(probe, vendor, probe.getMac(), "Cisco");
                         } else if (vendor.toLowerCase().contains("Juniper".toLowerCase())) {
-                            insertDeviceScan(arp, vendor, arp.getMac(), "Juniper");
+                            insertDeviceScan(probe, vendor, probe.getMac(), "Juniper");
                         } else if (vendor.toLowerCase().contains("Brocade".toLowerCase())) {
-                            insertDeviceScan(arp, vendor, arp.getMac(), "Brocade");
+                            insertDeviceScan(probe, vendor, probe.getMac(), "Brocade");
                         } else if (vendor.toLowerCase().contains("Extreme".toLowerCase())) {
-                            insertDeviceScan(arp, vendor, arp.getMac(), "Extreme");
+                            insertDeviceScan(probe, vendor, probe.getMac(), "Extreme");
                         } else if (vendor.toLowerCase().contains("ProCurve".toLowerCase())) {
-                            insertDeviceScan(arp, vendor, arp.getMac(), "ProCurve");
+                            insertDeviceScan(probe, vendor, probe.getMac(), "ProCurve");
                         } else if (vendor.toLowerCase().contains("Maipu".toLowerCase())) {
-                            insertDeviceScan(arp, vendor, arp.getMac(), "Maipu");
+                            insertDeviceScan(probe, vendor, probe.getMac(), "Maipu");
                         } else if (vendor.toLowerCase().contains("Ruijie".toLowerCase())) {
-                            insertDeviceScan(arp, vendor, arp.getMac(), "Ruijie");
+                            insertDeviceScan(probe, vendor, probe.getMac(), "Ruijie");
                         } else if (vendor.toLowerCase().contains("Venustech".toLowerCase())) {
-                            insertDeviceScan(arp, vendor, arp.getMac(), "Venustech");
+                            insertDeviceScan(probe, vendor, probe.getMac(), "Venustech");
                         } else if (vendor.toLowerCase().contains("Shenou".toLowerCase())) {
-                            insertDeviceScan(arp, vendor, arp.getMac(), "Shenou");
+                            insertDeviceScan(probe, vendor, probe.getMac(), "Shenou");
                         } else if (vendor.toLowerCase().contains("REALTEK".toLowerCase())) {
-                            insertDeviceScan(arp, vendor, arp.getMac(), "REALTEK");
+                            insertDeviceScan(probe, vendor, probe.getMac(), "REALTEK");
                         } else if (vendor.toLowerCase().contains("Lite-On".toLowerCase())) {
-                            insertDeviceScan(arp, vendor, arp.getMac(), "LINK");
-                        } else if (vendor.toLowerCase().contains("Sharp".toLowerCase())) {
-                            insertDeviceScan(arp, vendor, arp.getMac(), "INK");
+                            insertDeviceScan(probe, vendor, probe.getMac(), "LINK");
+                        } else if (vendor.toLowerCase().contains("Shprobe".toLowerCase())) {
+                            insertDeviceScan(probe, vendor, probe.getMac(), "INK");
                         } else if (vendor.toLowerCase().contains("Tiger NetCom".toLowerCase())) {
-                            insertDeviceScan(arp, vendor, arp.getMac(), "LINK");
+                            insertDeviceScan(probe, vendor, probe.getMac(), "LINK");
                         } else if (vendor.toLowerCase().contains("AI-Link".toLowerCase())) {
-                            insertDeviceScan(arp, vendor, arp.getMac(), "AI-Link");
+                            insertDeviceScan(probe, vendor, probe.getMac(), "AI-Link");
                         } else if (vendor.toLowerCase().contains("Century Xinyang".toLowerCase())) {
-                            insertDeviceScan(arp, vendor, arp.getMac(), "Century Xinyang");
+                            insertDeviceScan(probe, vendor, probe.getMac(), "Century Xinyang");
                         } else if (vendor.toLowerCase().contains("BaoLun".toLowerCase())) {
-                            insertDeviceScan(arp, vendor, arp.getMac(), "BaoLun");
+                            insertDeviceScan(probe, vendor, probe.getMac(), "BaoLun");
                         } else if (vendor.toLowerCase().contains("Shiyuan Electronic".toLowerCase())) {
-                            insertDeviceScan(arp, vendor, arp.getMac(), "Shiyuan Electronic");
+                            insertDeviceScan(probe, vendor, probe.getMac(), "Shiyuan Electronic");
                         } else if (vendor.toLowerCase().contains("SHENZHEN FAST".toLowerCase())) {
-                            insertDeviceScan(arp, vendor, arp.getMac(), "SHENZHEN FAST");
+                            insertDeviceScan(probe, vendor, probe.getMac(), "SHENZHEN FAST");
                         } else if (vendor.toLowerCase().contains("AMPAK".toLowerCase())) {
-                            insertDeviceScan(arp, vendor, arp.getMac(), "AMPAK");
+                            insertDeviceScan(probe, vendor, probe.getMac(), "AMPAK");
                         } else if (vendor.toLowerCase().contains("Midea".toLowerCase())) {
-                            insertDeviceScan(arp, vendor, arp.getMac(), "Midea");
+                            insertDeviceScan(probe, vendor, probe.getMac(), "Midea");
                         } else if (vendor.toLowerCase().contains("ASIX ELECTRONICS".toLowerCase())) {
-                            insertDeviceScan(arp, vendor, arp.getMac(), "ASIX ELECTRONICS");
+                            insertDeviceScan(probe, vendor, probe.getMac(), "ASIX ELECTRONICS");
                         } else if (vendor.toLowerCase().contains("Shanghai WDK Industrial".toLowerCase())) {
-                            insertDeviceScan(arp, vendor, arp.getMac(), "Shanghai WDK Industrial");
+                            insertDeviceScan(probe, vendor, probe.getMac(), "Shanghai WDK Industrial");
                         }  else if (vendor.toLowerCase().contains("IEEE Registration".toLowerCase())) {
-                            insertDeviceScan(arp, vendor, arp.getMac(), "IEEE Registration");
+                            insertDeviceScan(probe, vendor, probe.getMac(), "IEEE Registration");
                         }  else if (vendor.toLowerCase().contains("Alcatel-Lucent".toLowerCase())) {
-                            insertDeviceScan(arp, vendor, arp.getMac(), "Alcatel-Lucent");
+                            insertDeviceScan(probe, vendor, probe.getMac(), "Alcatel-Lucent");
                         }  else if (vendor.toLowerCase().contains("Toshiba Teli".toLowerCase())) {
-                            insertDeviceScan(arp, vendor, arp.getMac(), "Toshiba Teli");
+                            insertDeviceScan(probe, vendor, probe.getMac(), "Toshiba Teli");
                         }  else if (vendor.toLowerCase().contains("Shenzhen Sunchip Technology".toLowerCase())) {
-                            insertDeviceScan(arp, vendor, arp.getMac(), "Shenzhen Sunchip Technology");
+                            insertDeviceScan(probe, vendor, probe.getMac(), "Shenzhen Sunchip Technology");
                         }  else if (vendor.toLowerCase().contains("DAVICOM SEMICONDUCTOR".toLowerCase())) {
-                            insertDeviceScan(arp, vendor, arp.getMac(), "DAVICOM SEMICONDUCTOR");
+                            insertDeviceScan(probe, vendor, probe.getMac(), "DAVICOM SEMICONDUCTOR");
                         }else if (vendor.toLowerCase().contains("Zhejiang Uniview".toLowerCase())) {
-                            insertDeviceScan(arp, vendor, arp.getMac(), "Zhejiang Uniview");
+                            insertDeviceScan(probe, vendor, probe.getMac(), "Zhejiang Uniview");
                         } else if (vendor.toLowerCase().contains("Zhejiang Dahua".toLowerCase())) {
-                            insertDeviceScan(arp, vendor, arp.getMac(), "Zhejiang Dahua");
+                            insertDeviceScan(probe, vendor, probe.getMac(), "Zhejiang Dahua");
                         } else if (vendor.toLowerCase().contains("SUNIX".toLowerCase())) {
-                            insertDeviceScan(arp, vendor, arp.getMac(), "SUNIX");
+                            insertDeviceScan(probe, vendor, probe.getMac(), "SUNIX");
                         } else if (vendor.toLowerCase().contains("YEALINK".toLowerCase())) {
-                            insertDeviceScan(arp, vendor, arp.getMac(), "YEALINK");
+                            insertDeviceScan(probe, vendor, probe.getMac(), "YEALINK");
                         }  else if (vendor.toLowerCase().contains("Uniview".toLowerCase())) {
-                            insertDeviceScan(arp, vendor, arp.getMac(), "Uniview");
+                            insertDeviceScan(probe, vendor, probe.getMac(), "Uniview");
                         }  else if (vendor.toLowerCase().contains("Camille Bauer".toLowerCase())) {
-                            insertDeviceScan(arp, vendor, arp.getMac(), "Camille Bauer");
+                            insertDeviceScan(probe, vendor, probe.getMac(), "Camille Bauer");
                         }  else if (vendor.toLowerCase().contains("Microchip  ".toLowerCase())) {
-                            insertDeviceScan(arp, vendor, arp.getMac(), "Microchip");
+                            insertDeviceScan(probe, vendor, probe.getMac(), "Microchip");
                         }  else if (vendor.toLowerCase().contains("AMPAK".toLowerCase())) {
-                            insertDeviceScan(arp, vendor, arp.getMac(), "AMPAK");
+                            insertDeviceScan(probe, vendor, probe.getMac(), "AMPAK");
                         }  else if (vendor.toLowerCase().contains("Electronics ".toLowerCase())) {
-                            insertDeviceScan(arp, vendor, arp.getMac(), "Electronics");
+                            insertDeviceScan(probe, vendor, probe.getMac(), "Electronics");
                         }  else if (vendor.toLowerCase().contains("Shenzhen Decnta".toLowerCase())) {
-                            insertDeviceScan(arp, vendor, arp.getMac(), "Shenzhen Decnta");
+                            insertDeviceScan(probe, vendor, probe.getMac(), "Shenzhen Decnta");
                         }  else if (vendor.toLowerCase().contains("Shenzhen Seavo".toLowerCase())) {
-                            insertDeviceScan(arp, vendor, arp.getMac(), "Shenzhen Seavo");
+                            insertDeviceScan(probe, vendor, probe.getMac(), "Shenzhen Seavo");
                         }  else if (vendor.toLowerCase().contains("Shenzhen WiSiYiLink".toLowerCase())) {
-                            insertDeviceScan(arp, vendor, arp.getMac(), "Shenzhen WiSiYiLink");
+                            insertDeviceScan(probe, vendor, probe.getMac(), "Shenzhen WiSiYiLink");
                         }  else if (vendor.toLowerCase().contains("Shenzhen WiSiYiLink".toLowerCase())) {
-                            insertDeviceScan(arp, vendor, arp.getMac(), "Shenzhen WiSiYiLink");
+                            insertDeviceScan(probe, vendor, probe.getMac(), "Shenzhen WiSiYiLink");
                         }   else if (vendor.toLowerCase().contains("SHENZHEN BILIAN ELECTRONIC".toLowerCase())) {
-                            insertDeviceScan(arp, vendor, arp.getMac(), "SHENZHEN BILIAN ELECTRONIC");
+                            insertDeviceScan(probe, vendor, probe.getMac(), "SHENZHEN BILIAN ELECTRONIC");
                         }   else if (vendor.toLowerCase().contains("Mobile".toLowerCase())) {
-                            insertDeviceScan(arp, vendor, arp.getMac(), "Mobile");
+                            insertDeviceScan(probe, vendor, probe.getMac(), "Mobile");
                         }  else if (vendor.toLowerCase().contains("ELECTRONIC".toLowerCase())) {
-                            insertDeviceScan(arp, vendor, arp.getMac(), "ELECTRONIC");
+                            insertDeviceScan(probe, vendor, probe.getMac(), "ELECTRONIC");
                         }  else if (vendor.toLowerCase().contains("Electronics".toLowerCase())) {
-                            insertDeviceScan(arp, vendor, arp.getMac(), "Electronics");
+                            insertDeviceScan(probe, vendor, probe.getMac(), "Electronics");
                         }  else if (vendor.toLowerCase().contains("HUAWEI TECHNOLOGIES".toLowerCase())) {
-                            insertDeviceScan(arp, vendor, arp.getMac(), "HUAWEI TECHNOLOGIES");
+                            insertDeviceScan(probe, vendor, probe.getMac(), "HUAWEI TECHNOLOGIES");
                         } else if(vendor.toLowerCase().toLowerCase().contains("openbsd".toLowerCase())){
-                            insertDeviceScan(arp, vendor, arp.getMac(), "openbsd");
+                            insertDeviceScan(probe, vendor, probe.getMac(), "openbsd");
                         } else{
-                            insertV6Terminal(arp);
+                            insertV6Terminal(probe);
                         }
                     }
                 }else{
-                    insertV6Terminal(arp);
+                    insertV6Terminal(probe);
                 }
             }
         }
     }
 
-    public void insertV6Terminal(Arp arp) {
+    public void insertV6Terminal(Probe probe) {
         Map params = new HashMap();
         Terminal terminal = new Terminal();
-        if (StringUtil.isNotEmpty(arp.getIpv6())) {
-            terminal.setIpv6addr(arp.getIpv6());
-            terminal.setMac(arp.getMac());
-            terminal.setMacvendor(arp.getMacVendor());
+        if (StringUtil.isNotEmpty(probe.getIpv6())) {
+            terminal.setIpv6addr(probe.getIpv6());
+            terminal.setMac(probe.getMac());
+            terminal.setMacvendor(probe.getMacVendor());
         }
         params.clear();
         params.put("ipv6addr", terminal.getIpv6addr());

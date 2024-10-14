@@ -21,12 +21,19 @@ import com.metoo.sqlite.utils.version.DownloadAndExecuteBatFromZip;
 import com.metoo.sqlite.vo.LicenseVo;
 import com.metoo.sqlite.vo.Result;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.Statement;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -41,8 +48,6 @@ import java.util.concurrent.locks.ReentrantLock;
 @Slf4j
 public class UpdateVersionService {
     @Autowired
-    private Gather6ManagerController gather6ManagerController;
-    @Autowired
     private VersionManagerRemote versionManagerRemote;
     @Autowired
     private VersionStatusUpdateRemote versionStatusUpdateRemote;
@@ -52,7 +57,10 @@ public class UpdateVersionService {
     private IVersionService versionService;
     @Autowired
     private AesEncryptUtils aesEncryptUtils;
-
+    @Autowired
+    private GatherAllInOneService allInOneService;
+    @Autowired
+    private SqlSessionFactory sqlSessionFactory;
     @Value("${version.download.url}")
     private String downloadUrl;
     private final ReentrantLock lock = new ReentrantLock();
@@ -70,7 +78,7 @@ public class UpdateVersionService {
             threadVersion = Thread.currentThread();
             try {
                 //判断当前采集ipv6是否正在采集
-                Result result = this.gather6ManagerController.main(1);
+                Result result = allInOneService.startGather(1);
                 if (result.getCode() != null && result.getCode() == 1002) {
                     log.error("正在采集,当前状态不允许更新");
                     return VersionResultType.STATUS.getCode();
@@ -98,15 +106,15 @@ public class UpdateVersionService {
                         JSONObject json = JSONObject.parseObject(versionResult, JSONObject.class);
                         String appVersion = json.getString("appVersion");
                         Long appVersionId = json.getLong("appVersionId");
-                        //  比较版本号，如果版本号不一致，则下载新版本
-                        int matchResult = VersionUtils.compare(appVersion, version.getVersion());
-                        if (matchResult > 0) {
+                        // 如果为补丁版本 列如：1.1.2.[0]
+                        if (appVersion.contains("\\[")) {
+                            //存在补丁版本
                             if (updateFlag) {
                                 // 标记可以更新了
                                 FileVersionUtils.writeUpdateVersion(Global.version_state, Global.version_state_name, "1");
                                 //版本是较新版本，下载升级
                                 try {
-                                    downloadVersion(appVersionId);
+                                    downloadPatchVersion(appVersionId);
                                     // 标记已下载状态
                                     FileVersionUtils.writeUpdateVersion(Global.version_state, Global.version_state_name, "2");// 下载完成
                                 } catch (Exception e) {
@@ -115,14 +123,10 @@ public class UpdateVersionService {
                                     // 标记下载失败
                                     FileVersionUtils.writeUpdateVersion(Global.version_state, Global.version_state_name, "-2");
                                 }
-
                             }
                             try {
-                                //已下载
-                                String extractDirectory = Global.versionUnzip;
-                                // 执行 .bat 文件
-                                String batFilePath = extractDirectory + File.separator + Global.versionScriptName;
-                                DownloadAndExecuteBatFromZip.executeBatchFile(batFilePath);
+                                //已下载，则继续更新sql脚本
+                                executeSqlFile(Global.versionPatchDb);
                                 //标记为已更新完成
                                 FileVersionUtils.writeUpdateVersion(Global.version_state, Global.version_state_name, "3");
                                 //更新版本号
@@ -133,6 +137,45 @@ public class UpdateVersionService {
                                 log.error("执行版本升级出现错误：{}", e);
                                 // 标记升级执行失败
                                 FileVersionUtils.writeUpdateVersion(Global.version_state, Global.version_state, "-3");
+                            }
+                        } else {
+                            //其他非补丁版本
+                            //  比较版本号，如果版本号不一致，则下载新版本
+                            int matchResult = VersionUtils.compare(appVersion, version.getVersion());
+                            if (matchResult > 0) {
+                                if (updateFlag) {
+                                    // 标记可以更新了
+                                    FileVersionUtils.writeUpdateVersion(Global.version_state, Global.version_state_name, "1");
+                                    //版本是较新版本，下载升级
+                                    try {
+                                        downloadVersion(appVersionId);
+                                        // 标记已下载状态
+                                        FileVersionUtils.writeUpdateVersion(Global.version_state, Global.version_state_name, "2");// 下载完成
+                                    } catch (Exception e) {
+                                        //下载失败
+                                        log.error("下载新版本失败：{}", e.getMessage());
+                                        // 标记下载失败
+                                        FileVersionUtils.writeUpdateVersion(Global.version_state, Global.version_state_name, "-2");
+                                    }
+
+                                }
+                                try {
+                                    //已下载
+                                    String extractDirectory = Global.versionUnzip;
+                                    // 执行 .bat 文件
+                                    String batFilePath = extractDirectory + File.separator + Global.versionScriptName;
+                                    DownloadAndExecuteBatFromZip.executeBatchFile(batFilePath);
+                                    //标记为已更新完成
+                                    FileVersionUtils.writeUpdateVersion(Global.version_state, Global.version_state_name, "3");
+                                    //更新版本号
+                                    FileVersionUtils.writeUpdateVersion(Global.version_state, Global.version_info_name, appVersion);
+                                    log.info("版本更新完成，版本号：{}", appVersion);
+                                    return VersionResultType.SUCCESS.getCode();
+                                } catch (Exception e) {
+                                    log.error("执行版本升级出现错误：{}", e);
+                                    // 标记升级执行失败
+                                    FileVersionUtils.writeUpdateVersion(Global.version_state, Global.version_state, "-3");
+                                }
                             }
                         }
                     } else {
@@ -178,6 +221,54 @@ public class UpdateVersionService {
         DownloadAndExecuteBatFromZip.downloadFile(zipUrl, zipFilePath);
         // 解压压缩包
         DownloadAndExecuteBatFromZip.unzip(zipFilePath, extractDirectory);
+    }
+
+    /**
+     * 下载补丁版本
+     *
+     * @param versionId
+     * @throws IOException
+     */
+    private void downloadPatchVersion(Long versionId) throws IOException {
+        String zipUrl = downloadUrl + "/" + versionId;
+        String fileName = Global.versionName;
+        String zipFilePath = Global.versionPath + File.separator + fileName;
+        String extractDirectory = Global.versionPatchUnZip;
+        DownloadAndExecuteBatFromZip.ensureDirectoryExists(Global.versionPath);
+        log.info("目录已确认存在或创建成功：" + Global.versionPath);
+        // 下载压缩包
+        DownloadAndExecuteBatFromZip.downloadFile(zipUrl, zipFilePath);
+        // 解压压缩包
+        DownloadAndExecuteBatFromZip.unzip(zipFilePath, extractDirectory);
+    }
+
+    /**
+     * 执行sql文件
+     *
+     * @param filePath
+     */
+    public void executeSqlFile(String filePath) throws Exception {
+        StringBuilder sql = new StringBuilder();
+        try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                sql.append(line).append("\n");
+            }
+        }
+        if (StrUtil.isNotEmpty(sql.toString())) {
+            List<String> sqlStatements = Arrays.asList(sql.toString().split(";"));
+            try (SqlSession sqlSession = sqlSessionFactory.openSession()) {
+                Connection connection = sqlSession.getConnection();
+                try (Statement statement = connection.createStatement()) {
+                    for (String sqlStatement : sqlStatements) {
+                        if (!sqlStatement.trim().isEmpty()) {
+                            statement.execute(sqlStatement.trim());
+                        }
+                    }
+                }
+                sqlSession.commit();
+            }
+        }
     }
 
     /**
@@ -234,6 +325,7 @@ public class UpdateVersionService {
 
     /**
      * 获取最新版本信息
+     *
      * @return
      */
     public String getLastVersionInfo() {
@@ -254,10 +346,8 @@ public class UpdateVersionService {
         if (StrUtil.isNotEmpty(versionResult)) {
             JSONObject json = JSONObject.parseObject(versionResult, JSONObject.class);
             String appVersion = json.getString("appVersion");
-            Long appVersionId = json.getLong("appVersionId");
             //  比较版本号，如果版本号不一致，则下载新版本
-            int matchResult = VersionUtils.compare(appVersion, version.getVersion());
-            if (matchResult > 0) {
+            if (!StrUtil.equals(appVersion,version.getVersion())) {
                 // 有最新版本
                 return appVersion;
             }

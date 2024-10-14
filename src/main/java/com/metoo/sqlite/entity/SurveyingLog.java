@@ -27,6 +27,9 @@ public class SurveyingLog {
 
     private String desc;
 
+    @ApiModelProperty("父日志id")
+    private Integer parentId;
+
     @ApiModelProperty("采集成功失败：默认 1：成功 0：失败")
     private Integer info;
 
@@ -62,6 +65,10 @@ public class SurveyingLog {
 
     public SurveyingLog info(Integer info){
         this.info = info;
+        return this;
+    }
+    public SurveyingLog parentId(Integer parentId){
+        this.parentId = parentId;
         return this;
     }
 }

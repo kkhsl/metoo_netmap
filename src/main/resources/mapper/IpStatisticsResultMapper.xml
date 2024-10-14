@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.metoo.sqlite.mapper.IpStatisticsResultMapper">
+    <delete id="delete" parameterType="java.lang.String">
+        DELETE FROM metoo_ip_statistics_result WHERE name = #{name} and type=#{type}
+    </delete>
+
+    <select id="selectObjByMap" parameterType="java.util.Map" resultType="com.metoo.sqlite.entity.es.IpStatisticsResult">
+        SELECT *
+        FROM metoo_ip_statistics_result
+        <where>
+
+            <if test="name != null and name != ''">
+                AND `name` = #{name}
+            </if>
+
+            <if test="type != null and type != ''">
+                AND `type` = #{type}
+            </if>
+        </where>
+        ORDER BY RANK asc
+    </select>
+
+    <insert id="save" parameterType="com.metoo.sqlite.entity.es.IpStatisticsResult">
+        INSERT INTO metoo_ip_statistics_result
+        <trim prefix="(" suffixOverrides="," suffix=")">
+            <if test="statisticsTime != null and statisticsTime != ''">
+                statisticsTime,
+            </if>
+            <if test="type != null and type != ''">
+                type,
+            </if>
+            <if test="rank != null and rank != ''">
+                rank,
+            </if>
+            <if test="ip != null and ip != ''">
+                ip,
+            </if>
+            <if test="accessCount != null and accessCount != ''">
+                accessCount,
+            </if>
+            <if test="name != null and name != ''">
+                name,
+            </if>
+        </trim>
+        <trim prefix="VALUES(" suffixOverrides="," suffix=")">
+            <if test="statisticsTime != null and statisticsTime != ''">
+                #{statisticsTime},
+            </if>
+            <if test="type != null and type != ''">
+                #{type},
+            </if>
+            <if test="rank != null and rank != ''">
+                #{rank},
+            </if>
+            <if test="ip != null and ip != ''">
+                #{ip},
+            </if>
+            <if test="accessCount != null and accessCount != ''">
+                #{accessCount},
+            </if>
+            <if test="name != null and name != ''">
+                #{name},
+            </if>
+
+        </trim>
+    </insert>
+
+</mapper>
