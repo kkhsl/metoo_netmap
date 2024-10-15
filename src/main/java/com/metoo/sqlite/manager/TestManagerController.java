@@ -2,6 +2,7 @@ package com.metoo.sqlite.manager;
 
 import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.util.StringUtil;
+import com.metoo.sqlite.dto.SessionInfoDto;
 import com.metoo.sqlite.entity.*;
 import com.metoo.sqlite.gather.factory.gather.thread.Gather;
 import com.metoo.sqlite.gather.factory.gather.thread.GatherFactory;
@@ -11,6 +12,7 @@ import com.metoo.sqlite.gather.strategy.other.Ipv4PanabitCollectionStrategy;
 import com.metoo.sqlite.gather.utils.PyExecUtils;
 import com.metoo.sqlite.manager.utils.jx.DataUtils;
 import com.metoo.sqlite.manager.utils.jx.JXDataUtils;
+import com.metoo.sqlite.model.es.EsQueryService;
 import com.metoo.sqlite.service.*;
 import com.metoo.sqlite.utils.Global;
 import com.metoo.sqlite.utils.ResponseUtil;
@@ -79,6 +81,16 @@ public class TestManagerController {
     private ElasticsearchService elasticsearchService;
     @Autowired
     private EsQuery esQuery;
+    @Autowired
+    private EsQueryService esQueryService;
+
+    @GetMapping("/esQueryService")
+    public void esClientConfigw() {
+//        this.esQuery.test();;
+        SessionInfoDto SessionInfoDto = esQueryService.querySessionInfo();
+//        details.put("sessionInfo", SessionInfoDto);
+        System.out.println(JSONObject.toJSONString(SessionInfoDto));
+    }
 
     @GetMapping("/esClientConfig")
     public void esClientConfig() {

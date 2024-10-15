@@ -274,9 +274,9 @@ public class EsQueryService {
         String inlineScript = "";
         // 写脚本判断是否 ipv6
         if ("ipv6".equals(type)) {
-            inlineScript = "doc['destIp.keyword'].value.indexOf(':') > 0";
+            inlineScript = "doc['destIp.keyword'].size() > 0 && doc['destIp.keyword'].value.indexOf(':') >= 0";
         } else {
-            inlineScript = "doc['destIp.keyword'].value.indexOf(':') < 0";
+            inlineScript = "doc['destIp.keyword'].size() > 0 && doc['destIp.keyword'].value.indexOf(':') < 0";
         }
         //Pattern.matches()
         Script script = new Script(ScriptType.INLINE, "painless", inlineScript, bucketsPathsMap);

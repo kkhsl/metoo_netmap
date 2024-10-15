@@ -60,7 +60,6 @@ public class ProbeManagerController {
         if (body.getResult() == null || body.getResult().equals("")) {
             result.put("code", 1);
         } else {
-            this.probeService.deleteTable();
             log.info("chuangfa---------------------------：" + body.getResult());
             List<Probe> probeDataList = JSONObject.parseArray(body.getResult(), Probe.class);
 

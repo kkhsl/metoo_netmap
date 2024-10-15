@@ -27,7 +27,7 @@ public class EsQuery {
     private EsClientConfig esClientConfig;
 
     public static void test() {
-        String indName = "nat-2024.09.16";
+        String indName = "demo-2024.10.14";
         SearchRequest searchRequest = new SearchRequest(indName);
         EsClientConfig esClientConfig = new EsClientConfig();
         RestHighLevelClient client = esClientConfig.elasticsearchClient();

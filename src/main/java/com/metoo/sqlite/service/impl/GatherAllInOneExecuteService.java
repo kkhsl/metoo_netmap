@@ -106,26 +106,11 @@ public class GatherAllInOneExecuteService {
                         Ipv6OanabitCollectionStrategy collectionStrategy = new Ipv6OanabitCollectionStrategy(ipv6Service,
                                 panabitService);
                         ExecThread.exec(collectionStrategy, context);
-                    } else if ((device.getLoginType().equals("ssh") || device.getLoginType().equals("telnet")) &&
-                            device.getDeviceTypeAlias().equals("router") || device.getDeviceTypeAlias().equals("switch")) {
+                    } else{
                         flag= collectData(context);
-
-                    } else if ((device.getDeviceTypeAlias().equals("firewall") || device.getDeviceTypeAlias().equals("linux"))
-
-                            && (device.getDeviceVendorAlias().equals("huawei") || device.getDeviceVendorAlias().equals("h3c")
-                            || device.getDeviceVendorAlias().equals("sanfor")
-                            || device.getDeviceVendorAlias().equals("sanforip"))
-
-                            || device.getDeviceVendorAlias().equals("stone")
-                            || device.getDeviceVendorAlias().equals("leadsec")
-                            || device.getDeviceVendorAlias().equals("hd")
-
-                            && (device.getLoginType().equals("ssh") || device.getLoginType().equals("telnet"))) {
-                        flag= collectData(context);
-                    } else {
-                        if (latch != null) {
-                            latch.countDown();
-                        }
+                    }
+                    if (latch != null) {
+                        latch.countDown();
                     }
                     // 标记设备分析成功
                     if(flag) {
@@ -135,6 +120,7 @@ public class GatherAllInOneExecuteService {
                         publicService.updateSureyingLog(logId, 3);
                     }
                 } catch (Exception ex) {
+                    log.info(ex.getMessage());
                     publicService.updateSureyingLog(logId, 3);
                 }
             }
@@ -209,7 +195,7 @@ public class GatherAllInOneExecuteService {
                 // 解析arp数组
                 JsonNode arpArray = rootNode.get("arp");
                 List<Ipv4> arp = new ArrayList<>();
-                if (arpArray.isArray()) {
+                if (null != arpArray && arpArray.isArray()) {
                     for (JsonNode arpNode : arpArray) {
                         Ipv4 temp= new Ipv4();
                         temp.setIp(arpNode.get("ip")==null?"":arpNode.get("ip").asText());
@@ -231,7 +217,7 @@ public class GatherAllInOneExecuteService {
             try {
                 JsonNode aliveintArray = rootNode.get("aliveint");
                 List<PortIpv4AndIpv6Dto> aliveint=new ArrayList<>();
-                if (aliveintArray.isArray()) {
+                if (null != aliveintArray && aliveintArray.isArray()) {
                     for (JsonNode aliveintNode : aliveintArray) {
                         PortIpv4AndIpv6Dto temp=new PortIpv4AndIpv6Dto();
                         temp.setPort(aliveintNode.get("port")==null?"":aliveintNode.get("port").asText());
@@ -247,9 +233,9 @@ public class GatherAllInOneExecuteService {
                 log.error("aliveint解析出现错误：{}", e);
             }
             try {
-                JsonNode ipv6neighborsArray = rootNode.get("ipv6neighbors");
+                JsonNode ipv6neighborsArray = rootNode.get("ipv6_neighbors");
                 List<Ipv6> ipv6neighbors=new ArrayList<>();
-                if (ipv6neighborsArray.isArray()) {
+                if (null != ipv6neighborsArray && ipv6neighborsArray.isArray()) {
                     for (JsonNode jsonNode : ipv6neighborsArray) {
                             Ipv6 temp=new Ipv6();
                             temp.setIpv6_address(jsonNode.get("ipv6_address")==null?"":jsonNode.get("ipv6_address").asText());

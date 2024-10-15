@@ -155,8 +155,9 @@ public class GatherAllInOneService {
                 lock.unlock();
             }
             GatherCacheManager.running = true;
-            executorService.shutdown();
-
+            if(executorService != null){
+                executorService.shutdown();
+            }
         }
     }
 
@@ -204,7 +205,7 @@ public class GatherAllInOneService {
         }
         // 启动日志成功
         publicService.updateSureyingLog(logId, LogStatusType.SUCCESS.getCode());
-        gatherIPv6();
+//        gatherIPv6();
         gatherArp();
         //gatherPing();
         getProbeResult();
@@ -337,6 +338,7 @@ public class GatherAllInOneService {
 
     public String getProbeResult() {
         log.info("Probe start===============");
+        this.probeService.deleteTable();
         String begin_time = DateTools.getCreateTime();
         int probeLogId = publicService.createSureyingLog("全网资产扫描", begin_time, 1, null);
         try {

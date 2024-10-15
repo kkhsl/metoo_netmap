@@ -149,7 +149,7 @@ public class ArpUtils {
 
                 Arp arpIpv4 = new Arp(ipv4.getIp(), ipv4.getMac(), ipv4.getPort(), ipv4.getDeviceUuid(), null);
 
-                if(StringUtil.isNotEmpty(arpIpv4.getMac())){
+                if(StringUtil.isNotEmpty(arpIpv4.getIp()) && StringUtil.isNotEmpty(arpIpv4.getMac())){
                     params.clear();
                     params.put("mac", MacUtils.getMac(ipv4.getMac()));
                     List<MacVendor> macVendorList = this.macVendorService.selectObjByMap(params);
@@ -164,7 +164,7 @@ public class ArpUtils {
 
             for (Arp arp : arpList) {
                 for (Ipv6 ipv6 : ipv6List) {
-                    if(arp.getMac() != null && arp.getMac().toLowerCase().equals(ipv6.getIpv6_mac().toLowerCase())){
+                    if(StringUtil.isNotEmpty(ipv6.getIpv6_address()) && arp.getMac() != null && arp.getMac().toLowerCase().equals(ipv6.getIpv6_mac().toLowerCase())){
                         if(arp.getPort() != null && ipv6.getPort() != null
                                 && arp.getPort().toLowerCase().equals(ipv6.getPort().toLowerCase()) ){
                             arp.setIpv6(ipv6.getIpv6_address());

@@ -234,7 +234,7 @@ public class Global {
     /**
      * arp，ipv6 neighbors，alivein 所有采集入口
      */
-    public static final String ALL_IN_ONE = "0";
+    public static final String ALL_IN_ONE = "all";
     /**
      * arp，ipv6 neighbors，alivein 所有采集入口
      */
