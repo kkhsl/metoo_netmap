@@ -7,6 +7,7 @@ import com.metoo.sqlite.manager.utils.ProbeUtils;
 import com.metoo.sqlite.manager.utils.gather.ProbeToTerminalAndDeviceScan;
 import com.metoo.sqlite.manager.utils.gather.VerifyVendorUtils;
 import com.metoo.sqlite.service.*;
+import com.metoo.sqlite.service.impl.PublicService;
 import com.metoo.sqlite.utils.Global;
 import com.metoo.sqlite.utils.ResponseUtil;
 import com.metoo.sqlite.utils.date.DateTools;
@@ -48,22 +49,32 @@ public class GatherTestManagerController {
         return ResponseUtil.ok();
     }
 
+    @Autowired
+    private PublicService publicService;
+
+    public void gatherDeviceScan() throws Exception {
+        GatherFactory factory = new GatherFactory();
+        Gather gather = factory.getGather(Global.DEVICE_SCAN);
+        gather.executeMethod();
+    }
+
     @GetMapping("/terminal")
     public void gatherTerminal() {
-
-        this.gatherDeviceScan();
-
-        GatherFactory factory = new GatherFactory();
-
+        String beginTime = DateTools.getCreateTime();
+        int temLogId = publicService.createSureyingLog("终端分析", beginTime, 1, null);
         try {
-            executeGatherTask(factory, Global.TERMINAL);
+            //this.gatherArp();
+            this.gatherDeviceScan();
+            GatherFactory factory = new GatherFactory();
+            Gather gather = factory.getGather(Global.TERMINAL);
+            gather.executeMethod();
+            this.probeToTerminalAndDeviceScan.finalProbe();
+            this.verifyVendorUtils.finalTerminal();
+            publicService.updateSureyingLog(temLogId, 2);
         } catch (Exception e) {
             e.printStackTrace();
+            publicService.updateSureyingLog(temLogId, 3);
         }
-
-        this.probeToTerminalAndDeviceScan.finalProbe();
-            this.verifyVendorUtils.finalTerminal();
-
     }
 
     public void executeGatherTask(GatherFactory factory, String gatherType) throws Exception {
@@ -93,19 +104,6 @@ public class GatherTestManagerController {
     public Result arpTest() {
         this.arpService.gather();
         return ResponseUtil.ok();
-    }
-
-    @GetMapping("/deviceScan")
-    public Result deviceScanTest() {
-        this.gatherDeviceScan();
-        return ResponseUtil.ok();
-    }
-
-
-    public void gatherDeviceScan() {
-        GatherFactory factory = new GatherFactory();
-        Gather gather = factory.getGather(Global.DEVICE_SCAN);
-        gather.executeMethod();
     }
 
 

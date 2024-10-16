@@ -29,6 +29,10 @@ public interface TerminalMapper {
 
     int deleteTable();
 
+    int insertGather(Terminal instance);
+
+    int updateGather(Terminal instance);
+
     int batchInsertGather(List<Terminal> list);
 
     int deleteTableGather();

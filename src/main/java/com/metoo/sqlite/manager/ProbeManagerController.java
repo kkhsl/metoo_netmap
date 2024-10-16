@@ -13,6 +13,7 @@ import com.metoo.sqlite.service.IArpService;
 import com.metoo.sqlite.service.IMacVendorService;
 import com.metoo.sqlite.service.IProbeResultService;
 import com.metoo.sqlite.service.IProbeService;
+import com.metoo.sqlite.utils.net.Ipv6Utils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -66,35 +67,42 @@ public class ProbeManagerController {
             log.info("chuangfa result size ---------------------------：" + probeDataList.size());
             if (probeDataList.size() > 0) {
                 for (Probe probe : probeDataList) {
+                    if(Ipv6Utils.isValidIPv6(probe.getIp_addr())){
+                        probe.setIpv6(probe.getIp_addr());
+                        probe.setIp_addr(null);
+                    }
                     // 根据ip地址查询arp表数据获取mac、ipv6等信息
-                    if(StrUtil.isNotEmpty(probe.getIp_addr())) {
-                        List<Arp> arpList = arpService.selectObjByMap(MapUtil.of("ip", probe.getIp_addr()));
+                    if(StrUtil.isNotEmpty(probe.getIp_addr()) || StrUtil.isNotEmpty(probe.getIpv6())) {
+                        List<Arp> arpList = arpService.selectObjByMap(MapUtil.of("ipAddress", probe.getIp_addr()));
                         if(CollUtil.isNotEmpty(arpList)){
+                            probe.setIp_addr(arpList.get(0).getIp());
                             probe.setIpv6(arpList.get(0).getIpv6());
                             probe.setMac(arpList.get(0).getMac());
-                            probe.setMacVendor(arpList.get(0).getMacVendor());
+                            probe.setMac_vendor(arpList.get(0).getMacVendor());
                             // 删除已找到匹配的arp数据
-                            arpService.delete(arpList.get(0).getId());
+//                            arpService.delete(arpList.get(0).getId());
                         }
                     }
                     this.probeService.insert(probe);
                 }
-                //补充针对arp表中剩余的条目再放入probe表中，端口写2，再进行os-scanner扫描
-                List<Arp> arpAllList = arpService.selectObjByMap(null);
-                if(CollUtil.isNotEmpty(arpAllList)){
-                    for (Arp arp : arpAllList){
-                        Probe probe = Convert.convert(Probe.class, arp);
-                        probe.setIp_addr(arp.getIp());
-                        probe.setPort_num("2");
-                        List<Probe> arpList = probeService.selectObjByMap(MapUtil.of("ip_addr", probe.getIp_addr()));
-                        if(CollUtil.isEmpty(arpList)){
-                            // 不存在，则插入到probe表
-                            this.probeService.insert(probe);
-                        }
-                    }
-                }
+//                //补充针对arp表中剩余的条目再放入probe表中，端口写2，再进行os-scanner扫描
+//                List<Arp> arpAllList = arpService.selectObjByMap(null);
+//                if(CollUtil.isNotEmpty(arpAllList)){
+//                    for (Arp arp : arpAllList){
+//                        Probe probe = Convert.convert(Probe.class, arp);
+//                        probe.setIp_addr(arp.getIp());
+//                        probe.setPort_num("2");
+//                        List<Probe> arpList = probeService.selectObjByMap(MapUtil.of("ip_addr", probe.getIp_addr()));
+//                        if(CollUtil.isEmpty(arpList)){
+//                            // 不存在，则插入到probe表
+//                            this.probeService.insert(probe);
+//                        }
+//                    }
+//                }
             }
         }
+
+
 
         ProbeResult probeResult = this.probeResultService.selectObjByOne();
         probeResult.setResult(probeResult.getResult() + 1);

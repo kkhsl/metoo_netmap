@@ -11,6 +11,9 @@
             <if test="ip_addr != null and ip_addr != ''">
                 AND ip_addr = #{ip_addr}
             </if>
+            <if test="ipv6 != null and ipv6 != ''">
+                AND ipv6 = #{ipv6}
+            </if>
             <if test="port_num != null and port_num != ''">
                 AND port_num = #{port_num}
             </if>
@@ -101,7 +104,7 @@
             <if test="mac != null and mac != ''">
                 mac,
             </if>
-            <if test="macVendor != null and macVendor != ''">
+            <if test="mac_vendor != null and mac_vendor != ''">
                 mac_vendor,
             </if>
         </trim>
@@ -184,8 +187,8 @@
             <if test="mac != null and mac != ''">
                 #{mac},
             </if>
-            <if test="macVendor != null and macVendor != ''">
-                #{macVendor},
+            <if test="mac_vendor != null and mac_vendor != ''">
+                #{mac_vendor},
             </if>
         </trim>
     </insert>

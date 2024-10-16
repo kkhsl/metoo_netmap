@@ -86,8 +86,8 @@ public class GatherDeviceScan implements Gather {
                                 deviceScan.setDevice_ipv4(probe.getIp_addr());
                                 deviceScan.setDevice_type(probe.getDevice_type());
                                 deviceScan.setMac(probe.getMac());
-                                deviceScan.setMacVendor(probe.getMacVendor());
-                                deviceScan.setDevice_product(probe.getMacVendor());
+                                deviceScan.setMacVendor(probe.getMac_vendor());
+                                deviceScan.setDevice_product(probe.getMac_vendor());
                                 deviceScan.setDevice_ipv6(probe.getIpv6());
                                 deviceScanService.insert(deviceScan);
 
@@ -103,8 +103,8 @@ public class GatherDeviceScan implements Gather {
                                 deviceScan.setDevice_ipv4(probe.getIp_addr());
                                 deviceScan.setDevice_type(probe.getDevice_type());
                                 deviceScan.setMac(probe.getMac());
-                                deviceScan.setMacVendor(probe.getMacVendor());
-                                deviceScan.setDevice_product(probe.getMacVendor());
+                                deviceScan.setMacVendor(probe.getMac_vendor());
+                                deviceScan.setDevice_product(probe.getMac_vendor());
                                 deviceScan.setDevice_ipv6(probe.getIpv6());
                                 deviceScanService.insert(deviceScan);
 

@@ -96,7 +96,91 @@
         </trim>
     </insert>
 
+    <insert id="insertGather" parameterType="com.metoo.sqlite.entity.Terminal">
+        INSERT INTO metoo_terminal_detail_gather
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="createTime != null">
+                createTime,
+            </if>
+            <if test="mac != null and mac != ''">
+                mac,
+            </if>
+            <if test="ipv4addr != null and ipv4addr != ''">
+                ipv4addr,
+            </if>
+            <if test="ipv6addr != null and ipv6addr != ''">
+                ipv6addr,
+            </if>
+            <if test="active_port != null and active_port != ''">
+                active_port,
+            </if>
+            <if test="macvendor != null and macvendor != ''">
+                macvendor,
+            </if>
+            <if test="service != null and service != ''">
+                service,
+            </if>
+            <if test="os != null and os != ''">
+                os,
+            </if>
+        </trim>
+        <trim prefix="VALUES(" suffix=")" suffixOverrides=",">
+            <if test="createTime != null">
+                #{createTime},
+            </if>
+            <if test="mac != null and mac != ''">
+                #{mac},
+            </if>
+            <if test="ipv4addr != null and ipv4addr != ''">
+                #{ipv4addr},
+            </if>
+            <if test="ipv6addr != null and ipv6addr != ''">
+                #{ipv6addr},
+            </if>
+            <if test="active_port != null and active_port != ''">
+                #{active_port},
+            </if>
+            <if test="macvendor != null and macvendor != ''">
+                #{macvendor},
+            </if>
+            <if test="service != null and service != ''">
+                #{service},
+            </if>
+            <if test="os != null and os != ''">
+                #{os},
+            </if>
+        </trim>
+    </insert>
+
     <update id="update" parameterType="com.metoo.sqlite.entity.Terminal">
+        UPDATE metoo_terminal_detail
+        <set>
+            <if test="mac != null and mac != ''">
+                mac = #{mac},
+            </if>
+            <if test="ipv4addr != null and ipv4addr != ''">
+                ipv4addr = #{ipv4addr},
+            </if>
+            <if test="ipv6addr != null and ipv6addr != ''">
+                ipv6addr = #{ipv6addr},
+            </if>
+            <if test="active_port != null and active_port != ''">
+                active_port = #{active_port},
+            </if>
+            <if test="macvendor != null and macvendor != ''">
+                macvendor = #{macvendor},
+            </if>
+            <if test="service != null and service != ''">
+                service = #{service},
+            </if>
+            <if test="os != null and os != ''">
+                os = #{os},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateGather" parameterType="com.metoo.sqlite.entity.Terminal">
         UPDATE metoo_terminal_detail_gather
         <set>
             <if test="mac != null and mac != ''">

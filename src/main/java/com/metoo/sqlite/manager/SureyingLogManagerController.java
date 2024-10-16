@@ -31,8 +31,8 @@ public class SureyingLogManagerController {
         result.put("data", surveyingLogList);
 
         if(surveyingLogList.size() > 0){
-            if(surveyingLogList.size() == 6){
-                if(surveyingLogList.get(5).getStatus() != 1){
+            if(surveyingLogList.size() == 7){
+                if(surveyingLogList.get(6).getStatus() != 1){
                     finish = true;
                 }
             }

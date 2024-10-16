@@ -115,6 +115,39 @@ public class TerminalServiceImpl implements ITerminalService {
     }
 
     @Override
+    public boolean insertGather(Terminal instance) {
+        if (instance.getId() == null || instance.getId().equals("")) {
+            try {
+                instance.setCreateTime(DateTools.getCreateTime());
+                this.terminalMapper.insertGather(instance);
+                return true;
+            } catch (Exception e) {
+                e.printStackTrace();
+                return false;
+            }
+        }else{
+            try {
+                this.terminalMapper.updateGather(instance);
+                return true;
+            } catch (Exception e) {
+                e.printStackTrace();
+                return false;
+            }
+        }
+    }
+
+    @Override
+    public boolean updateGather(Terminal instance) {
+        try {
+            this.terminalMapper.updateGather(instance);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    @Override
     public boolean deleteTableGather() {
         try {
             this.terminalMapper.deleteTableGather();

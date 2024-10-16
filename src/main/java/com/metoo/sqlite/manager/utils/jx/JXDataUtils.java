@@ -5,8 +5,12 @@ import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import com.metoo.sqlite.dto.SessionInfoDto;
 import com.metoo.sqlite.entity.*;
+import com.metoo.sqlite.model.es.EsQueryService;
 import com.metoo.sqlite.service.*;
+import com.metoo.sqlite.service.impl.PublicService;
+import com.metoo.sqlite.utils.date.DateTools;
 import com.metoo.sqlite.utils.file.DataFileWrite;
 import com.metoo.sqlite.utils.encryption.AesEncryptUtils;
 import com.metoo.sqlite.vo.*;
@@ -40,6 +44,10 @@ public class JXDataUtils {
     private AesEncryptUtils aesEncryptUtils;
     @Autowired
     private DataUtils dataUtils;
+    @Autowired
+    private EsQueryService esQuery;
+    @Autowired
+    private PublicService publicService;
 
     public static String getDate() {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -159,6 +167,13 @@ public class JXDataUtils {
 //                }
 //                data.put("UnsureIpInfo", lsit6);
 //            }
+
+            // 补充es查询后数据
+            String beginTime = DateTools.getCreateTime();
+            int temLogId = publicService.createSureyingLog("日志分析", beginTime, 1, null);
+            SessionInfoDto SessionInfoDto = esQuery.querySessionInfo();
+            data.put("sessionInfo", SessionInfoDto);
+            publicService.updateSureyingLog(temLogId, 2);
 
             List<License> licenseList = this.licenseService.query();
             if (licenseList.size() > 0) {

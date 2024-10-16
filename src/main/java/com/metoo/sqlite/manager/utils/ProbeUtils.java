@@ -42,6 +42,7 @@ public class ProbeUtils {
             for (Probe probe : probes) {
 
                 String ip = probe.getIp_addr();
+                String ipv6 = probe.getIpv6();
                 String port_number = probe.getPort_num();
                 String os_family = probe.getOs_family();
                 String port_service_product = probe.getPort_service_product();
@@ -51,8 +52,11 @@ public class ProbeUtils {
                 Integer ttl = probe.getTtl();
                 String os = "";
 
-                if(resultMap.containsKey(ip)){
+                if(resultMap.containsKey(ip) || resultMap.containsKey(ipv6)){
                     TerminalModel terminalModel = resultMap.get(ip);
+                    if(terminalModel == null){
+                        resultMap.get(ipv6);
+                    }
                     if(StringUtil.isNotEmpty(port_number) && !terminalModel.containsPort_number(port_number)){
                         terminalModel.addPort_number(port_number);
                     }
@@ -74,7 +78,11 @@ public class ProbeUtils {
                 }else{
                     TerminalModel terminalModel = new TerminalModel(ip, port_number, os_family,
                             port_service_product, os, reliability, ttl, os_gen, vendor, true);
-                    resultMap.put(ip, terminalModel);
+                    if(StringUtil.isEmpty(ip)){
+                        resultMap.put(ipv6, terminalModel);
+                    }else{
+                        resultMap.put(ip, terminalModel);
+                    }
                 }
             }
         }
@@ -106,6 +114,10 @@ public class ProbeUtils {
                         params.clear();
                         params.put("ip", key);
                         List<Arp> arps = arpService.selectObjByMap(params);
+                        if(arps.size() <= 0){
+                            params.put("ipv6", key);
+                            arps = arpService.selectObjByMap(params);
+                        }
                         if(arps.size() > 0){
                             Arp arp = arps.get(0);
                             terminal.setIpv4addr(key);

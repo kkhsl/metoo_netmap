@@ -1,5 +1,8 @@
 package com.metoo.sqlite.service.impl;
 
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.convert.Convert;
+import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSONObject;
@@ -49,6 +52,7 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 public class GatherAllInOneService {
+    private final ReentrantLock lock = new ReentrantLock();
     @Autowired
     private ApiService apiService;
     @Autowired
@@ -57,12 +61,10 @@ public class GatherAllInOneService {
     private IDeviceService deviceService;
     @Autowired
     private PublicService publicService;
-
     @Autowired
     private IProbeService probeService;
     @Autowired
     private IArpService arpService;
-    private final ReentrantLock lock = new ReentrantLock();
     @Value("${AP.URL}")
     private String apUrl;
     @Autowired
@@ -155,7 +157,7 @@ public class GatherAllInOneService {
                 lock.unlock();
             }
             GatherCacheManager.running = true;
-            if(executorService != null){
+            if (executorService != null) {
                 executorService.shutdown();
             }
         }
@@ -211,7 +213,10 @@ public class GatherAllInOneService {
         getProbeResult();
         //gatherSwitch();
         gatherTerminal();
-        if(!GatherCacheManager.running) {
+
+        // 日志分析
+
+        if (!GatherCacheManager.running) {
             throw new RuntimeException("测绘已手动中止");
         }
         String endTime = DateTools.getCreateTime();
@@ -286,9 +291,7 @@ public class GatherAllInOneService {
             details.put("subme_ipv6", this.subnet_ipv6());
             List<GatewayInfo> gatewayInfoList = this.gatewayInfoService.selectObjByMap(null);
             details.put("gatewayInfo", gatewayInfoList);
-            // 补充es查询后数据
-            SessionInfoDto SessionInfoDto = esQuery.querySessionInfo();
-            details.put("sessionInfo", SessionInfoDto);
+
             Map params = new HashMap();
             params.clear();
             params.put("ipv4IsNotNull", "ipv4addr");
@@ -347,12 +350,73 @@ public class GatherAllInOneService {
                 publicService.updateSureyingLog(probeLogId, 2);
                 return null;
             }
-            if (arpList.size() >= 200) {
-                processInBatches(arpList);
+            if (arpList.size() >= 10) {
+                // 拆分v4|v6
+                List<Arp> ipv4List = this.arpService.selectObjByMap(MapUtil.of("ipv4IsNotNull", true));
+
+                if (ipv4List.size() >= 10) {
+                    processInBatches(ipv4List);
+                } else {
+                    processSingleBatch(ipv4List, probeLogId);
+                }
+                List<Arp> ipv6List = this.arpService.selectObjByMap(MapUtil.of("ipv6IsNotNull", true));
+                if (ipv6List.size() >= 10) {
+                    processInBatches(ipv6List);
+                } else {
+                    processSingleBatch(ipv6List, probeLogId);
+                }
             } else {
                 processSingleBatch(arpList, probeLogId);
             }
+
+            try {
+
+                //补充针对arp表中剩余的条目再放入probe表中，端口写2，再进行os-scanner扫描（删除条目）
+                List<Arp> arpAllList = arpService.selectObjByMap(null);
+                if (CollUtil.isNotEmpty(arpAllList)) {
+                    for (Arp arp : arpAllList) {
+                        Probe probe = Convert.convert(Probe.class, arp);
+                        probe.setIp_addr(arp.getIp());
+                        probe.setIpv6(arp.getIpv6());
+                        probe.setPort_num("2");
+                        List<Probe> probeList = null;
+
+                        if (StringUtil.isNotEmpty(probe.getIp_addr())) {
+                            probeList = probeService.selectObjByMap(MapUtil.of("ip_addr", probe.getIp_addr()));
+                        } else {
+                            probeList = probeService.selectObjByMap(MapUtil.of("ipv6", probe.getIpv6()));
+                        }
+                        if (CollUtil.isEmpty(probeList)) {
+                            // 不存在，则插入到probe表
+                            this.probeService.insert(probe);
+                            // 删除
+//                            arpService.delete(arp.getId());
+                        }
+
+                    }
+                }
+
+                GatherFactory factory = new GatherFactory();
+                Gather gather = factory.getGather("fileToProbe");
+                gather.executeMethod();
+
+
+                this.probeService.deleteTableBack();
+                this.probeService.copyToBck();
+
+                publicService.updateSureyingLog(probeLogId, 2);
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                publicService.updateSureyingLog(probeLogId, 3);
+            }
+
+
+            List list = this.probeService.selectObjByMap(null);
+            log.info("chuangfa + os_scan========================================：" + JSONObject.toJSONString(list));
+
             log.info("Probe end===============");
+
             return null;
         } catch (Exception e) {
             publicService.updateSureyingLog(probeLogId, 3);
@@ -361,22 +425,31 @@ public class GatherAllInOneService {
         return null;
     }
 
-    private void processInBatches(List<Arp> arpList) {
-        int batchSize = 100;
+    private boolean processInBatches(List<Arp> arpList) {
+        int batchSize = 5;
+        boolean flag = true;
         for (int i = 0; i < arpList.size(); i += batchSize) {
             List<Arp> subList = arpList.subList(i, Math.min(arpList.size(), i + batchSize));
             // ipv4 调用创发接口
             String ipAddressString = extractIpAddresses(subList);
             if (StringUtil.isNotEmpty(ipAddressString)) {
-                callChuangfa(ipAddressString);
+                flag = callChuangfa(ipAddressString);
+            }
+            if (!flag) {
+                return flag;
             }
             // ipv6调用创发接口
             String ipAddressStringIpv6 = extractIpAddressesByIpv6(subList);
             if (StringUtil.isNotEmpty(ipAddressStringIpv6)) {
-                callChuangfa(ipAddressStringIpv6);
+                flag = callChuangfa(ipAddressStringIpv6);
             }
+            if (!flag) {
+                return flag;
+            }
+
         }
-        executeGatherAndBackup();
+        return true;
+//        executeGatherAndBackup();
     }
 
     private void executeGatherAndBackup() {
@@ -398,48 +471,60 @@ public class GatherAllInOneService {
                 .collect(Collectors.joining(","));
         return ipStr;
     }
+
     private String extractIpAddressesByIpv6(List<Arp> arpList) {
         String ipv6Str = arpList.stream().filter(temp -> StrUtil.isEmpty(temp.getIp()) && StrUtil.isNotEmpty(temp.getIpv6()))
                 .map(Arp::getIpv6)
                 .collect(Collectors.joining(","));
         return ipv6Str;
     }
-    public void callChuangfa(String ipAddresses) {
+
+    public boolean callChuangfa(String ipAddresses) {
         log.info("Ipaddress================" + ipAddresses);
-        JsonRequest jsonRequest = new JsonRequest();
+        try {
+            JsonRequest jsonRequest = new JsonRequest();
 
-        jsonRequest.setTaskuuid(UUID.randomUUID().toString());
+            jsonRequest.setTaskuuid(UUID.randomUUID().toString());
 
-        jsonRequest.setThread("600");
+            jsonRequest.setThread("600");
 
-        jsonRequest.setTimeout("300");
+            jsonRequest.setTimeout("3000");
 
-        jsonRequest.setIp(ipAddresses);
+            jsonRequest.setIp(ipAddresses);
 
-        String result = apiService.callThirdPartyApi(apUrl, jsonRequest);
+            String result = apiService.callThirdPartyApi(apUrl, jsonRequest);
 
-        if (result != null) {
-            ProbeResult probeResult = this.probeResultService.selectObjByOne();
-            this.probeWait(result, probeResult);
+            if (result != null) {
+                ProbeResult probeResult = this.probeResultService.selectObjByOne();
+                try {
+                    this.probeWaitSingle(result, probeResult);
+                    return true;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+        return false;
     }
 
     private void processSingleBatch(List<Arp> arpList, int probeLogId) {
-        boolean ipv4Flag ;
-        boolean ipv6Flag ;
+        boolean ipv4Flag;
+        boolean ipv6Flag;
         String ipAddressString = extractIpAddresses(arpList);
         String ipAddressStringIpv6 = extractIpAddressesByIpv6(arpList);
         if (StringUtil.isNotEmpty(ipAddressString)) {
-            ipv4Flag=this.callChuangfaSingle(ipAddressString);
-        }else{
-            ipv4Flag=true;
+            ipv4Flag = this.callChuangfaSingle(ipAddressString);
+        } else {
+            ipv4Flag = true;
         }
         if (StringUtil.isNotEmpty(ipAddressStringIpv6)) {
-            ipv6Flag= this.callChuangfaSingle(ipAddressStringIpv6);
-        }else{
-            ipv6Flag=true;
+            ipv6Flag = this.callChuangfaSingle(ipAddressStringIpv6);
+        } else {
+            ipv6Flag = true;
         }
-        publicService.updateSureyingLog(probeLogId, ipv4Flag&&ipv6Flag ? 2 : 3);
+//        publicService.updateSureyingLog(probeLogId, ipv4Flag && ipv6Flag ? 2 : 3);
     }
 //
 //    public void gatherSwitch() {
@@ -526,7 +611,7 @@ public class GatherAllInOneService {
             // 等待
             Map params = new HashMap();
             while (true) {
-                if(!GatherCacheManager.running) {
+                if (!GatherCacheManager.running) {
                     throw new RuntimeException("测绘已手动中止");
                 }
                 try {
@@ -596,21 +681,6 @@ public class GatherAllInOneService {
                 params.put("result", probeResult.getResult() + 1);
                 List<ProbeResult> obj = this.probeResultService.selectObjByMap(params);
                 if (obj.size() > 0) {
-
-                    try {
-                        GatherFactory factory = new GatherFactory();
-                        Gather gather = factory.getGather("fileToProbe");
-                        gather.executeMethod();
-
-                        this.probeService.deleteTableBack();
-                        this.probeService.copyToBck();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-
-                    List list = this.probeService.selectObjByMap(null);
-                    log.info("chuangfa + os_scan========================================：" + JSONObject.toJSONString(list));
-
                     break;
                 }
             }

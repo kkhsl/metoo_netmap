@@ -75,7 +75,7 @@ public class Probe {
     private String ipv6;
     @ApiModelProperty("mac地址")
     private String mac;
-    private String macVendor;
+    private String mac_vendor;
     public Probe(String port_num) {
         this.port_num = port_num;
     }

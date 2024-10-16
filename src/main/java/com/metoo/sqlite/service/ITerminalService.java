@@ -29,6 +29,9 @@ public interface ITerminalService {
 
     boolean copyGatherData();
 
+    boolean insertGather(Terminal instance);
+    boolean updateGather(Terminal instance);
+
     boolean batchInsertGather(List<Terminal> list);
 
     boolean deleteTableGather();

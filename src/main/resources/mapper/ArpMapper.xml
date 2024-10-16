@@ -11,13 +11,24 @@
             <if test="ip != null and ip != ''">
                 AND ip = #{ip}
             </if>
-
+            <if test="ipv6 != null and ipv6 != ''">
+                AND ipv6 = #{ipv6}
+            </if>
             <if test="likeIp != null and likeIp != ''">
                 AND ip like #{likeIp}
             </if>
 
             <if test="isNotIp != null and isNotIp != ''">
                 AND ip is not #{isNotIp}
+            </if>
+            <if test="ipv4IsNotNull">
+                AND ip IS NOT NULL
+            </if>
+            <if test="ipv6IsNotNull">
+                AND ipv6 is not null and ip is null
+            </if>
+            <if test="ipAddress != null and ipAddress != ''">
+                AND COALESCE(ip, ipv6) = #{ipAddress}
             </if>
         </where>
     </select>
