@@ -2,6 +2,7 @@ package com.metoo.sqlite.service;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.convert.Convert;
+import com.metoo.sqlite.core.config.enums.LogStatusType;
 import com.metoo.sqlite.entity.SurveyingLog;
 import com.metoo.sqlite.mapper.SurveyingLogMapper;
 import com.metoo.sqlite.utils.Global;
@@ -128,21 +129,9 @@ public class SurveyingLogServiceImpl implements ISurveyingLogService {
             // 子集存在，则继续查询
             subLogs.forEach(temp -> {
                 SurveyingSubLogVo subLogVo = Convert.convert(SurveyingSubLogVo.class, temp);
-                List<SurveyingLog> subTempLogs = surveyingLogList.stream()
-                        .filter(sub -> temp.getId().equals(sub.getParentId()))
-                        .collect(Collectors.toList());
-                if (CollUtil.isNotEmpty(subTempLogs)) {
-                    List<SurveyingSubLogStatusVo> subLogDetails = new ArrayList<>();
-                    //下一级存在则补充detail数据
-                    subTempLogs.forEach(detail -> {
-                        SurveyingSubLogStatusVo tempDetail = Convert.convert(SurveyingSubLogStatusVo.class, detail);
-                        if (null != tempDetail && ("3").equals(tempDetail.getStatus())) {
-                            //设置图片地址
-                            tempDetail.setErrorImgUrl(Global.errorImageUrl + File.separator + detail.getId() + "." + FileUtils.getFileTypeName(Global.errorImageFileName));
-                        }
-                        subLogDetails.add(tempDetail);
-                    });
-                    subLogVo.setSubLogDetails(subLogDetails);
+                if (null != subLogVo && LogStatusType.FAIL.getCode().equals(subLogVo.getStatus())) {
+                    //设置图片地址
+                    subLogVo.setErrorImgUrl(Global.errorImageUrl + File.separator + subLogVo.getId() + "." + FileUtils.getFileTypeName(Global.errorImageFileName));
                 }
                 result.add(subLogVo);
             });

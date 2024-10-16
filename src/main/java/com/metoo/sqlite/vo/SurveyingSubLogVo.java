@@ -30,6 +30,12 @@ public class SurveyingSubLogVo {
     @ApiModelProperty("备注")
     private String desc;
 
+    @ApiModelProperty("采集状态 默认0：未采集 1：正在采集 2：采集完成 3：采集失败")
+    private Integer status;
+
+    @ApiModelProperty("错误图片地址")
+    private String errorImgUrl;
+
     @ApiModelProperty("子模块下分项数据")
     private List<SurveyingSubLogStatusVo> subLogDetails;
 }

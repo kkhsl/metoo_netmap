@@ -198,15 +198,16 @@ public class GatherAllInOneService {
         int logId = publicService.createSureyingLog("启动日志模块", beginTime, LogStatusType.init.getCode(), null);
         //对json结果文件进行解析入库
         try {
-            // 调用arp，ipv6 neighbors，alivein 采集
-            executeService.callMainExecute(logId);
-            gatherIPv4();
+            startELK();
         } catch (Exception e) {
             log.error("启动日志模块 出现错误：{}", e);
             publicService.updateSureyingLog(logId, LogStatusType.FAIL.getCode());
         }
         // 启动日志成功
         publicService.updateSureyingLog(logId, LogStatusType.SUCCESS.getCode());
+        // 调用arp，ipv6 neighbors，alivein 采集
+        executeService.callMainExecute(null);
+        gatherIPv4();
 //        gatherIPv6();
         gatherArp();
         //gatherPing();

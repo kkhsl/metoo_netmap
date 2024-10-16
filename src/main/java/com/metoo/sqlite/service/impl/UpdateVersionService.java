@@ -107,7 +107,7 @@ public class UpdateVersionService {
                         String appVersion = json.getString("appVersion");
                         Long appVersionId = json.getLong("appVersionId");
                         // 如果为补丁版本 列如：1.1.2.[0]
-                        if (appVersion.contains("\\[")) {
+                        if (appVersion.contains("[")) {
                             //存在补丁版本
                             if (updateFlag) {
                                 // 标记可以更新了
@@ -233,7 +233,7 @@ public class UpdateVersionService {
         String zipUrl = downloadUrl + "/" + versionId;
         String fileName = Global.versionName;
         String zipFilePath = Global.versionPath + File.separator + fileName;
-        String extractDirectory = Global.versionPatchUnZip;
+        String extractDirectory = Global.versionUnzip;
         DownloadAndExecuteBatFromZip.ensureDirectoryExists(Global.versionPath);
         log.info("目录已确认存在或创建成功：" + Global.versionPath);
         // 下载压缩包

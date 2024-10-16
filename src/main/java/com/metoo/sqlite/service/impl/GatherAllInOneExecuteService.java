@@ -82,10 +82,10 @@ public class GatherAllInOneExecuteService {
         if (deviceList.size() > 0) {
             CountDownLatch latch = Global.isConcurrent ? new CountDownLatch(deviceList.size()) : null;
             for (Device device : deviceList) {
-                if(!GatherCacheManager.running) {
+                if (!GatherCacheManager.running) {
                     throw new RuntimeException("测绘已手动中止");
                 }
-                boolean  flag=true;
+                boolean flag = true;
                 // 设备日志添加
                 String beginTime = DateTools.getCreateTime();
                 int logId = publicService.createSureyingLog("设备:" + device.getName() + "采集分析", beginTime, 1, parentId);
@@ -106,16 +106,16 @@ public class GatherAllInOneExecuteService {
                         Ipv6OanabitCollectionStrategy collectionStrategy = new Ipv6OanabitCollectionStrategy(ipv6Service,
                                 panabitService);
                         ExecThread.exec(collectionStrategy, context);
-                    } else{
-                        flag= collectData(context);
+                    } else {
+                        flag = collectData(context);
                     }
                     if (latch != null) {
                         latch.countDown();
                     }
                     // 标记设备分析成功
-                    if(flag) {
+                    if (flag) {
                         publicService.updateSureyingLog(logId, 2);
-                    }else{
+                    } else {
                         // 标记设备分析失败
                         publicService.updateSureyingLog(logId, 3);
                     }
@@ -130,7 +130,7 @@ public class GatherAllInOneExecuteService {
                     latch.await();
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
-                    log.error("失败：{}",e);
+                    log.error("失败：{}", e);
                 }
             }
 
@@ -155,8 +155,8 @@ public class GatherAllInOneExecuteService {
         boolean ipv6Flag = false;
         String result = "";
         if (device != null) {
-            int ipv4Id=publicService.createSureyingLog("ipv4采集", DateTools.getCreateTime(), 1, context.getLogId());
-            int ipv6Id= publicService.createSureyingLog("ipv6采集", DateTools.getCreateTime(), 1, context.getLogId());
+            int ipv4Id = publicService.createSureyingLog("ipv4采集", DateTools.getCreateTime(), 1, context.getLogId());
+            int ipv6Id = publicService.createSureyingLog("ipv6采集", DateTools.getCreateTime(), 1, context.getLogId());
             try {
                 PyCommandBuilder pyCommand = new PyCommandBuilder();
                 pyCommand.setVersion(Global.py_name);
@@ -172,167 +172,167 @@ public class GatherAllInOneExecuteService {
                         device.getLoginName(),
                         device.getLoginPassword(), Global.ALL_IN_ONE});
                 result = this.pyExecUtils.exec(pyCommand);
-                log.info("main.pyc==========:{}",result);
+                log.info("main.pyc==========:{}", result);
+                if (StringUtil.isNotEmpty(result) && "1".equals(result)) {
+                    publicService.updateSureyingLog(ipv4Id, 3);
+                    ipv4Flag = true;
+                } else if (StringUtil.isNotEmpty(result) && "2".equals(result)) {
+                    publicService.updateSureyingLog(ipv6Id, 3);
+                    ipv6Flag = true;
+                }
+                // 解析json文件
+                GatherJsonDto resultJson = new GatherJsonDto();
+                ObjectMapper objectMapper = new ObjectMapper();
+                File file = new File(Global.resultFile);
+                JsonNode rootNode = objectMapper.readTree(file);
+                try {
+                    // 解析arp数组
+                    JsonNode arpArray = rootNode.get("arp");
+                    List<Ipv4> arp = new ArrayList<>();
+                    if (null != arpArray && arpArray.isArray()) {
+                        for (JsonNode arpNode : arpArray) {
+                            Ipv4 temp = new Ipv4();
+                            temp.setIp(arpNode.get("ip") == null ? "" : arpNode.get("ip").asText());
+                            temp.setMac(arpNode.get("mac") == null ? "" : arpNode.get("mac").asText());
+                            temp.setPort(arpNode.get("port") == null ? "" : arpNode.get("port").asText());
+                            temp.setVlan(arpNode.get("vlan") == null ? "" : arpNode.get("vlan").asText());
+                            temp.setType(arpNode.get("type") == null ? "" : arpNode.get("type").asText());
+                            arp.add(temp);
+                        }
+                        resultJson.setArp(arp);
+                    }
+                } catch (Exception e) {
+                    log.error("arp解析出现错误：{}", e);
+                    if (!ipv4Flag) {
+                        publicService.updateSureyingLog(ipv4Id, 3);
+                        ipv4Flag = true;
+                    }
+                }
+                try {
+                    JsonNode aliveintArray = rootNode.get("aliveint");
+                    List<PortIpv4AndIpv6Dto> aliveint = new ArrayList<>();
+                    if (null != aliveintArray && aliveintArray.isArray()) {
+                        for (JsonNode aliveintNode : aliveintArray) {
+                            PortIpv4AndIpv6Dto temp = new PortIpv4AndIpv6Dto();
+                            temp.setPort(aliveintNode.get("port") == null ? "" : aliveintNode.get("port").asText());
+                            temp.setIp(aliveintNode.get("ip") == null ? "" : aliveintNode.get("ip").asText());
+                            temp.setMask(aliveintNode.get("mask") == null ? "" : aliveintNode.get("mask").asText());
+                            temp.setIpv6_address(aliveintNode.get("ipv6_address") == null ? "" : aliveintNode.get("ipv6_address").asText());
+                            temp.setIpv6_subnet(aliveintNode.get("ipv6_subnet") == null ? "" : aliveintNode.get("ipv6_subnet").asText());
+                            aliveint.add(temp);
+                        }
+                        resultJson.setAliveint(aliveint);
+                    }
+                } catch (Exception e) {
+                    log.error("aliveint解析出现错误：{}", e);
+                }
+                try {
+                    JsonNode ipv6neighborsArray = rootNode.get("ipv6_neighbors");
+                    List<Ipv6> ipv6neighbors = new ArrayList<>();
+                    if (null != ipv6neighborsArray && ipv6neighborsArray.isArray()) {
+                        for (JsonNode jsonNode : ipv6neighborsArray) {
+                            Ipv6 temp = new Ipv6();
+                            temp.setIpv6_address(jsonNode.get("ipv6_address") == null ? "" : jsonNode.get("ipv6_address").asText());
+                            temp.setIpv6_mac(jsonNode.get("ipv6_mac") == null ? "" : jsonNode.get("ipv6_mac").asText());
+                            temp.setPort(jsonNode.get("port") == null ? "" : jsonNode.get("port").asText());
+                            temp.setVpninstance(jsonNode.get("vpninstance") == null ? "" : jsonNode.get("vpninstance").asText());
+                            temp.setState(jsonNode.get("state") == null ? "" : jsonNode.get("state").asText());
+                            temp.setAge(jsonNode.get("age") == null ? "" : jsonNode.get("age").asText());
+                            temp.setType(jsonNode.get("type") == null ? "" : jsonNode.get("type").asText());
+                            ipv6neighbors.add(temp);
+                        }
+                        resultJson.setIpv6neighbors(ipv6neighbors);
+                    }
+
+                } catch (Exception e) {
+                    log.error("ipv6neighbors解析出现错误：{}", e);
+                    // 保存错误图片
+                    FileUtils.copyFileAndNewName(Global.errorImageUrl, Global.errorImageFileName, context.getLogId() + "");
+                    if (!ipv6Flag) {
+                        publicService.updateSureyingLog(ipv6Id, 3);
+                        ipv6Flag = true;
+                    }
+                }
+                log.info("result返回结果=================={}", JSONObject.toJSONString(resultJson));
+                if (null != resultJson && CollectionUtil.isNotEmpty(resultJson.getArp())) {
+                    try {
+                        resultJson.getArp().forEach(e -> {
+                            e.setDeviceUuid(device.getUuid());
+                            e.setCreateTime(context.getCreateTime());
+                        });
+                        this.ipv4Service.batchInsertGather(resultJson.getArp());
+                    } catch (Exception ex) {
+                        log.error("arp解析入库失败：{}", ex);
+                        if (!ipv4Flag) {
+                            publicService.updateSureyingLog(ipv4Id, 3);
+                            ipv4Flag = true;
+                        }
+                    }
+                }
+                if (null != resultJson && CollectionUtil.isNotEmpty(resultJson.getAliveint())) {
+                    try {
+                        List<PortIpv6> ipv6s = CollectionUtil.newArrayList();
+                        List<PortIpv4> ipv4s = CollectionUtil.newArrayList();
+                        resultJson.getAliveint().forEach(e -> {
+                            e.setStatus(1);
+                            e.setDeviceUuid(device.getUuid());
+                            e.setCreateTime(context.getCreateTime());
+                            if (StringUtil.isNotEmpty(e.getMask())) {
+                                if (!e.getMask().contains(".")) {
+                                    e.setMask(Ipv4Utils.bitMaskConvertMask(Integer.parseInt(e.getMask())));
+                                }
+                            }
+                            if (e.getIpv6_address() != null && !e.getIpv6_address().isEmpty()) {
+                                ipv6s.add(Convert.convert(PortIpv6.class, e));
+                            } else {
+                                ipv4s.add(Convert.convert(PortIpv4.class, e));
+                            }
+                        });
+                        this.portIpv6Service.batchInsertGather(ipv6s);
+                        this.portIpv4Service.batchInsertGather(ipv4s);
+                    } catch (Exception ex) {
+                        log.error("aliveint解析入库失败：{}", ex);
+                        if (!ipv4Flag) {
+                            publicService.updateSureyingLog(ipv4Id, 3);
+                            ipv4Flag = true;
+                        }
+                    }
+                }
+                if (null != resultJson && CollectionUtil.isNotEmpty(resultJson.getIpv6neighbors())) {
+                    try {
+                        List<Ipv6> filteredObjects = CollectionUtil.newArrayList();
+                        resultJson.getIpv6neighbors().forEach(e -> {
+                            e.setDeviceUuid(device.getUuid());
+                            e.setCreateTime(context.getCreateTime());
+                            if ((e.getIpv6_address() != null
+                                    && !e.getIpv6_address().toLowerCase().startsWith("FE80".toLowerCase()))) {
+                                filteredObjects.add(Convert.convert(Ipv6.class, e));
+                            }
+                        });
+                        this.ipv6Service.batchInsertGather(filteredObjects);
+                    } catch (Exception e) {
+                        log.error("ipv6neighbors解析入库失败：{}", e);
+                        if (!ipv6Flag) {
+                            publicService.updateSureyingLog(ipv6Id, 3);
+                            ipv6Flag = true;
+                        }
+                    }
+                }
+                // 全部执行完毕，则都认为是成功
+                if (!ipv4Flag) {
+                    publicService.updateSureyingLog(ipv4Id, 2);
+                }
+                if (!ipv6Flag) {
+                    publicService.updateSureyingLog(ipv6Id, 2);
+                }
             } catch (Exception e) {
                 log.error("{}：采集数据出现异常：{}", device.getName(), e);
                 publicService.updateSureyingLog(ipv4Id, 3);
                 publicService.updateSureyingLog(ipv6Id, 3);
                 return false;
             }
-            if (StringUtil.isNotEmpty(result) && "1".equals(result)) {
-                publicService.updateSureyingLog(ipv4Id, 3);
-                ipv4Flag = true;
-            } else if (StringUtil.isNotEmpty(result) && "2".equals(result)) {
-                publicService.updateSureyingLog(ipv6Id, 3);
-                ipv6Flag = true;
-            }
-            // 解析json文件
-            GatherJsonDto resultJson = new GatherJsonDto();
-            ObjectMapper objectMapper = new ObjectMapper();
-            File file = new File(Global.resultFile);
-            JsonNode rootNode = objectMapper.readTree(file);
-            try {
-                // 解析arp数组
-                JsonNode arpArray = rootNode.get("arp");
-                List<Ipv4> arp = new ArrayList<>();
-                if (null != arpArray && arpArray.isArray()) {
-                    for (JsonNode arpNode : arpArray) {
-                        Ipv4 temp= new Ipv4();
-                        temp.setIp(arpNode.get("ip")==null?"":arpNode.get("ip").asText());
-                        temp.setMac(arpNode.get("mac")==null?"":arpNode.get("mac").asText());
-                        temp.setPort(arpNode.get("port")==null?"":arpNode.get("port").asText());
-                        temp.setVlan(arpNode.get("vlan")==null?"":arpNode.get("vlan").asText());
-                        temp.setType(arpNode.get("type")==null?"":arpNode.get("type").asText());
-                        arp.add(temp);
-                    }
-                    resultJson.setArp(arp);
-                }
-            } catch (Exception e) {
-                log.error("arp解析出现错误：{}", e);
-                if (!ipv4Flag) {
-                    publicService.updateSureyingLog(ipv4Id, 3);
-                    ipv4Flag = true;
-                }
-            }
-            try {
-                JsonNode aliveintArray = rootNode.get("aliveint");
-                List<PortIpv4AndIpv6Dto> aliveint=new ArrayList<>();
-                if (null != aliveintArray && aliveintArray.isArray()) {
-                    for (JsonNode aliveintNode : aliveintArray) {
-                        PortIpv4AndIpv6Dto temp=new PortIpv4AndIpv6Dto();
-                        temp.setPort(aliveintNode.get("port")==null?"":aliveintNode.get("port").asText());
-                        temp.setIp(aliveintNode.get("ip")==null?"":aliveintNode.get("ip").asText());
-                        temp.setMask(aliveintNode.get("mask")==null?"":aliveintNode.get("mask").asText());
-                        temp.setIpv6_address(aliveintNode.get("ipv6_address")==null?"":aliveintNode.get("ipv6_address").asText());
-                        temp.setIpv6_subnet(aliveintNode.get("ipv6_subnet")==null?"":aliveintNode.get("ipv6_subnet").asText());
-                        aliveint.add(temp);
-                    }
-                    resultJson.setAliveint(aliveint);
-                }
-            } catch (Exception e) {
-                log.error("aliveint解析出现错误：{}", e);
-            }
-            try {
-                JsonNode ipv6neighborsArray = rootNode.get("ipv6_neighbors");
-                List<Ipv6> ipv6neighbors=new ArrayList<>();
-                if (null != ipv6neighborsArray && ipv6neighborsArray.isArray()) {
-                    for (JsonNode jsonNode : ipv6neighborsArray) {
-                            Ipv6 temp=new Ipv6();
-                            temp.setIpv6_address(jsonNode.get("ipv6_address")==null?"":jsonNode.get("ipv6_address").asText());
-                            temp.setIpv6_mac(jsonNode.get("ipv6_mac")==null?"":jsonNode.get("ipv6_mac").asText());
-                            temp.setPort(jsonNode.get("port")==null?"":jsonNode.get("port").asText());
-                            temp.setVpninstance(jsonNode.get("vpninstance")==null?"":jsonNode.get("vpninstance").asText());
-                            temp.setState(jsonNode.get("state")==null?"":jsonNode.get("state").asText());
-                            temp.setAge(jsonNode.get("age")==null?"":jsonNode.get("age").asText());
-                            temp.setType(jsonNode.get("type")==null?"":jsonNode.get("type").asText());
-                            ipv6neighbors.add(temp);
-                    }
-                    resultJson.setIpv6neighbors(ipv6neighbors);
-                }
-
-            } catch (Exception e) {
-                log.error("ipv6neighbors解析出现错误：{}", e);
-                // 保存错误图片
-                FileUtils.copyFileAndNewName(Global.errorImageUrl, Global.errorImageFileName, context.getLogId() + "");
-                if (!ipv6Flag) {
-                    publicService.updateSureyingLog(ipv6Id, 3);
-                    ipv6Flag = true;
-                }
-            }
-            log.info("result返回结果=================={}", JSONObject.toJSONString(resultJson));
-            if (null != resultJson && CollectionUtil.isNotEmpty(resultJson.getArp())) {
-                try {
-                    resultJson.getArp().forEach(e -> {
-                        e.setDeviceUuid(device.getUuid());
-                        e.setCreateTime(context.getCreateTime());
-                    });
-                    this.ipv4Service.batchInsertGather(resultJson.getArp());
-                }catch(Exception ex){
-                    log.error("arp解析入库失败：{}",ex);
-                    if (!ipv4Flag) {
-                        publicService.updateSureyingLog(ipv4Id, 3);
-                        ipv4Flag = true;
-                    }
-                }
-            }
-            if (null != resultJson && CollectionUtil.isNotEmpty(resultJson.getAliveint())) {
-                try {
-                    List<PortIpv6> ipv6s = CollectionUtil.newArrayList();
-                    List<PortIpv4> ipv4s = CollectionUtil.newArrayList();
-                    resultJson.getAliveint().forEach(e -> {
-                        e.setStatus(1);
-                        e.setDeviceUuid(device.getUuid());
-                        e.setCreateTime(context.getCreateTime());
-                        if (StringUtil.isNotEmpty(e.getMask())) {
-                            if (!e.getMask().contains(".")) {
-                                e.setMask(Ipv4Utils.bitMaskConvertMask(Integer.parseInt(e.getMask())));
-                            }
-                        }
-                        if (e.getIpv6_address() != null && !e.getIpv6_address().isEmpty()) {
-                            ipv6s.add(Convert.convert(PortIpv6.class, e));
-                        } else {
-                            ipv4s.add(Convert.convert(PortIpv4.class, e));
-                        }
-                    });
-                    this.portIpv6Service.batchInsertGather(ipv6s);
-                    this.portIpv4Service.batchInsertGather(ipv4s);
-                }catch (Exception ex){
-                    log.error("aliveint解析入库失败：{}",ex);
-                    if (!ipv4Flag) {
-                        publicService.updateSureyingLog(ipv4Id, 3);
-                        ipv4Flag = true;
-                    }
-                }
-            }
-            if (null != resultJson && CollectionUtil.isNotEmpty(resultJson.getIpv6neighbors())) {
-                try {
-                    List<Ipv6> filteredObjects = CollectionUtil.newArrayList();
-                    resultJson.getIpv6neighbors().forEach(e -> {
-                        e.setDeviceUuid(device.getUuid());
-                        e.setCreateTime(context.getCreateTime());
-                        if ((e.getIpv6_address() != null
-                                && !e.getIpv6_address().toLowerCase().startsWith("FE80".toLowerCase()))) {
-                            filteredObjects.add(Convert.convert(Ipv6.class, e));
-                        }
-                    });
-                    this.ipv6Service.batchInsertGather(filteredObjects);
-                }catch (Exception e){
-                    log.error("ipv6neighbors解析入库失败：{}",e);
-                    if (!ipv6Flag) {
-                        publicService.updateSureyingLog(ipv6Id, 3);
-                        ipv6Flag = true;
-                    }
-                }
-            }
-            // 全部执行完毕，则都认为是成功
-            if (!ipv4Flag) {
-                publicService.updateSureyingLog(ipv4Id, 2);
-            }
-            if (!ipv6Flag) {
-                publicService.updateSureyingLog(ipv6Id, 2);
-            }
         }
-        if(ipv4Flag&&ipv6Flag){
+        if (ipv4Flag && ipv6Flag) {
             // ipv4和ipvd6都采集失败
             return false;
         }
