@@ -365,9 +365,15 @@ public class GatherAllInOneService {
         int batchSize = 100;
         for (int i = 0; i < arpList.size(); i += batchSize) {
             List<Arp> subList = arpList.subList(i, Math.min(arpList.size(), i + batchSize));
+            // ipv4 调用创发接口
             String ipAddressString = extractIpAddresses(subList);
             if (StringUtil.isNotEmpty(ipAddressString)) {
                 callChuangfa(ipAddressString);
+            }
+            // ipv6调用创发接口
+            String ipAddressStringIpv6 = extractIpAddressesByIpv6(subList);
+            if (StringUtil.isNotEmpty(ipAddressStringIpv6)) {
+                callChuangfa(ipAddressStringIpv6);
             }
         }
         executeGatherAndBackup();
@@ -390,18 +396,14 @@ public class GatherAllInOneService {
         String ipStr = arpList.stream().filter(temp -> StrUtil.isNotEmpty(temp.getIp()))
                 .map(Arp::getIp)
                 .collect(Collectors.joining(","));
+        return ipStr;
+    }
+    private String extractIpAddressesByIpv6(List<Arp> arpList) {
         String ipv6Str = arpList.stream().filter(temp -> StrUtil.isEmpty(temp.getIp()) && StrUtil.isNotEmpty(temp.getIpv6()))
                 .map(Arp::getIpv6)
                 .collect(Collectors.joining(","));
-        if (StrUtil.isEmpty(ipStr)) {
-            return ipv6Str;
-        } else if (StrUtil.isEmpty(ipv6Str)) {
-            return ipStr;
-        } else {
-            return ipStr + "," + ipv6Str;
-        }
+        return ipv6Str;
     }
-
     public void callChuangfa(String ipAddresses) {
         log.info("Ipaddress================" + ipAddresses);
         JsonRequest jsonRequest = new JsonRequest();
@@ -423,11 +425,21 @@ public class GatherAllInOneService {
     }
 
     private void processSingleBatch(List<Arp> arpList, int probeLogId) {
+        boolean ipv4Flag ;
+        boolean ipv6Flag ;
         String ipAddressString = extractIpAddresses(arpList);
+        String ipAddressStringIpv6 = extractIpAddressesByIpv6(arpList);
         if (StringUtil.isNotEmpty(ipAddressString)) {
-            boolean flag = this.callChuangfaSingle(ipAddressString);
-            publicService.updateSureyingLog(probeLogId, flag ? 2 : 3);
+            ipv4Flag=this.callChuangfaSingle(ipAddressString);
+        }else{
+            ipv4Flag=true;
         }
+        if (StringUtil.isNotEmpty(ipAddressStringIpv6)) {
+            ipv6Flag= this.callChuangfaSingle(ipAddressStringIpv6);
+        }else{
+            ipv6Flag=true;
+        }
+        publicService.updateSureyingLog(probeLogId, ipv4Flag&&ipv6Flag ? 2 : 3);
     }
 //
 //    public void gatherSwitch() {

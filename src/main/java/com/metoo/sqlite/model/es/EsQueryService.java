@@ -87,6 +87,7 @@ public class EsQueryService {
         String indexName = getIndexName();
         log.info("当前测绘索引名称：{}",indexName);
         params.put("name", indexName);
+        params.put("type", "ipv4");
         // 先查询top10数据
         saveStatisticsResult(indexName,"ipv4",10);
         saveStatisticsResult(indexName,"ipv6",10);
