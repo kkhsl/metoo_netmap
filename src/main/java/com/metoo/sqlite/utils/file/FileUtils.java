@@ -4,6 +4,7 @@ import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -123,5 +124,17 @@ public class FileUtils {
             return "";
         }
         return fileName.substring(lastDotIndex + 1);
+    }
+
+    /**
+     * 清空文件
+     * @param filePath
+     */
+    public void clearFile(String filePath) {
+        try (FileWriter writer = new FileWriter(filePath, false)) {
+            writer.write("");
+        } catch (IOException e) {
+            log.info("清空{}文件错误：{}",filePath,e);
+        }
     }
 }

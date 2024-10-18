@@ -175,15 +175,7 @@ public class Global {
         Global.resultFile=resultFile;
     }
 
-    /**
-     * 补丁版本解压路径-只需解压，不需要重启的版本
-     */
-    public static String versionPatchUnZip;
-    @Value("${version.patch.unZip}")
-    public void setVersionPatchUnZip(String versionPatchUnZip) {
-        Global.versionPatchUnZip = versionPatchUnZip;
-    }
-    /**
+ /**
      * 补丁版本数据库脚本解压路径-只需解压，不需要重启的版本
      */
     public static String versionPatchDb;
@@ -206,6 +198,31 @@ public class Global {
     @Value("${error.img.fileName}")
     public void setErrorImageFileName(String errorImageFileName) {
         Global.errorImageFileName = errorImageFileName;
+    }
+    /**
+     * es启动路径
+     */
+    public static String esStartPath;
+    @Value("${es.start.path}")
+    public void setEsStartPath(String esStartPath) {
+        Global.esStartPath = esStartPath;
+    }
+
+    /**
+     * logstash启动路径
+     */
+    public static String logstashStartPath;
+    @Value("${logstash.start.path}")
+    public void setLogstashStartPath(String logstashStartPath) {
+        Global.logstashStartPath = logstashStartPath;
+    }
+    /**
+     * elk停止路径
+     */
+    public static String elkStopPath;
+    @Value("${elk.stop.path}")
+    public void setElkStopPath(String elkStopPath) {
+        Global.elkStopPath = elkStopPath;
     }
     public static final String PY_SUFFIX_ALIVEINT = "aliveint"; // 端口ipv4
     public static final String PY_SUFFIX_IPV4 = "arp";// ipv4

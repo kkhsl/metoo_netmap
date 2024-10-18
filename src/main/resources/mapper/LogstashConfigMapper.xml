@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.metoo.sqlite.mapper.LogstashConfigMapper">
+
+
+    <select id="queryByName" resultType="com.metoo.sqlite.entity.LogstashConfig">
+        select * from metoo_logstash_config
+        where 1=1
+        and deviceType in
+        <foreach item="name" collection="names" open="(" separator="," close=")">
+            #{name}
+        </foreach>
+    </select>
+</mapper>

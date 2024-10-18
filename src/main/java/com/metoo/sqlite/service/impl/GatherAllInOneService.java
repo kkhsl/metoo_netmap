@@ -8,7 +8,6 @@ import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.util.StringUtil;
 import com.metoo.sqlite.core.config.enums.LogStatusType;
-import com.metoo.sqlite.dto.SessionInfoDto;
 import com.metoo.sqlite.entity.*;
 import com.metoo.sqlite.gather.common.GatherCacheManager;
 import com.metoo.sqlite.gather.factory.gather.thread.Gather;
@@ -24,6 +23,8 @@ import com.metoo.sqlite.service.*;
 import com.metoo.sqlite.utils.Global;
 import com.metoo.sqlite.utils.ResponseUtil;
 import com.metoo.sqlite.utils.date.DateTools;
+import com.metoo.sqlite.utils.elasticsearch.EsUtils;
+import com.metoo.sqlite.utils.file.FileUtils;
 import com.metoo.sqlite.vo.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -95,7 +96,8 @@ public class GatherAllInOneService {
     private Future<?> runningTask = null;
 
     private ExecutorService executorService;
-
+    @Autowired
+    private ILogstashConfigService logstashConfigService;
     /**
      * 测绘主逻辑
      *
@@ -111,7 +113,7 @@ public class GatherAllInOneService {
                 if (lock.isHeldByCurrentThread()) {
                     lock.unlock();
                 }
-                return ResponseUtil.ok(1001);
+                return ResponseUtil.ok(1001,"可以更新");
             }
             List<Device> devices = deviceService.selectObjByMap(null);
             if (devices.size() < 1) {
@@ -172,6 +174,7 @@ public class GatherAllInOneService {
      */
     private void gatherMethod() throws Exception {
         // boolean flag = checkDeviceVendor();
+        String beginTime = DateTools.getCreateTime();
         // 清空测绘日志
         publicService.clearLogs();
 //        if (flag) {
@@ -193,20 +196,11 @@ public class GatherAllInOneService {
         } else {
             publicService.updateSureyingLog(scLogId, LogStatusType.SUCCESS.getCode());
         }
-        // TODO: elk设备启动
+        // elk设备启动
         // 启动日志模块日志
-        String beginTime = DateTools.getCreateTime();
+        startELK();
         // 调用main.pyc执行脚本
-        int logId = publicService.createSureyingLog("启动日志模块", beginTime, LogStatusType.init.getCode(), null);
         //对json结果文件进行解析入库
-        try {
-            startELK();
-        } catch (Exception e) {
-            log.error("启动日志模块 出现错误：{}", e);
-            publicService.updateSureyingLog(logId, LogStatusType.FAIL.getCode());
-        }
-        // 启动日志成功
-        publicService.updateSureyingLog(logId, LogStatusType.SUCCESS.getCode());
         // 调用arp，ipv6 neighbors，alivein 采集
         executeService.callMainExecute(null);
         gatherIPv4();
@@ -216,9 +210,7 @@ public class GatherAllInOneService {
         getProbeResult();
         //gatherSwitch();
         gatherTerminal();
-
         // 日志分析
-
         if (!GatherCacheManager.running) {
             throw new RuntimeException("测绘已手动中止");
         }
@@ -227,6 +219,8 @@ public class GatherAllInOneService {
         gatherUploadData(data);
         String surveying = getSurveyingResult();
         publicService.logGatheringResults(beginTime, endTime, data, surveying);
+        // 测绘完成后清除数据
+        clearData();
         //  }
     }
 
@@ -733,15 +727,37 @@ public class GatherAllInOneService {
      *
      * @return
      */
-    public boolean startELK() {
-        // TODO: 2024/10/7 开启elk服务
-        return false;
+    public void startELK() {
+        boolean  logResult=false;
+        int logId = publicService.createSureyingLog("启动日志模块", DateTools.getCreateTime(), LogStatusType.init.getCode(), null);
+        boolean result=EsUtils.startEs(Global.esStartPath);
+        // 根据设备类型获取对应logstash配置文件
+        List<String> confList=logstashConfigService.queryByName();
+        if(CollUtil.isNotEmpty(confList)){
+            // 启动logstash
+            logResult=EsUtils.startLogStash(Global.logstashStartPath, confList);
+        }
+        if(result&&logResult){
+            // 启动成功
+            publicService.updateSureyingLog(logId, LogStatusType.SUCCESS.getCode());
+        }else{
+            // 启动失败
+            publicService.updateSureyingLog(logId, LogStatusType.FAIL.getCode());
+        }
     }
 
     /**
-     * 停止elk服务
+     * 异步清除日志文件、es索引等数据
      */
-    public void stopELK() {
-        // TODO: 2024/10/7 停止elk服务 
+    private void clearData() {
+        ThreadUtil.execAsync(() -> {
+            // 清除es索引数据
+            EsUtils.clearIndex();
+            // 清空output.json文件
+            FileUtils.clearFile(Global.resultFile);
+            // 停止elk服务
+            EsUtils.stopELK();
+        });
     }
+
 }
