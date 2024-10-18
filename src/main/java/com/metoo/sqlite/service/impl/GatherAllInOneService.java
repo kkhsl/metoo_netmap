@@ -87,6 +87,8 @@ public class GatherAllInOneService {
     private GatherAllInOneExecuteService executeService;
     @Autowired
     private SelfTerminalUtils selfTerminalUtils;
+    @Autowired
+    private ISurveyingLogService surveyingLogService;
 
     @Autowired
     private EsQueryService esQuery;
@@ -243,6 +245,19 @@ public class GatherAllInOneService {
         }
         executorService.shutdownNow();
         GatherCacheManager.running = false;
+
+        try {
+            List<SurveyingLog> surveyingLogList = this.surveyingLogService.selectObjByMap(null);
+            for (SurveyingLog surveyingLog : surveyingLogList) {
+                if(surveyingLog.getStatus() == 1){
+                    surveyingLog.setStatus(3);
+                    this.surveyingLogService.update(surveyingLog);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         return true;
     }
 
@@ -351,17 +366,17 @@ public class GatherAllInOneService {
                 publicService.updateSureyingLog(probeLogId, 2);
                 return null;
             }
-            if (arpList.size() >= 10) {
+            if (arpList.size() >= 300) {
                 // 拆分v4|v6
                 List<Arp> ipv4List = this.arpService.selectObjByMap(MapUtil.of("ipv4IsNotNull", true));
 
-                if (ipv4List.size() >= 10) {
+                if (ipv4List.size() >= 300) {
                     processInBatches(ipv4List);
                 } else {
                     processSingleBatch(ipv4List, probeLogId);
                 }
                 List<Arp> ipv6List = this.arpService.selectObjByMap(MapUtil.of("ipv6IsNotNull", true));
-                if (ipv6List.size() >= 10) {
+                if (ipv6List.size() >= 300) {
                     processInBatches(ipv6List);
                 } else {
                     processSingleBatch(ipv6List, probeLogId);
@@ -380,6 +395,8 @@ public class GatherAllInOneService {
                         probe.setIp_addr(arp.getIp());
                         probe.setIpv6(arp.getIpv6());
                         probe.setPort_num("2");
+                        probe.setMac(arp.getMac());
+                        probe.setMac_vendor(arp.getMacVendor());
                         List<Probe> probeList = null;
 
                         if (StringUtil.isNotEmpty(probe.getIp_addr())) {
@@ -427,7 +444,7 @@ public class GatherAllInOneService {
     }
 
     private boolean processInBatches(List<Arp> arpList) {
-        int batchSize = 5;
+        int batchSize = 100;
         boolean flag = true;
         for (int i = 0; i < arpList.size(); i += batchSize) {
             List<Arp> subList = arpList.subList(i, Math.min(arpList.size(), i + batchSize));
@@ -489,7 +506,7 @@ public class GatherAllInOneService {
 
             jsonRequest.setThread("600");
 
-            jsonRequest.setTimeout("3000");
+            jsonRequest.setTimeout("300");
 
             jsonRequest.setIp(ipAddresses);
 
@@ -699,13 +716,11 @@ public class GatherAllInOneService {
         String beginTime = DateTools.getCreateTime();
         int temLogId = publicService.createSureyingLog("终端分析", beginTime, 1, null);
         try {
-            //this.gatherArp();
             this.gatherDeviceScan();
             GatherFactory factory = new GatherFactory();
             Gather gather = factory.getGather(Global.TERMINAL);
             gather.executeMethod();
             this.probeToTerminalAndDeviceScan.finalProbe();
-            this.verifyVendorUtils.finalTerminal();
             publicService.updateSureyingLog(temLogId, 2);
         } catch (Exception e) {
             e.printStackTrace();

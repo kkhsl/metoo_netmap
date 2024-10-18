@@ -1,5 +1,6 @@
 package com.metoo.sqlite.service.impl;
 
+import com.github.pagehelper.util.StringUtil;
 import com.metoo.sqlite.entity.Terminal;
 import com.metoo.sqlite.mapper.TerminalMapper;
 import com.metoo.sqlite.service.ITerminalService;
@@ -7,6 +8,8 @@ import com.metoo.sqlite.utils.date.DateTools;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -29,6 +32,21 @@ public class TerminalServiceImpl implements ITerminalService {
     @Override
     public List<Terminal> selectObjByMap(Map params) {
         return this.terminalMapper.selectObjByMap(params);
+    }
+
+    @Override
+    public List<Terminal> selectObjByIpv4OrIpv6(String ipv4, String ipv6) {
+        Map params = new HashMap();
+        List<Terminal> terminals = new ArrayList<>();
+        if(StringUtil.isNotEmpty(ipv4)){
+            params.put("ipv4addr", ipv4);
+            terminals = this.terminalMapper.selectObjByMap(params);
+        }
+        if(terminals.size() <= 0){
+            params.put("ipv6addr", ipv6);
+            terminals = this.terminalMapper.selectObjByMap(params);
+        }
+        return terminals;
     }
 
     @Override

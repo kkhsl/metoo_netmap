@@ -1,5 +1,6 @@
 package com.metoo.sqlite.service.impl;
 
+import com.github.pagehelper.util.StringUtil;
 import com.metoo.sqlite.entity.DeviceScan;
 import com.metoo.sqlite.mapper.DeviceScanMapper;
 import com.metoo.sqlite.service.IDeviceScanService;
@@ -8,6 +9,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -26,6 +29,22 @@ public class DeviceScanServiceImpl implements IDeviceScanService {
     @Override
     public List<DeviceScan> selectObjByMap(Map params) {
         return this.deviceScanMapper.selectObjByMap(params);
+    }
+
+    @Override
+    public List<DeviceScan> selectObjByIpv4OrIpv6(String ipv4, String ipv6) {
+        Map params = new HashMap();
+        List<DeviceScan> deviceScanList = new ArrayList<>();
+        if(StringUtil.isNotEmpty(ipv4)){
+            params.clear();
+            params.put("device_ipv4", ipv4);
+            deviceScanList = deviceScanMapper.selectObjByMap(params);
+        }
+        if(deviceScanList.size() <= 0 && StringUtil.isNotEmpty(ipv6)){
+            params.put("device_ipv6", ipv6);
+            deviceScanList = deviceScanMapper.selectObjByMap(params);
+        }
+        return deviceScanList;
     }
 
     @Override

@@ -8,7 +8,6 @@ import com.metoo.sqlite.core.config.enums.VersionResultType;
 import com.metoo.sqlite.entity.License;
 import com.metoo.sqlite.entity.Version;
 import com.metoo.sqlite.gather.utils.VersionUtils;
-import com.metoo.sqlite.manager.Gather6ManagerController;
 import com.metoo.sqlite.manager.api.remote.VersionManagerRemote;
 import com.metoo.sqlite.manager.api.remote.VersionStatusUpdateRemote;
 import com.metoo.sqlite.manager.utils.file.FileVersionUtils;

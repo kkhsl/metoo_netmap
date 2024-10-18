@@ -17,6 +17,8 @@ public interface ITerminalService {
 
     List<Terminal> selectObjByMap(Map params);
 
+    List<Terminal> selectObjByIpv4OrIpv6(String ipv4, String ipv6);
+
     List<Terminal> selectGatherByMap(Map params);
 
     boolean insert(Terminal instance);

@@ -69,6 +69,9 @@ public class Probe {
     @ApiModelProperty("ttl值")
     private Integer ttl;
 
+    @ApiModelProperty("用于逻辑判断")
+    private String ttls;
+
     @ApiModelProperty("os可用率")
     private Float reliability;
     @ApiModelProperty("ipv6")

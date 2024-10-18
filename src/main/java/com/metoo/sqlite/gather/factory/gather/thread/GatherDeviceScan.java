@@ -5,6 +5,7 @@ import com.metoo.sqlite.core.config.application.ApplicationContextUtils;
 import com.metoo.sqlite.entity.Arp;
 import com.metoo.sqlite.entity.DeviceScan;
 import com.metoo.sqlite.entity.Probe;
+import com.metoo.sqlite.gather.common.ConcatenationCharacter;
 import com.metoo.sqlite.service.IArpService;
 import com.metoo.sqlite.service.IDeviceScanService;
 import com.metoo.sqlite.service.IProbeService;
@@ -38,94 +39,70 @@ public class GatherDeviceScan implements Gather {
         try {
             IDeviceScanService deviceScanService = (IDeviceScanService) ApplicationContextUtils.getBean("deviceScanServiceImpl");
             IProbeService probeService = (IProbeService) ApplicationContextUtils.getBean("probeServiceImpl");
-            IArpService arpService = (IArpService) ApplicationContextUtils.getBean("arpServiceImpl");
 
             deviceScanService.deleteTable();
             deviceScanService.deleteTableBck();
 
-            Map params = new HashMap();
-            params.clear();
-            List<Probe> probeList = probeService.selectObjByMap(params);
-
-            Set<String> deleteSet = new HashSet();
+            List<Probe> probeList = probeService.selectDeduplicationByIp(null);
 
             if (probeList.size() > 0) {
+                // 过滤ip地址相同probe，合并指定字段[vender、osgen、osfamily]
+                for (Probe probe : probeList) {
 
-                List<Probe> uniqueDevices = probeList.stream()
-                        .collect(Collectors.toMap(
-                                Probe::getIp_addr,
-                                probe -> probe,
-                                (existing, replacement) -> existing
-                        ))
-                        .values()
-                        .stream()
-                        .collect(Collectors.toList());
+                    DeviceScan deviceScan = null;
+                    List<DeviceScan> deviceScanList = deviceScanService.selectObjByIpv4OrIpv6(probe.getIp_addr(), probe.getIpv6());
+                    if(deviceScanList.size() > 0){
+                        deviceScan = deviceScanList.get(0);
+                    }else{
+                        deviceScan = new DeviceScan();
+                    }
 
-                for (int i = 0; i < uniqueDevices.size(); i++) {
+                    boolean flag = false;
 
-                    params.clear();
-                    params.put("ip_addr", uniqueDevices.get(i).getIp_addr());
-                    List<Probe> probes = probeService.selectObjByMap(params);
-
-                    for (Probe probe : probes) {
-
-                        DeviceScan deviceScan = null;
-
-                        params.clear();
-                        params.put("device_ipv4", probe.getIp_addr());
-                        List<DeviceScan> deviceScanList = deviceScanService.selectObjByMap(params);
-                        if(deviceScanList.size() > 0){
-                            deviceScan = deviceScanList.get(0);
-                        }else{
-                            deviceScan = new DeviceScan();
-                        }
-
-                        if (probe.getTtl() != null && probe.getTtl() > 200) {
-                            try {
-                                deviceScan.setCreateTime(DateTools.getCreateTime());
-                                deviceScan.setDevice_ipv4(probe.getIp_addr());
-                                deviceScan.setDevice_type(probe.getDevice_type());
-                                deviceScan.setMac(probe.getMac());
-                                deviceScan.setMacVendor(probe.getMac_vendor());
-                                deviceScan.setDevice_product(probe.getMac_vendor());
-                                deviceScan.setDevice_ipv6(probe.getIpv6());
-                                deviceScanService.insert(deviceScan);
-
-                                deleteSet.add(probe.getIp_addr());
-
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                        }else if (probe.getPort_num() != null
-                                && (probe.getPort_num().equals("53") || probe.getPort_num().equals("23"))){
-                            try {
-                                deviceScan.setCreateTime(DateTools.getCreateTime());
-                                deviceScan.setDevice_ipv4(probe.getIp_addr());
-                                deviceScan.setDevice_type(probe.getDevice_type());
-                                deviceScan.setMac(probe.getMac());
-                                deviceScan.setMacVendor(probe.getMac_vendor());
-                                deviceScan.setDevice_product(probe.getMac_vendor());
-                                deviceScan.setDevice_ipv6(probe.getIpv6());
-                                deviceScanService.insert(deviceScan);
-
-                                deleteSet.add(probe.getIp_addr());
-
-                            } catch (Exception e) {
-                                e.printStackTrace();
+                    String ttls = probe.getTtls();
+                    if(StringUtil.isNotEmpty(ttls)){
+                        String[] eles = ttls.split(",");
+                        for (String ele : eles) {
+                            if(Integer.parseInt(ele) > 200){
+                                flag = true;
+                                break;
                             }
                         }
                     }
-                }
 
-                if(deleteSet.size() > 0){
-                    for (String ip_addr : deleteSet) {
+                    String application_protocl = probe.getApplication_protocol();
+                    if (!flag && (application_protocl != null && application_protocl.toLowerCase().contains("telnet"))) {
+                        flag = true;
+                    }
+                    if(flag){
                         try {
-                            this.deleteProbe(ip_addr, probeService);
+                            deviceScan.setCreateTime(DateTools.getCreateTime());
+                            deviceScan.setDevice_ipv4(probe.getIp_addr());
+                            deviceScan.setDevice_type(probe.getDevice_type());
+                            deviceScan.setMac(probe.getMac());
+                            deviceScan.setMacVendor(probe.getMac_vendor());
+
+                            String vendor = probe.getVendor();
+                            String os_gen = probe.getOs_gen();
+                            String os_family = probe.getOs_family();
+                            String device_product = ConcatenationCharacter
+                                    .concatenateWithSpace(":",
+                                            ConcatenationCharacter.disassembleWithSpace(",", vendor),
+                                            ConcatenationCharacter.disassembleWithSpace(",", os_gen),
+                                            ConcatenationCharacter.disassembleWithSpace(",", os_family));
+                            deviceScan.setDevice_product(device_product);
+
+                            deviceScan.setDevice_ipv6(probe.getIpv6());
+                            deviceScanService.insert(deviceScan);
+
+                            probeService.deleteProbeByIp(probe.getIp_addr(), probe.getIpv6());
+
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
                     }
                 }
+
                 deviceScanService.copyToBck();
             }
         } catch (Exception e) {
@@ -133,20 +110,4 @@ public class GatherDeviceScan implements Gather {
         }
     }
 
-    public void deleteProbe(String ip_addr, IProbeService probeService) {
-        if (StringUtil.isNotEmpty(ip_addr)) {
-            Map params = new HashMap();
-            params.put("ip_addr", ip_addr);
-            List<Probe> deleteProbes = probeService.selectObjByMap(params);
-            if (deleteProbes.size() > 0) {
-                for (Probe deleteProbe : deleteProbes) {
-                    try {
-                        probeService.delete(deleteProbe.getId());
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        }
-    }
 }

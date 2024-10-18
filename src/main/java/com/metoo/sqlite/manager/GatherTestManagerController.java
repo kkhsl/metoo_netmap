@@ -1,9 +1,10 @@
 package com.metoo.sqlite.manager;
 
+import com.alibaba.fastjson.JSONObject;
+import com.metoo.sqlite.entity.Probe;
 import com.metoo.sqlite.gather.factory.gather.thread.Gather;
 import com.metoo.sqlite.gather.factory.gather.thread.GatherFactory;
 import com.metoo.sqlite.gather.self.SelfTerminalUtils;
-import com.metoo.sqlite.manager.utils.ProbeUtils;
 import com.metoo.sqlite.manager.utils.gather.ProbeToTerminalAndDeviceScan;
 import com.metoo.sqlite.manager.utils.gather.VerifyVendorUtils;
 import com.metoo.sqlite.service.*;
@@ -13,10 +14,13 @@ import com.metoo.sqlite.utils.ResponseUtil;
 import com.metoo.sqlite.utils.date.DateTools;
 import com.metoo.sqlite.vo.Result;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.*;
 
 @Slf4j
 @RequestMapping("/admin/gather/test")
@@ -24,39 +28,10 @@ import org.springframework.web.bind.annotation.RestController;
 public class GatherTestManagerController {
 
     @Autowired
-    private ProbeUtils probeUtils;
-    @Autowired
-    private IProbeService probeService;
-    @Autowired
-    private IArpService arpService;
-    @Autowired
-    private IMacVendorService macVendorService;
-    @Autowired
-    private IDeviceScanService deviceScanService;
-    @Autowired
-    private ITerminalService terminalService;
-
-    @Autowired
-    private SelfTerminalUtils selfTerminalUtils;
-    @Autowired
     private ProbeToTerminalAndDeviceScan probeToTerminalAndDeviceScan;
-    @Autowired
-    private VerifyVendorUtils verifyVendorUtils;
-
-    @GetMapping("/terminal/self")
-    public Result selfTerminalUtils() {
-        this.selfTerminalUtils.main();
-        return ResponseUtil.ok();
-    }
 
     @Autowired
     private PublicService publicService;
-
-    public void gatherDeviceScan() throws Exception {
-        GatherFactory factory = new GatherFactory();
-        Gather gather = factory.getGather(Global.DEVICE_SCAN);
-        gather.executeMethod();
-    }
 
     @GetMapping("/terminal")
     public void gatherTerminal() {
@@ -69,7 +44,7 @@ public class GatherTestManagerController {
             Gather gather = factory.getGather(Global.TERMINAL);
             gather.executeMethod();
             this.probeToTerminalAndDeviceScan.finalProbe();
-            this.verifyVendorUtils.finalTerminal();
+//            this.verifyVendorUtils.finalTerminal();
             publicService.updateSureyingLog(temLogId, 2);
         } catch (Exception e) {
             e.printStackTrace();
@@ -77,34 +52,19 @@ public class GatherTestManagerController {
         }
     }
 
-    public void executeGatherTask(GatherFactory factory, String gatherType) throws Exception {
-        Gather gather = factory.getGather(gatherType);
-        gather.executeMethod();
-    }
-
-
-    @GetMapping("/ipv4_pana2")
-    public Result ipv4_pana() {
-        this.ipv4_pana2();
-        return ResponseUtil.ok();
-    }
-
-
-    public void ipv4_pana2(){
+    @GetMapping("/device_scan")
+    public void device_scan() {
         try {
-            GatherFactory factory = new GatherFactory();
-            Gather gather = factory.getGather(Global.IPV4_PANABIT);
-            gather.executeMethod();
+            this.gatherDeviceScan();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    @GetMapping("/arp")
-    public Result arpTest() {
-        this.arpService.gather();
-        return ResponseUtil.ok();
+    public void gatherDeviceScan() throws Exception {
+        GatherFactory factory = new GatherFactory();
+        Gather gather = factory.getGather(Global.DEVICE_SCAN);
+        gather.executeMethod();
     }
-
 
 }

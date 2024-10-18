@@ -11,6 +11,9 @@
             <if test="device_ipv4 != null and device_ipv4 != ''">
                 and device_ipv4 = #{device_ipv4}
             </if>
+            <if test="device_ipv6 != null and device_ipv6 != ''">
+                and device_ipv6 = #{device_ipv6}
+            </if>
         </where>
     </select>
 

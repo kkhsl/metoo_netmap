@@ -25,7 +25,6 @@ import java.util.*;
 @Component
 public class JXDataUtils {
 
-
     @Autowired
     private IGatewayInfoService gatewayInfoService;
     @Autowired
@@ -35,15 +34,9 @@ public class JXDataUtils {
     @Autowired
     private IDeviceScanService deviceScanService;
     @Autowired
-    private IUnreachService unreachService;
-    @Autowired
-    private IProbeService probeService;
-    @Autowired
     private ILicenseService licenseService;
     @Autowired
     private AesEncryptUtils aesEncryptUtils;
-    @Autowired
-    private DataUtils dataUtils;
     @Autowired
     private EsQueryService esQuery;
     @Autowired
@@ -54,20 +47,6 @@ public class JXDataUtils {
         String date = simpleDateFormat.format(new Date());
         return date;
     }
-
-    @Test
-    public void testEncryptedData() {
-        String encryptedData = this.getEncryptedData();
-        System.out.println("加密数据" + encryptedData);
-        try {
-            System.out.println("解密数据" + EncrypUtils.decrypt(encryptedData));
-        } catch (InvalidCipherTextException e) {
-            e.printStackTrace();
-        }
-    }
-
-
-
 
     public String getEncryptedData() {
         String encryptedData = "";
@@ -96,8 +75,6 @@ public class JXDataUtils {
         data.put("terminalInfo", new ArrayList<>());
         data.put("deviceInfo", new ArrayList<>());
         data.put("deviceScanInfo", new ArrayList<>());
-//        data.put("UnreachIpInfo", new HashMap<>());
-//        data.put("UnsureIpInfo", new HashMap<>());
         try {
             List<GatewayInfo> gatewayInfoList = this.gatewayInfoService.selectObjByMap(null);
             List<GatewayInfoVo> list1 = new ArrayList();
@@ -145,35 +122,17 @@ public class JXDataUtils {
             }
             data.put("deviceScanInfo", lsit4);
 
-//            List<Unreach> unreaches = this.unreachService.selectObjByMap(null);
-//            List<UnsearchInfoVo> lsit5 = new ArrayList();
-//            if (unreaches.size() > 0) {
-//                for (Unreach unreach : unreaches) {
-//                    UnsearchInfoVo vo = new UnsearchInfoVo(unreach.getIp_addr(),
-//                            unreach.getMac_addr(), unreach.getMac_vendor());
-//                    lsit5.add(vo);
-//                }
-//                data.put("UnreachIpInfo", lsit5);
-//            }
-
-//            List<Terminal> unsures = this.dataUtils.getUnsureInfo();
-//            List<TerminalInfoVo> lsit6 = new ArrayList();
-//            if (unsures.size() > 0) {
-//                for (Terminal unsure : unsures) {
-//                    TerminalInfoVo vo = new TerminalInfoVo(unsure.getMac(), unsure.getService(),
-//                            unsure.getActive_port(), unsure.getOs(),
-//                            unsure.getIpv4addr(), unsure.getIpv6addr(), unsure.getMacvendor());
-//                    lsit6.add(vo);
-//                }
-//                data.put("UnsureIpInfo", lsit6);
-//            }
-
             // 补充es查询后数据
             String beginTime = DateTools.getCreateTime();
             int temLogId = publicService.createSureyingLog("日志分析", beginTime, 1, null);
-            SessionInfoDto SessionInfoDto = esQuery.querySessionInfo();
-            data.put("sessionInfo", SessionInfoDto);
-            publicService.updateSureyingLog(temLogId, 2);
+            try {
+                SessionInfoDto SessionInfoDto = esQuery.querySessionInfo();
+                data.put("sessionInfo", SessionInfoDto);
+                publicService.updateSureyingLog(temLogId, 2);
+            } catch (Exception e) {
+                e.printStackTrace();
+                publicService.updateSureyingLog(temLogId, 3);
+            }
 
             List<License> licenseList = this.licenseService.query();
             if (licenseList.size() > 0) {
@@ -196,10 +155,8 @@ public class JXDataUtils {
             e.printStackTrace();
         }
 
-
-
         String json = JSONObject.toJSONString(data, SerializerFeature.WriteMapNullValue);
-
+        return json;
 ////        写入文件
 //        try {
 //            // 创建一个 ObjectMapper 实例
@@ -212,20 +169,12 @@ public class JXDataUtils {
 //            e.printStackTrace();
 //        }
 
-        return json;
+
 //        org.json.JSONObject jsonObject = new org.json.JSONObject(new JSONTokener(org.json.JSONObject.valueToString(data)));
 //        String formattedJson = jsonObject.toString(4); // 缩进4个空格
-
 //        String jsonString = JSONObject.toJSONString(data, SerializerFeature.PrettyFormat, SerializerFeature.WriteMapNullValue);
-
-
 //        String jsonString = ObjectWriter.writerWithDefaultPrettyPrinter(data, SerializerFeature.PrettyFormat, SerializerFeature.WriteMapNullValue);
 
-
     }
 
-    @Test
-    public void test() {
-        System.out.println(getDate());
-    }
 }

@@ -4,7 +4,7 @@ import com.github.pagehelper.util.StringUtil;
 import com.metoo.sqlite.entity.Version;
 import com.metoo.sqlite.gather.factory.gather.thread.Gather;
 import com.metoo.sqlite.gather.factory.gather.thread.GatherFactory;
-import com.metoo.sqlite.manager.Gather6ManagerController;
+import com.metoo.sqlite.manager.GatherManagerController;
 import com.metoo.sqlite.manager.utils.file.FileVersionUtils;
 import com.metoo.sqlite.service.IVersionService;
 import com.metoo.sqlite.utils.Global;
@@ -17,7 +17,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 
 /**
  * @author HKK
@@ -74,11 +75,11 @@ public class GatherTaskScheduledUtil {
 
     }
 
-    private final Gather6ManagerController gather6ManagerController;
+    private final GatherManagerController gatherManagerController;
 
-    // 使用构造函数注入 Gather6ManagerController
-    public GatherTaskScheduledUtil(Gather6ManagerController gather6ManagerController) {
-        this.gather6ManagerController = gather6ManagerController;
+    // 使用构造函数注入 GatherManagerController
+    public GatherTaskScheduledUtil(GatherManagerController gatherManagerController) {
+        this.gatherManagerController = gatherManagerController;
     }
 
 //    @Scheduled(cron = "0 0 * * * ?")
@@ -146,7 +147,7 @@ public class GatherTaskScheduledUtil {
 //
 //        log.info("update version end =====================");
 
-        Result result = this.gather6ManagerController.main(1);
+        Result result = this.gatherManagerController.main(1);
         if(result.getCode() != null && result.getCode() == 1002){
             System.out.println("正在采集,请勿更新");
         }else if(result.getCode() != null && result.getCode() == 1001){

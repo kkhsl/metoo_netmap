@@ -34,6 +34,12 @@ public class OsScannerCollectionStrategy implements DataCollectionStrategy {
         try {
             Probe obj = (Probe) context.getEntity();
             if (obj != null) {
+                String ip = obj.getIp_addr();
+                if(StringUtil.isEmpty(ip)){
+                    ip = obj.getIpv6();
+                }
+
+
                 PyCommandBuilder pyCommand = new PyCommandBuilder();
                 pyCommand.setPrefix("");
                 pyCommand.setVersion("");
@@ -42,13 +48,13 @@ public class OsScannerCollectionStrategy implements DataCollectionStrategy {
                 pyCommand.setName(Global.os_scanner_name);
                 pyCommand.setParams(new String[]{
                         "-i",
-                        obj.getIp_addr(),
+                        ip,
                         "-o",
                         obj.getPort_num(),
                         "-c",
                         "1"
                 });
-                log.info("执行开始 os-scanner" + " ip: "  + obj.getIp_addr() + " port " + obj.getPort_num());
+                log.info("执行开始 os-scanner" + " ip: "  + ip + " port " + obj.getPort_num());
                 this.pyExecUtils.exec(pyCommand);
                 log.info("执行结束 os-scanner");
             }

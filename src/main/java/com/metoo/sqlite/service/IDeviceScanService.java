@@ -16,6 +16,8 @@ public interface IDeviceScanService {
 
     List<DeviceScan> selectObjByMap(Map params);
 
+    List<DeviceScan> selectObjByIpv4OrIpv6(String ipv4, String ipv6);
+
     int insert(DeviceScan instance);
 
     int update(DeviceScan instance);

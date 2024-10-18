@@ -48,9 +48,7 @@ public class VerifyVendorUtils {
         deviceScan.setMacVendor(terminal.getMacvendor());
         deviceScan.setOs(terminal.getOs());
         try {
-            Map params = new HashMap();
-            params.put("device_ipv4", terminal.getIpv4addr());
-            List<DeviceScan> deviceScanList = this.deviceScanService.selectObjByMap(params);
+            List<DeviceScan> deviceScanList = deviceScanService.selectObjByIpv4OrIpv6(terminal.getIpv4addr(), terminal.getIpv6addr());
             if(deviceScanList.size() <= 0){
                 this.deviceScanService.insert(deviceScan);
             }

@@ -162,7 +162,7 @@ public class GatherAllInOneExecuteService {
                 pyCommand.setVersion(Global.py_name);
                 pyCommand.setPy_prefix("-W ignore");
                 pyCommand.setPath(Global.PYPATH);
-                pyCommand.setName("main.pyc");
+                pyCommand.setName("main.py");
                 pyCommand.setParams(new String[]{
                         device.getDeviceVendorAlias(),
                         device.getDeviceTypeAlias(),
