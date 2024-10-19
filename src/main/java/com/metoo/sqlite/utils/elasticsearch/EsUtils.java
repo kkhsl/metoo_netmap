@@ -11,8 +11,10 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
 
 /**
  * es相关工具类
@@ -24,6 +26,7 @@ import java.util.List;
 @Slf4j
 @UtilityClass
 public class EsUtils {
+    public static List<Process> processList=new ArrayList<>();
     /**
      * 启动logstash服务
      *
@@ -43,17 +46,28 @@ public class EsUtils {
             // 执行命令启动Logstash
             log.info("执行命令启动Logstash命令：{}", JSONObject.toJSONString(command));
             Process process = Runtime.getRuntime().exec(command);
-            ThreadUtil.execAsync(() -> {
+            ThreadUtil.execAsync(()->{
                 try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
                     String line;
                     while ((line = reader.readLine()) != null) {
-                        log.info(line);
+                        log.info("logstash=======:{}",line);
                     }
                 } catch (IOException e) {
-                    log.error("Error reading output from Logstash process: ", command, e);
+                    log.error("Error reading output from es process:{},{} ", command, e);
+                }
+            });
+            ThreadUtil.execAsync(()->{
+                try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getErrorStream()))) {
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        log.error("logstash=======:{}",line);
+                    }
+                } catch (IOException e) {
+                    log.error("Error reading output from es process:{},{} ", command, e);
                 }
             });
             log.info("启动es服务成功");
+            processList.add(process);
             return true;
         } catch (Exception e) {
             log.error("启动logstash服务出错：{}", e);
@@ -64,26 +78,35 @@ public class EsUtils {
     /**
      * 启动es服务
      *
-     * @param esPath
      */
-    public static boolean startEs(String esPath) {
+    public static boolean startEs() {
         try {
             // 构建启动es的命令
-            String[] command = {
-                    esPath
-            };
+            String[] command = {"cscript", "/nologo", Global.esStartPath};
             log.info("执行命令启动es命令：{}", JSONObject.toJSONString(command));
             Process process = Runtime.getRuntime().exec(command);
-            ThreadUtil.execAsync(() -> {
+            ThreadUtil.execAsync(()->{
                 try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
                     String line;
                     while ((line = reader.readLine()) != null) {
-                        log.info(line);
+                        log.info("es=======:{}",line);
                     }
                 } catch (IOException e) {
                     log.error("Error reading output from es process:{},{} ", command, e);
                 }
             });
+            ThreadUtil.execAsync(()->{
+                try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getErrorStream()))) {
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        log.error("es====error===:{}",line);
+                    }
+                } catch (IOException e) {
+                    log.error("Error reading output from es process:{},{} ", command, e);
+                }
+            });
+            log.info("启动es服务成功");
+            processList.add(process);
             return true;
         } catch (Exception e) {
             log.error("启动es服务出错：{}", e);
@@ -92,13 +115,14 @@ public class EsUtils {
     }
 
     /**
-     * 停止elk服务
+     * 结束执行命令流程
      */
-    public void stopELK() {
+    public void stopProcess(){
         try {
             // 停止elk服务
             log.info("ELK 服务开始停止");
-            Process process =  Runtime.getRuntime().exec(Global.elkStopPath);
+            String[] command = {"cscript", "/nologo", Global.elkStopPath};
+            Process process =  Runtime.getRuntime().exec(command);
             ThreadUtil.execAsync(() -> {
                 try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
                     String line;
@@ -109,21 +133,23 @@ public class EsUtils {
                     log.error("Error reading output from es process:{} ", e);
                 }
             });
+            log.info("开始结束执行命令流程==========={}",processList.size());
+            for (Process temp : processList) {
+                try {
+                    if (temp != null && temp.isAlive()) {
+                        temp.destroy();
+                    }
+                } catch (Exception ex) {
+                    log.error("结束执行命令失败：{}", ex);
+                }
+            }
             log.info("ELK 服务停止完成");
         } catch (Exception e) {
             log.error("ELK 服务停止出现错误：{}", e);
         }
     }
 
-    /**
-     * 清空es文件
-     */
-    public static void clearIndex() {
-        EsQueryService esQuery = SpringUtil.getBean(EsQueryService.class);
-        // 清除es索引数据
-        List<String> allIndex = esQuery.getAllIndexNames();
-        allIndex.forEach(o -> {
-            esQuery.deleteIndex(o);
-        });
+    public static void main(String[] args) {
+        stopProcess();
     }
 }

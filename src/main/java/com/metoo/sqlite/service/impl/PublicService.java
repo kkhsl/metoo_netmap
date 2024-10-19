@@ -4,6 +4,7 @@ import com.metoo.sqlite.core.config.enums.LogStatusType;
 import com.metoo.sqlite.entity.GatherLog;
 import com.metoo.sqlite.entity.SurveyingLog;
 import com.metoo.sqlite.gather.common.GatherCacheManager;
+import com.metoo.sqlite.model.es.EsQueryService;
 import com.metoo.sqlite.service.IGatherLogService;
 import com.metoo.sqlite.service.ISurveyingLogService;
 import com.metoo.sqlite.utils.Global;
@@ -31,6 +32,8 @@ public class PublicService {
 
     @Autowired
     private IGatherLogService gatherLogService;
+    @Autowired
+    private EsQueryService esQueryService;
 
     public void logGatheringResults(String beginTime, String endTime, String data, String surveying) {
         try {
@@ -52,6 +55,7 @@ public class PublicService {
         try {
             surveyingLogService.deleteTable();
             gatherLogService.deleteTable();
+            esQueryService.deleteEsTableData();
             // 清空错误图片
             FileUtils.clearDirectoryWithFileType(Global.errorImageUrl, FileUtils.getFileTypeName(Global.errorImageFileName));
         } catch (Exception e) {

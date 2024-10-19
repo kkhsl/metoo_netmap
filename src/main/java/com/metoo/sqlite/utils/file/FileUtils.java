@@ -137,4 +137,9 @@ public class FileUtils {
             log.info("清空{}文件错误：{}",filePath,e);
         }
     }
+
+    public static void main(String[] args) {
+        String path = "C:\\netmap\\logs\\output.json";
+        clearFile(path);
+    }
 }

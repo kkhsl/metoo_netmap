@@ -67,8 +67,6 @@ public class EsQueryService {
     public void saveStatisticsResult(String indexName, String type, int topN) {
         List<IpStatisticsResult> data = this.filterQuery(indexName, type, topN);
         if (CollUtil.isNotEmpty(data)) {
-            // 先删除之前的数据
-            ipStatisticsResultMapper.delete(indexName,type);
             for (IpStatisticsResult item : data) {
                 // 保存此次查询的数据
                 ipStatisticsResultMapper.save(item);
@@ -76,6 +74,13 @@ public class EsQueryService {
         }
     }
 
+    /**
+     * 清空es数据
+     */
+    public void deleteEsTableData(){
+        // 清空es数据
+        ipStatisticsResultMapper.delete();
+    }
     /**
      * 查询session数据
      *
