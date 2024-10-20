@@ -5,6 +5,7 @@ import cn.hutool.core.convert.Convert;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.extra.spring.SpringUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.util.StringUtil;
 import com.metoo.sqlite.core.config.enums.LogStatusType;
@@ -98,6 +99,7 @@ public class GatherAllInOneService {
     private ExecutorService executorService;
     @Autowired
     private ILogstashConfigService logstashConfigService;
+
     /**
      * 测绘主逻辑
      *
@@ -113,7 +115,7 @@ public class GatherAllInOneService {
                 if (lock.isHeldByCurrentThread()) {
                     lock.unlock();
                 }
-                return ResponseUtil.ok(1001,"可以更新");
+                return ResponseUtil.ok(1001, "可以更新");
             }
             List<Device> devices = deviceService.selectObjByMap(null);
             if (devices.size() < 1) {
@@ -150,6 +152,8 @@ public class GatherAllInOneService {
                 Thread.currentThread().interrupt();
                 return ResponseUtil.error("测绘已终止");
             }
+            // 测绘完成后清除数据
+            clearData();
             return ResponseUtil.ok("测绘完成");
         } catch (Exception e) {
             log.error("测绘失败：{}", e);
@@ -189,7 +193,6 @@ public class GatherAllInOneService {
             Thread.sleep(5000);
             publicService.updateSureyingLog(cjLogId, LogStatusType.SUCCESS.getCode());
         }
-
         // os-scanner环境判断
         int scLogId = publicService.createSureyingLog("扫描模块检测", DateTools.getCreateTime(), LogStatusType.init.getCode(), null, 2);
         if (!existOSScannerFile()) {
@@ -225,8 +228,6 @@ public class GatherAllInOneService {
         gatherUploadData(data);
         String surveying = getSurveyingResult();
         publicService.logGatheringResults(beginTime, endTime, data, surveying);
-        // 测绘完成后清除数据
-        clearData();
         //  }
     }
 
@@ -249,7 +250,7 @@ public class GatherAllInOneService {
         try {
             List<SurveyingLog> surveyingLogList = this.surveyingLogService.selectObjByMap(null);
             for (SurveyingLog surveyingLog : surveyingLogList) {
-                if(surveyingLog.getStatus() == 1){
+                if (surveyingLog.getStatus() == 1) {
                     surveyingLog.setStatus(3);
                     this.surveyingLogService.update(surveyingLog);
                 }
@@ -738,15 +739,20 @@ public class GatherAllInOneService {
         int logId = publicService.createSureyingLog("启动日志模块", DateTools.getCreateTime(), LogStatusType.init.getCode(), null, 3);
         boolean result=EsUtils.startEs(Global.esStartPath);
         // 根据设备类型获取对应logstash配置文件
-        List<String> confList=logstashConfigService.queryByName();
-        if(CollUtil.isNotEmpty(confList)){
+        List<String> confList = logstashConfigService.queryByName();
+        if (CollUtil.isNotEmpty(confList)) {
             // 启动logstash
-            logResult=EsUtils.startLogStash(Global.logstashStartPath, confList);
+            logResult = EsUtils.startLogStash(Global.logstashStartPath, confList);
         }
-        if(result&&logResult){
+        if (result && logResult) {
+            try {
+                Thread.sleep(30000);
+            } catch (InterruptedException e) {
+                log.error("等待日志启动====={}",e);
+            }
             // 启动成功
             publicService.updateSureyingLog(logId, LogStatusType.SUCCESS.getCode());
-        }else{
+        } else {
             // 启动失败
             publicService.updateSureyingLog(logId, LogStatusType.FAIL.getCode());
         }
@@ -756,14 +762,31 @@ public class GatherAllInOneService {
      * 异步清除日志文件、es索引等数据
      */
     private void clearData() {
+        log.info("异步清除日志文件、es索引等数据");
         ThreadUtil.execAsync(() -> {
-            // 清除es索引数据
-            EsUtils.clearIndex();
             // 清空output.json文件
+            log.info("清空json文件：{}", Global.resultFile);
             FileUtils.clearFile(Global.resultFile);
-            // 停止elk服务
-            EsUtils.stopELK();
+            // 清除es索引数据
+            clearIndex();
+            log.info("开始结束执行命令流程===========");
+            EsUtils.stopProcess();
         });
     }
 
+    /**
+     * 清空es文件
+     */
+    public  void clearIndex() {
+        log.info("开始清除索引文件===========");
+        try {
+            List<String> allIndex = esQuery.getAllIndexNames();
+            allIndex.forEach(o -> {
+                log.info("开始清除索引文件：{}", o);
+                esQuery.deleteIndex(o);
+            });
+        }catch(Exception e){
+            log.error("删除索引文件失败：{}",e);
+        }
+    }
 }

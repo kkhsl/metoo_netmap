@@ -19,5 +19,5 @@ public interface IpStatisticsResultMapper {
 
     int save(IpStatisticsResult instance);
 
-    int delete(@Param("name")String name,@Param("type") String type);
+    int delete();
 }

@@ -193,7 +193,7 @@ public class VersionManagerController {
     @GetMapping("/maual/update")
     public Result maualUpdat() {
         int result=updateVersionService.updateVersion();
-        if(VersionResultType.SUCCESS.equals(result)){
+        if(VersionResultType.SUCCESS.getCode().equals(result)){
             return ResponseUtil.ok(200,"更新完成");
         }else{
             return ResponseUtil.error(1003, VersionResultType.getValueByCode(result));

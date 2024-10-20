@@ -3,8 +3,8 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.metoo.sqlite.mapper.IpStatisticsResultMapper">
-    <delete id="delete" parameterType="java.lang.String">
-        DELETE FROM metoo_ip_statistics_result WHERE name = #{name} and type=#{type}
+    <delete id="delete" >
+        DELETE FROM metoo_ip_statistics_result
     </delete>
 
     <select id="selectObjByMap" parameterType="java.util.Map" resultType="com.metoo.sqlite.entity.es.IpStatisticsResult">
