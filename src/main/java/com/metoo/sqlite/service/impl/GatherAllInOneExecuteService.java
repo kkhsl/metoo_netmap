@@ -30,7 +30,9 @@ import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
 import static com.sun.corba.se.impl.util.RepositoryId.cache;
@@ -77,7 +79,10 @@ public class GatherAllInOneExecuteService {
         ipv6Service.deleteTableGather();
         portIpv4Service.deleteTableGather();
         portIpv6Service.deleteTableGather();
-        List<Device> deviceList = deviceService.selectObjByMap(null);
+
+        Map params = new HashMap();
+        params.put("type", 0);
+        List<Device> deviceList = deviceService.selectObjByMap(params);
 
         if (deviceList.size() > 0) {
             CountDownLatch latch = Global.isConcurrent ? new CountDownLatch(deviceList.size()) : null;
@@ -88,7 +93,7 @@ public class GatherAllInOneExecuteService {
                 boolean flag = true;
                 // 设备日志添加
                 String beginTime = DateTools.getCreateTime();
-                int logId = publicService.createSureyingLog("设备:" + device.getName() + "采集分析", beginTime, 1, parentId);
+                int logId = publicService.createSureyingLog("设备:" + device.getName() + "采集分析", beginTime, 1, parentId, 4);
                 try {
                     // 调用main.pyc执行脚本
                     Context context = new Context();
@@ -155,14 +160,14 @@ public class GatherAllInOneExecuteService {
         boolean ipv6Flag = false;
         String result = "";
         if (device != null) {
-            int ipv4Id = publicService.createSureyingLog("ipv4采集", DateTools.getCreateTime(), 1, context.getLogId());
-            int ipv6Id = publicService.createSureyingLog("ipv6采集", DateTools.getCreateTime(), 1, context.getLogId());
+            int ipv4Id = publicService.createSureyingLog("ipv4采集", DateTools.getCreateTime(), 1, context.getLogId(), 5);
+            int ipv6Id = publicService.createSureyingLog("ipv6采集", DateTools.getCreateTime(), 1, context.getLogId(), 6);
             try {
                 PyCommandBuilder pyCommand = new PyCommandBuilder();
-                pyCommand.setVersion(Global.py_name);
-                pyCommand.setPy_prefix("-W ignore");
+//                pyCommand.setVersion(Global.py_name);
+//                pyCommand.setPy_prefix("-W ignore");
                 pyCommand.setPath(Global.PYPATH);
-                pyCommand.setName("main.py");
+                pyCommand.setName("main.exe");
                 pyCommand.setParams(new String[]{
                         device.getDeviceVendorAlias(),
                         device.getDeviceTypeAlias(),

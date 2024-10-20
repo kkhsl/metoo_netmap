@@ -122,16 +122,20 @@ public class JXDataUtils {
             }
             data.put("deviceScanInfo", lsit4);
 
-            // 补充es查询后数据
-            String beginTime = DateTools.getCreateTime();
-            int temLogId = publicService.createSureyingLog("日志分析", beginTime, 1, null);
-            try {
-                SessionInfoDto SessionInfoDto = esQuery.querySessionInfo();
-                data.put("sessionInfo", SessionInfoDto);
-                publicService.updateSureyingLog(temLogId, 2);
-            } catch (Exception e) {
-                e.printStackTrace();
-                publicService.updateSureyingLog(temLogId, 3);
+            data.put("sessionInfo", null);
+            boolean flag = this.deviceService.verifyLogDevice();
+            if(!flag){
+                // 补充es查询后数据
+                String beginTime = DateTools.getCreateTime();
+                int temLogId = publicService.createSureyingLog("日志分析", beginTime, 1, null, 9);
+                try {
+                    SessionInfoDto SessionInfoDto = esQuery.querySessionInfo();
+                    data.put("sessionInfo", SessionInfoDto);
+                    publicService.updateSureyingLog(temLogId, 2);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    publicService.updateSureyingLog(temLogId, 3);
+                }
             }
 
             List<License> licenseList = this.licenseService.query();

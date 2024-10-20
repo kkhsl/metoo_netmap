@@ -33,6 +33,8 @@ public class SurveyingLog {
     @ApiModelProperty("采集成功失败：默认 1：成功 0：失败")
     private Integer info;
 
+    private Integer type;
+
     public SurveyingLog createTime(String createTime){
         this.createTime = createTime;
         return this;
@@ -71,4 +73,10 @@ public class SurveyingLog {
         this.parentId = parentId;
         return this;
     }
+
+    public SurveyingLog type(Integer type){
+        this.type = type;
+        return this;
+    }
+
 }

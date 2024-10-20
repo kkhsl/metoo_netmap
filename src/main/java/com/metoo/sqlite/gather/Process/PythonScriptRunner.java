@@ -254,12 +254,6 @@ public class PythonScriptRunner {
     }
 
     public String exec_exe(String scriptPath, String scriptName, String... args) {
-
-        log.info("exec - 2 start ...... " + scriptPath + " " + args);
-
-        StringBuffer output = new StringBuffer();// StringBuilder
-        StringBuffer error = new StringBuffer();
-
         try {
             // 构建命令行参数
             List<String> command = new ArrayList<>();
@@ -274,54 +268,42 @@ public class PythonScriptRunner {
             // 启动进程
             Process process = pb.start();
 
-            // 使用 try-with-resources 读取进程输出
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
-                String line;
-                while ((line = reader.readLine()) != null) {
+            StringBuffer output = new StringBuffer();// StringBuilder
 
-                    System.out.println(System.lineSeparator());
-
-                    output.append(line).append(System.lineSeparator());
+            // 创建线程读取标准输出流
+            Thread outputThread = new Thread(() -> {
+                try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        output.append(line).append(System.lineSeparator());
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
-            }
+            });
+
+            // 启动线程
+            outputThread.start();
 
             // 等待进程完成
-//            int exitCode = process.waitFor();
-//
-//            if (exitCode != 0) {
-//                try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getErrorStream()))) {
-//                    String line;
-//                    while ((line = reader.readLine()) != null) {
-//                        error.append(line).append(System.lineSeparator());
-//                    }
-//                }
-//                throw new IOException("Process exited with code " + exitCode + ": " + error.toString());
-//            }
-//
-//            boolean finished = process.waitFor(30, TimeUnit.SECONDS); // 等待30秒
-//            if (!finished) {
-//                process.destroy(); // 如果超时，则终止进程
-//            }else{
-//                boolean finished = process.waitFor(30, TimeUnit.SECONDS); // 等待30秒
-//                if (!finished) {
-//                    process.destroy(); // 如果超时，则终止进程
-//                }else{
-//                    try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getErrorStream()))) {
-//                        String line;
-//                        while ((line = reader.readLine()) != null) {
-//                            error.append(line).append(System.lineSeparator());
-//                        }
-//                    }
-//                }
-//            }
+            try {
+                int exitCode = process.waitFor();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
 
+            try {
+                // 等待线程完成
+                outputThread.join();
 
-            log.info("exec - 2 end ...... " + scriptPath + " " + args);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
 
-            // 返回执行结果
-            return output.toString().replaceAll("[\n\r]", "");
+            String cleanedOutput = output.toString().replaceAll("[\n\r]", "");
+            return cleanedOutput;
 
-        } catch (IOException /* | InterruptedException*/ e) {
+        } catch (IOException e) {
             e.printStackTrace();
             return ""; // 或者根据需求抛出异常
         }

@@ -36,7 +36,7 @@ public class GatherTestManagerController {
     @GetMapping("/terminal")
     public void gatherTerminal() {
         String beginTime = DateTools.getCreateTime();
-        int temLogId = publicService.createSureyingLog("终端分析", beginTime, 1, null);
+        int temLogId = publicService.createSureyingLog("终端分析", beginTime, 1, null, 8);
         try {
             //this.gatherArp();
             this.gatherDeviceScan();

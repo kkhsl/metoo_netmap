@@ -54,6 +54,8 @@ public class Device {
 
     @ApiModelProperty("设备UUID")
     private String uuid;
+    @ApiModelProperty("设备类型")
+    private Integer type;
 
 
     private String model;

@@ -19,10 +19,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author HKK
@@ -121,8 +119,23 @@ public class DeviceServiceImpl implements IDeviceService {
     }
 
     @Override
+    public boolean verifyLogDevice(){
+        Map params = new HashMap();
+        params.put("type", 1);
+        List<Device> deviceList = this.deviceMapper.selectObjByMap(params);
+        if(deviceList.size() <= 0){
+            return true;
+        }
+        return false;
+    }
+
+    @Override
     public int update(Device instance) {
         try {
+            boolean flag = verifyLogDevice();
+            if(flag){
+                System.out.println(1);
+            }
             return this.deviceMapper.update(instance);
         } catch (Exception e) {
             e.printStackTrace();
@@ -190,22 +203,36 @@ public class DeviceServiceImpl implements IDeviceService {
 
     @Override
     public Result save(Device instance) {
-        Result result = this.verifyParams(instance);
-        if(result != null){
-            return this.verifyParams(instance);
+        if(instance.getType() == null || instance.getType() != 1){
+            Result result = this.verifyParams(instance);
+            if(result != null){
+                return result;
+            }
         }
+
         if(instance.getId() == null || instance.getId().equals("")){
+            // 验证设备类型，日志设备仅允许添加一台，可在aop中实现
+            if(instance.getType() != null && instance.getType() == 1){
+                boolean flag = this.verifyLogDevice();
+                if(!flag){
+                    return ResponseUtil.badArgument("日志设备仅允许添加一台");
+                }
+            }
             instance.setCreateTime(DateTools.getCreateTime());
             UUID uuid = UUID.randomUUID();
             instance.setUuid(uuid.toString());
-            instance.setLoginPassword("\""+instance.getLoginPassword()+"\"");
+            if(StringUtil.isNotEmpty(instance.getLoginPassword())){
+                instance.setLoginPassword("\""+instance.getLoginPassword()+"\"");
+            }
             int i = this.deviceMapper.save(instance);
             if(i >= 1){
                 return ResponseUtil.ok();
             }
         }else{
-            if(!instance.getLoginPassword().substring(0, 1).equals("\"")){
-                instance.setLoginPassword("\""+instance.getLoginPassword()+"\"");
+            if(StringUtil.isNotEmpty(instance.getLoginPassword())){
+                if(!instance.getLoginPassword().substring(0, 1).equals("\"")){
+                    instance.setLoginPassword("\""+instance.getLoginPassword()+"\"");
+                }
             }
             int i = this.deviceMapper.update(instance);
             if(i >= 1){
@@ -217,16 +244,34 @@ public class DeviceServiceImpl implements IDeviceService {
 
     @Override
     public Result batchSave(List<Device> devices) {
+        // 验证设备类型，日志设备仅允许添加一台，可在aop中实现
+        long count = devices.stream().filter(device -> device.getType() != null && device.getType() == 1).count();
+        if(count > 1){
+            return ResponseUtil.badArgument("日志设备仅允许添加一台");
+        }else if(count == 1){
+            Optional<Device> typeDevice = devices.stream()
+                    .filter(device -> device.getType() != null && device.getType() == 1).findFirst();
+            Device device = typeDevice.orElse(new Device());
+            boolean flag = this.verifyLogDevice();
+            if(!flag && (device.getId() == null || device.getId().equals(""))){
+                return ResponseUtil.badArgument("日志设备仅允许添加一台");
+            }
+        }
         // 校验id不为空对象是否修改
         for (Device device : devices) {
-            Result result = this.verifyParams2(device);
-            if(result != null){
-                return result;
+            if(device.getType() == null || device.getType() != 1){
+                Result result = this.verifyParams2(device);
+                if(result != null){
+                    return result;
+                }
             }
             if(device.getId() != null && !device.getId().equals("")){
-                if(!device.getLoginPassword().substring(0, 1).equals("\"")){
-                    device.setLoginPassword("\""+device.getLoginPassword()+"\"");
+                if(StringUtil.isNotEmpty(device.getLoginPassword())){
+                    if(!device.getLoginPassword().substring(0, 1).equals("\"")){
+                        device.setLoginPassword("\""+device.getLoginPassword()+"\"");
+                    }
                 }
+
 
                 Device obj = this.deviceMapper.selectObjById(device.getId());
                 if(obj == null){
@@ -247,7 +292,9 @@ public class DeviceServiceImpl implements IDeviceService {
                 UUID uuid = UUID.randomUUID();
                 device.setUuid(uuid.toString());
                 device.setCreateTime(DateTools.getCreateTime());
-                device.setLoginPassword("\""+device.getLoginPassword()+"\"");
+                if(StringUtil.isNotEmpty(device.getLoginPassword())){
+                    device.setLoginPassword("\""+device.getLoginPassword()+"\"");
+                }
                 try {
                     int i = this.deviceMapper.save(device);
                 } catch (Exception e) {

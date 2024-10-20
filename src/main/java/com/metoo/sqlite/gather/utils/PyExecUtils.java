@@ -23,6 +23,19 @@ public class PyExecUtils {
     @Autowired
     private PythonScriptRunner pythonScriptRunner;
 
+
+    public static void main(String[] args) {
+        PythonScriptRunner pythonScriptRunner = new PythonScriptRunner();
+//        main.exe h3c switch 192.168.6.1 ssh 22 metoo "metoo89745000" all
+        String result = "";
+            result = pythonScriptRunner.exec_exe("C:\\netmap\\script", "main.exe", "h3c", "switch", "192.168.6.1",
+            "ssh", "22", "metoo", "metoo89745000", "all");
+        System.out.println(result);
+//        result = pythonScriptRunner.exec("C:\\netmap\\script", "main.exe", "h3c", "switch", "192.168.6.1",
+//                "ssh", "22", "metoo", "metoo89745000", "all");
+//        System.out.println(result);
+    }
+
     public String exec(PyCommand pyCommand) {
 //        String result = "";
 //        pyCommand.setVersion("python3");

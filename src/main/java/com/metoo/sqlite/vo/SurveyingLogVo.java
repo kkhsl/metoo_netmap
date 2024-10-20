@@ -36,6 +36,8 @@ public class SurveyingLogVo {
     @ApiModelProperty("采集成功失败：默认 1：成功 0：失败")
     private Integer info;
 
+    private Integer type;
+
 
     @ApiModelProperty("子模块日志")
     private List<SurveyingSubLogVo> subLogs;

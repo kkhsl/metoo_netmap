@@ -59,14 +59,15 @@ public class PublicService {
         }
     }
 
-    public int createSureyingLog(String name, String beginTime, Integer status, Integer parentId) {
+    public int createSureyingLog(String name, String beginTime, Integer status, Integer parentId, Integer type) {
         if(!GatherCacheManager.running) {
             throw new RuntimeException("测绘已手动中止");
         }
         SurveyingLog surveyingLog = new SurveyingLog()
                 .createTime(DateTools.getCreateTime())
                 .name(name).beginTime(beginTime)
-                .status(status);
+                .status(status)
+                .type(type);
         if (null != parentId) {
             surveyingLog.setParentId(parentId);
         }

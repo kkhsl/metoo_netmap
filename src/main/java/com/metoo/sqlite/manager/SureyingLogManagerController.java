@@ -31,18 +31,11 @@ public class SureyingLogManagerController {
         result.put("data", surveyingLogList);
 
         if(surveyingLogList.size() > 0){
-            if(surveyingLogList.size() == 8){
-                if(surveyingLogList.get(7).getStatus() != 1){
-                    finish = true;
-                }
+            long count = surveyingLogList.stream().filter(surveyingLogVo -> surveyingLogVo.getType() != null
+                    && surveyingLogVo.getType() == 10 && (surveyingLogVo.getStatus() == 2 || surveyingLogVo.getStatus() == 3)).count();
+            if(count >= 1){
+                finish = true;
             }
-//            result.put("finish", true);
-//            for (SurveyingLogVo surveyingLog : surveyingLogList) {
-//                if(surveyingLog.getStatus() == 3){
-//                    finish = false;
-//                    break;
-//                }
-//            }
         }
         if(!GatherCacheManager.running){
             // 任务手动终止，采集失败

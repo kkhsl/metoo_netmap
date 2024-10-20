@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * @author HKK
@@ -143,6 +144,16 @@ public class ArpUtils {
 
         List<Ipv4> ipv4List = this.ipv4Service.selectObjByMap(null);
         List<Ipv6> ipv6List = this.ipv6Service.selectObjByMap(null);
+        // 根据mac地址去重
+        // 根据 mac 去重
+        ipv6List = ipv6List.stream()
+                .collect(Collectors.toMap(
+                        Ipv6::getIpv6_mac,  // 使用 mac 作为 key
+                        ipv6 -> ipv6,  // 保留 Ipv6 对象
+                        (existing, replacement) -> existing))  // 若出现相同 mac，保留第一次出现的对象
+                .values()  // 获取去重后的值
+                .stream()
+                .collect(Collectors.toList());  // 转换回 List
 
         if(ipv4List.size() > 0){
             for (Ipv4 ipv4 : ipv4List) {
@@ -164,7 +175,8 @@ public class ArpUtils {
 
             for (Arp arp : arpList) {
                 for (Ipv6 ipv6 : ipv6List) {
-                    if(StringUtil.isNotEmpty(ipv6.getIpv6_address()) && arp.getMac() != null && arp.getMac().toLowerCase().equals(ipv6.getIpv6_mac().toLowerCase())){
+                    if(StringUtil.isNotEmpty(ipv6.getIpv6_address()) && arp.getMac() != null
+                            && arp.getMac().toLowerCase().equals(ipv6.getIpv6_mac().toLowerCase())){
                         if(arp.getPort() != null && ipv6.getPort() != null
                                 && arp.getPort().toLowerCase().equals(ipv6.getPort().toLowerCase()) ){
                             arp.setIpv6(ipv6.getIpv6_address());

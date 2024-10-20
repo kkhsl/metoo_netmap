@@ -1,5 +1,6 @@
 package com.metoo.sqlite.manager;
 
+import cn.hutool.core.map.MapUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.util.StringUtil;
 import com.metoo.sqlite.entity.*;
@@ -125,7 +126,27 @@ public class GatherManagerController {
     @PostMapping("/stop")
     @ApiOperation(value = "停止测绘", notes = "停止测绘")
     public Result stop() {
+
+        List<SurveyingLog> surveyingLogList = this.surveyingLogService.selectObjByMap(MapUtil.of("type", 7));
+        if(!surveyingLogList.isEmpty()){
+            if(surveyingLogList.get(0).getStatus() == 1){
+                return ResponseUtil.error("全网资产扫描中...禁止停止测绘");
+            }
+        }
         boolean result=allInOneService.stopGather();
+        if(result){
+            try {
+                surveyingLogList = this.surveyingLogService.selectObjByMap(null);
+                for (SurveyingLog surveyingLog : surveyingLogList) {
+                    if(surveyingLog.getStatus() == 1){
+                        surveyingLog.setStatus(3);
+                        this.surveyingLogService.update(surveyingLog);
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
         return result?ResponseUtil.ok("停止测绘成功"):ResponseUtil.error("停止测绘失败");
     }
     public static String getDate() {

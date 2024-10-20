@@ -23,6 +23,9 @@
             <if test="ip != null and ip != ''">
                 AND `ip` = #{ip}
             </if>
+            <if test="type != null">
+                AND `type` = #{type}
+            </if>
             <if test="notId != null and notId != ''">
                 AND `id` != #{notId}
             </if>
@@ -110,6 +113,9 @@
             <if test="state != null">
                 state,
             </if>
+            <if test="type != null and type != ''">
+                `type`,
+            </if>
         </trim>
         <trim prefix="VALUES(" suffixOverrides="," suffix=")">
             <if test="createTime != null and createTime != ''">
@@ -171,6 +177,9 @@
             </if>
             <if test="state != null">
                 #{state},
+            </if>
+            <if test="type != null and type != ''">
+                #{type},
             </if>
         </trim>
     </insert>
@@ -237,6 +246,9 @@
             </if>
             <if test="state != null">
                 state = #{state},
+            </if>
+            <if test="type != null and type != ''">
+                `type` = #{type},
             </if>
         </set> WHERE id = #{id}
     </update>

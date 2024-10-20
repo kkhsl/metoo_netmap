@@ -181,24 +181,30 @@ public class GatherAllInOneService {
 //            runSelfTerminalUtils();
 //        }else {
         // cf-scanner环境判断
-        int cjLogId = publicService.createSureyingLog("采集模块检测", DateTools.getCreateTime(), LogStatusType.init.getCode(), null);
+        int cjLogId = publicService.createSureyingLog("采集模块检测", DateTools.getCreateTime(), LogStatusType.init.getCode(), null, 1);
         if (!existCFScannerFile()) {
             publicService.updateSureyingLog(cjLogId, LogStatusType.FAIL.getCode());
             throw new Exception("采集模块检测出错");
         } else {
+            Thread.sleep(5000);
             publicService.updateSureyingLog(cjLogId, LogStatusType.SUCCESS.getCode());
         }
+
         // os-scanner环境判断
-        int scLogId = publicService.createSureyingLog("扫描模块检测", DateTools.getCreateTime(), LogStatusType.init.getCode(), null);
+        int scLogId = publicService.createSureyingLog("扫描模块检测", DateTools.getCreateTime(), LogStatusType.init.getCode(), null, 2);
         if (!existOSScannerFile()) {
             publicService.updateSureyingLog(scLogId, LogStatusType.FAIL.getCode());
             throw new Exception("扫描模块检测出错");
         } else {
+            Thread.sleep(5000);
             publicService.updateSureyingLog(scLogId, LogStatusType.SUCCESS.getCode());
         }
         // elk设备启动
         // 启动日志模块日志
-        startELK();
+        boolean flag = this.deviceService.verifyLogDevice();
+        if(!flag){
+            startELK();
+        }
         // 调用main.pyc执行脚本
         //对json结果文件进行解析入库
         // 调用arp，ipv6 neighbors，alivein 采集
@@ -344,7 +350,7 @@ public class GatherAllInOneService {
 
     public void gatherUploadData(String data) {
         String beginTime = DateTools.getCreateTime();
-        int ecLogId = publicService.createSureyingLog("生成加密结果文件", beginTime, 1, null);
+        int ecLogId = publicService.createSureyingLog("生成加密结果文件", beginTime, 1, null, 10);
         publicService.updateSureyingLog(ecLogId, 2);
 
     }
@@ -353,7 +359,7 @@ public class GatherAllInOneService {
         log.info("Probe start===============");
         this.probeService.deleteTable();
         String begin_time = DateTools.getCreateTime();
-        int probeLogId = publicService.createSureyingLog("全网资产扫描", begin_time, 1, null);
+        int probeLogId = publicService.createSureyingLog("全网资产扫描", begin_time, 1, null, 7);
         try {
             List<Arp> arpList = this.arpService.selectObjByMap(null);
             if (arpList.isEmpty()) {
@@ -708,7 +714,7 @@ public class GatherAllInOneService {
 
     public void gatherTerminal() {
         String beginTime = DateTools.getCreateTime();
-        int temLogId = publicService.createSureyingLog("终端分析", beginTime, 1, null);
+        int temLogId = publicService.createSureyingLog("终端分析", beginTime, 1, null, 8);
         try {
             this.gatherDeviceScan();
             GatherFactory factory = new GatherFactory();
@@ -729,7 +735,7 @@ public class GatherAllInOneService {
      */
     public void startELK() {
         boolean  logResult=false;
-        int logId = publicService.createSureyingLog("启动日志模块", DateTools.getCreateTime(), LogStatusType.init.getCode(), null);
+        int logId = publicService.createSureyingLog("启动日志模块", DateTools.getCreateTime(), LogStatusType.init.getCode(), null, 3);
         boolean result=EsUtils.startEs(Global.esStartPath);
         // 根据设备类型获取对应logstash配置文件
         List<String> confList=logstashConfigService.queryByName();

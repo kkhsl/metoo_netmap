@@ -183,10 +183,10 @@ public class DeviceManagerController {
             }
         }
         PyCommandBuilder pyCommand = new PyCommandBuilder();
-        pyCommand.setVersion(Global.py_name);
+//        pyCommand.setVersion(Global.py_name);
         pyCommand.setPath(Global.PYPATH);
-        pyCommand.setPy_prefix("-W ignore");
-        pyCommand.setName("main.pyc");
+//        pyCommand.setPy_prefix("-W ignore");
+        pyCommand.setName("main.exe");
         pyCommand.setParams(new String[]{
                 device.getDeviceVendorAlias(),
                 device.getDeviceTypeAlias(),

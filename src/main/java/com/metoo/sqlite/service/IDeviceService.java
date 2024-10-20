@@ -19,6 +19,8 @@ public interface IDeviceService {
 
     List<Device> selectObjByMap(Map params);
 
+    boolean verifyLogDevice();
+
     int update(Device instance);
 
     Result selectObjConditionQuery(DeviceDTO dto);
