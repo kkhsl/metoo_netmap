@@ -82,6 +82,8 @@ public class VerifyMacVendorUtils {
         VENDOR_MAP_DEVICESCAN.put("Shenzhen Sunchip Technology", "Shenzhen Sunchip Technology");
         VENDOR_MAP_DEVICESCAN.put("DAVICOM SEMICONDUCTOR", "DAVICOM SEMICONDUCTOR");
         VENDOR_MAP_DEVICESCAN.put("openbsd", "openbsd");
+        VENDOR_MAP_DEVICESCAN.put("Hangzhou Hikivison", "Hangzhou Hikivison");
+        VENDOR_MAP_DEVICESCAN.put("Dahua", "Dahua");
     }
     public static String toDeviceScan(String vendor){
 

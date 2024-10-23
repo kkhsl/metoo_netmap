@@ -72,7 +72,7 @@ public class UpdateVersionService {
      * @return
      */
     public int updateVersion() {
-        if (lock.tryLock()) {
+         if (lock.tryLock()) {
             // 保存当前线程的引用
             threadVersion = Thread.currentThread();
             try {
@@ -86,7 +86,7 @@ public class UpdateVersionService {
                     boolean updateFlag = true;
                     String readState = FileVersionUtils.readState(Global.version_state, Global.version_state_name);
                     if (StringUtil.isNotEmpty(readState)
-                            && Math.abs(Integer.parseInt(readState)) > 1) {
+                            && Integer.parseInt(readState) > 1) {
                         //已下载过了 不在执行下载
                         updateFlag = false;
                     }
@@ -107,11 +107,11 @@ public class UpdateVersionService {
                         Long appVersionId = json.getLong("appVersionId");
                         // 如果为补丁版本 列如：1.1.2.[0]
                         if (appVersion.contains("[")) {
-                            //存在补丁版本
+                            // 存在补丁版本
                             if (updateFlag) {
                                 // 标记可以更新了
                                 FileVersionUtils.writeUpdateVersion(Global.version_state, Global.version_state_name, "1");
-                                //版本是较新版本，下载升级
+                                // 版本是较新版本，下载升级
                                 try {
                                     downloadPatchVersion(appVersionId);
                                     // 标记已下载状态
@@ -145,11 +145,16 @@ public class UpdateVersionService {
                                 if (updateFlag) {
                                     // 标记可以更新了
                                     FileVersionUtils.writeUpdateVersion(Global.version_state, Global.version_state_name, "1");
+
                                     //版本是较新版本，下载升级
                                     try {
                                         downloadVersion(appVersionId);
                                         // 标记已下载状态
                                         FileVersionUtils.writeUpdateVersion(Global.version_state, Global.version_state_name, "2");// 下载完成
+
+                                        //更新版本号
+                                        FileVersionUtils.writeUpdateVersion(Global.version_state, Global.version_info_name, appVersion);
+
                                     } catch (Exception e) {
                                         //下载失败
                                         log.error("下载新版本失败：{}", e.getMessage());
@@ -158,14 +163,19 @@ public class UpdateVersionService {
                                     }
 
                                 }
+                                // 判断状态，解压执行
                                 try {
+                                    String stt = FileVersionUtils.readState(Global.version_state, Global.version_state_name);
+                                    if(stt != null && (!"2".equals(stt) || !"3".equals(stt))){
+                                        return VersionResultType.FAIL.getCode();
+                                    }
                                     //已下载
                                     String extractDirectory = Global.versionUnzip;
                                     // 执行 .bat 文件
                                     String batFilePath = extractDirectory + File.separator + Global.versionScriptName;
                                     DownloadAndExecuteBatFromZip.executeBatchFile(batFilePath);
-                                    //标记为已更新完成
-                                    FileVersionUtils.writeUpdateVersion(Global.version_state, Global.version_state_name, "3");
+                                    //标记为已更新完成/还原状态
+                                    FileVersionUtils.writeUpdateVersion(Global.version_state, Global.version_state_name, "0");
                                     //更新版本号
                                     FileVersionUtils.writeUpdateVersion(Global.version_state, Global.version_info_name, appVersion);
                                     log.info("版本更新完成，版本号：{}", appVersion);

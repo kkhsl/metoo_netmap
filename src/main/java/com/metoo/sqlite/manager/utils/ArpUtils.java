@@ -156,6 +156,7 @@ public class ArpUtils {
                 .collect(Collectors.toList());  // 转换回 List
 
         if(ipv4List.size() > 0){
+            List<String> ipv6s = new ArrayList<>();
             for (Ipv4 ipv4 : ipv4List) {
 
                 Arp arpIpv4 = new Arp(ipv4.getIp(), ipv4.getMac(), ipv4.getPort(), ipv4.getDeviceUuid(), null);
@@ -177,10 +178,8 @@ public class ArpUtils {
                 for (Ipv6 ipv6 : ipv6List) {
                     if(StringUtil.isNotEmpty(ipv6.getIpv6_address()) && arp.getMac() != null
                             && arp.getMac().toLowerCase().equals(ipv6.getIpv6_mac().toLowerCase())){
-                        if(arp.getPort() != null && ipv6.getPort() != null
-                                && arp.getPort().toLowerCase().equals(ipv6.getPort().toLowerCase()) ){
                             arp.setIpv6(ipv6.getIpv6_address());
-                        }
+                        ipv6s.add(ipv6.getIpv6_address());
                         break;
                     }
                 }
@@ -188,13 +187,7 @@ public class ArpUtils {
             }
 
             for (Ipv6 ipv6 : ipv6List) {
-                boolean flag = false;
-                for (Arp arpIpv4 : arpList) {
-                    if(arpIpv4.getMac() != null && arpIpv4.getMac().equals(ipv6.getIpv6_mac())){
-                        flag = true;
-                    }
-                }
-                if(!flag){
+                if(!ipv6s.contains(ipv6.getIpv6_address())){
                     Arp arpIpv6 = new Arp(ipv6.getIpv6_address(), ipv6.getIpv6_mac(), ipv6.getPort(), ipv6.getDeviceUuid());
                     if(StringUtil.isNotEmpty(arpIpv6.getMac())) {
                         params.clear();

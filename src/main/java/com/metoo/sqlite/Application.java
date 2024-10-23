@@ -4,6 +4,7 @@ import cn.hutool.core.thread.ThreadUtil;
 import com.github.pagehelper.util.StringUtil;
 import com.metoo.sqlite.entity.SurveyingLog;
 import com.metoo.sqlite.entity.Version;
+import com.metoo.sqlite.gather.utils.VersionUtils;
 import com.metoo.sqlite.manager.utils.file.FileVersionUtils;
 import com.metoo.sqlite.service.ISurveyingLogService;
 import com.metoo.sqlite.service.IVersionService;
@@ -76,7 +77,8 @@ public class Application  implements CommandLineRunner {
                     if(StringUtil.isNotEmpty(version)){
                         obj = this.versionService.selectObjByOne();
                         if(obj != null){
-                            if(obj.getVersion().compareTo(version) < 0){
+                            int matchResult = VersionUtils.compare(version, obj.getVersion());
+                            if (matchResult > 0) {
                                 obj.setVersion(version);
                                 FileVersionUtils.writeUpdateVersion(Global.version_state, Global.version_state_name, "0");
                                 this.versionService.update(obj);
@@ -88,7 +90,12 @@ public class Application  implements CommandLineRunner {
                             FileVersionUtils.writeUpdateVersion(Global.version_state, Global.version_state_name, "0");
                         }
                     }
+                }else{
+                    // 检测是否更新完毕，
+                    FileVersionUtils.writeUpdateVersion(Global.version_state, Global.version_state_name, "0");
                 }
+            }else{
+                FileVersionUtils.writeUpdateVersion(Global.version_state, Global.version_state_name, "0");
             }
             //启动完成后更新数据状态
            ThreadUtil.execAsync(() -> {updateVersionService.updateVersionToServer();});

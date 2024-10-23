@@ -2,8 +2,13 @@ package com.metoo.sqlite.utils.version;
 
 import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.util.StringUtil;
+import com.metoo.sqlite.core.config.application.ApplicationContextUtils;
 import com.metoo.sqlite.entity.Version;
+import com.metoo.sqlite.gather.utils.VersionUtils;
 import com.metoo.sqlite.manager.api.ApiService;
+import com.metoo.sqlite.manager.utils.file.FileVersionUtils;
+import com.metoo.sqlite.service.IDeviceService;
+import com.metoo.sqlite.service.IVersionService;
 import com.metoo.sqlite.utils.Global;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
@@ -273,8 +278,6 @@ public class DownloadAndExecuteBatFromZip {
             Files.createDirectories(extractPath);
         }
 
-//        ZipInputStream zipIn = new ZipInputStream(new FileInputStream(zipFilePath, StandardCharsets.UTF_8))
-//        new InputStreamReader(new FileInputStream("file.txt"), StandardCharsets.UTF_8))
         try (ZipInputStream zipIn = new ZipInputStream(new FileInputStream(zipFilePath), StandardCharsets.UTF_8)) {
             ZipEntry entry = zipIn.getNextEntry();
             while (entry != null) {
@@ -335,6 +338,11 @@ public class DownloadAndExecuteBatFromZip {
         }
 
     }
+    public static void main(String[] args) throws IOException, InterruptedException {
+        String batFilePath = "C:\\Users\\hkk\\Desktop\\cehui\\install\\netmap\\update.exe";
+        executeBatchFile(batFilePath);
+    }
+
     public static void executeBatchFile(String batFilePath) throws IOException, InterruptedException {
 //        ProcessBuilder processBuilder = new ProcessBuilder("cmd.exe", "/c", batFilePath);
 //        processBuilder.redirectErrorStream(true);
@@ -364,7 +372,10 @@ public class DownloadAndExecuteBatFromZip {
 
 
 //        ProcessBuilder processBuilder = new ProcessBuilder("cmd.exe", "/c", batFilePath);
-        ProcessBuilder processBuilder = new ProcessBuilder("cscript", batFilePath);
+//        ProcessBuilder processBuilder = new ProcessBuilder("cscript", batFilePath);
+        // exe
+
+        ProcessBuilder processBuilder = new ProcessBuilder(batFilePath);
 
         try {
             processBuilder.redirectErrorStream(true);
@@ -380,6 +391,30 @@ public class DownloadAndExecuteBatFromZip {
             int exitCode = process.waitFor();
             System.out.println("Process exited with code: " + exitCode);
 
+            if(exitCode == 0){
+                IVersionService versionService = (IVersionService) ApplicationContextUtils.getBean("versionServiceImpl");
+                String state = FileVersionUtils.readState(Global.version_state, Global.version_state_name);
+                if(state.trim().equals("4")){
+                    Version obj = null;
+                    String version = FileVersionUtils.readState(Global.version_state, Global.version_info_name);
+                    if(StringUtil.isNotEmpty(version)){
+                        obj = versionService.selectObjByOne();
+                        if(obj != null){
+                            int matchResult = VersionUtils.compare(version, obj.getVersion());
+                            if (matchResult > 0) {
+                                obj.setVersion(version);
+                                FileVersionUtils.writeUpdateVersion(Global.version_state, Global.version_state_name, "0");
+                                versionService.update(obj);
+                            }
+                        }else{
+                            obj = new Version();
+                            obj.setVersion(version);
+                            versionService.save(obj);
+                            FileVersionUtils.writeUpdateVersion(Global.version_state, Global.version_state_name, "0");
+                        }
+                    }
+                }
+            }
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }

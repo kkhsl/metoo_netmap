@@ -91,7 +91,7 @@ public class ResponseUtil {
 
     public static Result error(String message) { return new Result(500, message);  }
 
-    public static Result error(int code, String message) { return new Result(500, message);  }
+    public static Result error(int code, String message) { return new Result(code, message);  }
 
     public static Result fail(String data) {
         return new Result(500, data);

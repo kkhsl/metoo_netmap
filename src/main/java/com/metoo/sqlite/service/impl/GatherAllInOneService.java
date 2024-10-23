@@ -153,7 +153,10 @@ public class GatherAllInOneService {
                 return ResponseUtil.error("测绘已终止");
             }
             // 测绘完成后清除数据
-            clearData();
+            boolean flag = this.deviceService.verifyLogDevice();
+            if(!flag){
+                clearData();
+            }
             return ResponseUtil.ok("测绘完成");
         } catch (Exception e) {
             log.error("测绘失败：{}", e);
@@ -737,7 +740,7 @@ public class GatherAllInOneService {
     public void startELK() {
         boolean  logResult=false;
         int logId = publicService.createSureyingLog("启动日志模块", DateTools.getCreateTime(), LogStatusType.init.getCode(), null, 3);
-        boolean result=EsUtils.startEs(Global.esStartPath);
+        boolean result=EsUtils.startEs();
         // 根据设备类型获取对应logstash配置文件
         List<String> confList = logstashConfigService.queryByName();
         if (CollUtil.isNotEmpty(confList)) {
