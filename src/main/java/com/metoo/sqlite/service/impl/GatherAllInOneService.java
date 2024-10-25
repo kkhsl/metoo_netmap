@@ -612,17 +612,19 @@ public class GatherAllInOneService {
     }
 
     public boolean existOSScannerFile() {
-        String directoryPath = Global.os_scanner + "1";
-        String fileName = Global.os_scanner_name;
-        // 构建完整的文件路径
-        File directory = new File(directoryPath);
-        File file = new File(directory, fileName.replace("./", ""));
-        // 检查文件是否存在
-        if (file.exists() && file.isFile() && (fileName.contains(".exe") ? file.canExecute() : true)) {
-            return true;
-        } else {
-            return false;
+        for (int i = 1; i <= 5; i++) {
+            String directoryPath = Global.os_scanner + i;
+            String fileName = Global.os_scanner_name;
+            // 构建完整的文件路径
+            File directory = new File(directoryPath);
+            File file = new File(directory, fileName.replace("./", ""));
+            // 检查文件是否存在
+            if (file.exists() && file.isFile() && (fileName.contains(".exe") ? file.canExecute() : true)) {
+            } else {
+                return false;
+            }
         }
+        return true;
     }
 
     public void probeWait(String result, ProbeResult probeResult) {

@@ -155,6 +155,9 @@ public class UpdateVersionService {
                                         //更新版本号
                                         FileVersionUtils.writeUpdateVersion(Global.version_state, Global.version_info_name, appVersion);
 
+                                        //标记为已更新完成
+                                        FileVersionUtils.writeUpdateVersion(Global.version_state, Global.version_state_name, "3");
+
                                     } catch (Exception e) {
                                         //下载失败
                                         log.error("下载新版本失败：{}", e.getMessage());
@@ -166,7 +169,8 @@ public class UpdateVersionService {
                                 // 判断状态，解压执行
                                 try {
                                     String stt = FileVersionUtils.readState(Global.version_state, Global.version_state_name);
-                                    if(stt != null && (!"2".equals(stt) || !"3".equals(stt))){
+                                    if(stt != null && Integer.parseInt(stt) <= 1){
+                                        FileVersionUtils.writeUpdateVersion(Global.version_state, Global.version_state_name, "-3");
                                         return VersionResultType.FAIL.getCode();
                                     }
                                     //已下载
@@ -174,7 +178,9 @@ public class UpdateVersionService {
                                     // 执行 .bat 文件
                                     String batFilePath = extractDirectory + File.separator + Global.versionScriptName;
                                     DownloadAndExecuteBatFromZip.executeBatchFile(batFilePath);
+                                    FileVersionUtils.writeUpdateVersion(Global.version_state, Global.version_state_name, "4");
                                     //标记为已更新完成/还原状态
+                                    Thread.sleep(10000);
                                     FileVersionUtils.writeUpdateVersion(Global.version_state, Global.version_state_name, "0");
                                     //更新版本号
                                     FileVersionUtils.writeUpdateVersion(Global.version_state, Global.version_info_name, appVersion);
@@ -245,6 +251,8 @@ public class UpdateVersionService {
         String extractDirectory = Global.versionUnzip;
         DownloadAndExecuteBatFromZip.ensureDirectoryExists(Global.versionPath);
         log.info("目录已确认存在或创建成功：" + Global.versionPath);
+        DownloadAndExecuteBatFromZip.ensureDirectoryExists(Global.versionUnzip);
+        log.info("目录已确认存在或创建成功：" + Global.versionUnzip);
         // 下载压缩包
         DownloadAndExecuteBatFromZip.downloadFile(zipUrl, zipFilePath);
         // 解压压缩包
