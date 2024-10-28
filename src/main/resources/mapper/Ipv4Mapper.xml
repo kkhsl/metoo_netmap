@@ -101,6 +101,62 @@
         where id = #{id}
     </update>
 
+    <insert id="insertGather" parameterType="com.metoo.sqlite.entity.Ipv4">
+        INSERT INTO metoo_ipv4_gather
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="createTime != null">
+                createTime,
+            </if>
+            <if test="ip != null and ip != ''">
+                ip,
+            </if>
+            <if test="mac != null and mac != ''">
+                mac,
+            </if>
+            <if test="port != null and port != ''">
+                port,
+            </if>
+            <if test="deviceUuid != null and deviceUuid != ''">
+                deviceUuid,
+            </if>
+            <if test="vlan != null and vlan != ''">
+                vlan,
+            </if>
+            <if test="aging != null and aging != ''">
+                aging,
+            </if>
+            <if test="type != null and type != ''">
+                type,
+            </if>
+        </trim>
+        <trim prefix="VALUES(" suffix=")" suffixOverrides=",">
+            <if test="createTime != null">
+                #{createTime},
+            </if>
+            <if test="ip != null and ip != ''">
+                #{ip},
+            </if>
+            <if test="mac != null and mac != ''">
+                #{mac},
+            </if>
+            <if test="port != null and port != ''">
+                #{port},
+            </if>
+            <if test="deviceUuid != null and deviceUuid != ''">
+                #{deviceUuid},
+            </if>
+            <if test="vlan != null and vlan != ''">
+                #{vlan},
+            </if>
+            <if test="aging != null and aging != ''">
+                #{aging},
+            </if>
+            <if test="type != null and type != ''">
+                #{type},
+            </if>
+        </trim>
+    </insert>
+
     <insert id="batchInsertGather" parameterType="java.util.List">
         INSERT INTO metoo_ipv4_gather (
             createTime,

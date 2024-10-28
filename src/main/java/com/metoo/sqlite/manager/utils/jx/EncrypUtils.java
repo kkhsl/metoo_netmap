@@ -45,14 +45,14 @@ public class EncrypUtils {
 ////    // 128位初始化向量
 ////    private static byte[] ivHex = Hex.decode("badefc96374185207abcdef357984610");
 
-    private static String keyHex = "3451276098bacefc7723456789aaffef";
-    private static String ivHex = "badefc33214568704abcdef564980721";
+//    private static String keyHex = "3451276098bacefc7723456789aaffef";
+//    private static String ivHex = "badefc33214568704abcdef564980721";
 
     public static String encrypt(String plainText) throws Exception {
 
-        byte[] keyBytes = Hex.decode(keyHex);
+        byte[] keyBytes = Hex.decode("3451276098bacefc7723456789aaffef");
 
-        byte[] ivBytes = Hex.decode(ivHex);
+        byte[] ivBytes = Hex.decode("badefc33214568704abcdef564980721");
 
         // 创建SM4算法实例
         SM4Engine engine = new SM4Engine();
@@ -86,9 +86,9 @@ public class EncrypUtils {
 
     public static String decrypt(String encryptedText) throws InvalidCipherTextException {
 
-        byte[] keyBytes = Hex.decode(keyHex);
+        byte[] keyBytes = Hex.decode("3451276098bacefc7723456789aaffef");
 
-        byte[] ivBytes = Hex.decode(ivHex);
+        byte[] ivBytes = Hex.decode("badefc33214568704abcdef564980721");
 
 
 //        // 创建SM4算法实例

@@ -1,10 +1,13 @@
 package com.metoo.sqlite.manager;
 
 import cn.hutool.core.util.NumberUtil;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.util.StringUtil;
 import com.metoo.sqlite.core.config.enums.VersionResultType;
+import com.metoo.sqlite.entity.Ipv4;
 import com.metoo.sqlite.entity.License;
+import com.metoo.sqlite.entity.PanaSwitch;
 import com.metoo.sqlite.entity.Version;
 import com.metoo.sqlite.gather.factory.gather.thread.Gather;
 import com.metoo.sqlite.gather.factory.gather.thread.GatherFactory;
@@ -49,6 +52,24 @@ public class GatherTestManagerController {
     private VersionStatusUpdateRemote versionStatusUpdateRemote;
     @Autowired
     private JXDataUtils jxDataUtils;
+
+    public static void main(String[] args) {
+        String datas = "[{\"ip\":\"fe80::70ef:cea0:c250:cf60\",\"mac\":\"d4:5d:64:26:d8:7b\",\"netif\":\"ETH2\"}]";
+        JSONArray data = JSONArray.parseArray(datas);
+        if(data.size() > 0){
+            List<Ipv4> ipv4List = new ArrayList<>();
+            for (Object o : data) {
+                JSONObject json = JSONObject.parseObject(JSONObject.toJSONString(o));
+                Ipv4 ipv4 = new Ipv4();
+                ipv4.setIp(json.getString("ip"));
+                ipv4.setPort(json.getString("netif"));
+                ipv4.setMac(json.getString("mac"));
+                ipv4List.add(ipv4);
+            }
+            log.info("数据打印: {}", ipv4List);
+        }
+        System.out.println(datas);
+    }
 
     public Long getUnitId() throws Exception {
         List<License> licenseList = licenseService.query();

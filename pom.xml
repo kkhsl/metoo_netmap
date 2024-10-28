@@ -312,11 +312,61 @@
     <build>
         <finalName>netmap</finalName>
         <plugins>
+            <!--<plugin>-->
+                <!--<groupId>org.springframework.boot</groupId>-->
+                <!--<artifactId>spring-boot-maven-plugin</artifactId>-->
+            <!--</plugin>-->
+
+
+            <!--   spring boot maven 打包插件  -->
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <fork>true</fork>
+                    <addResources>true</addResources>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
+
+
+            <!-- 加密插件，防止反编译 -->
+            <plugin>
+                <!-- https://gitee.com/roseboy/classfinal -->
+                <groupId>net.roseboy</groupId>
+                <artifactId>classfinal-maven-plugin</artifactId>
+                <version>1.2.1</version>
+                <configuration>
+                    <!--加密密码，如果是#号，则使用无密码模式加密，【加密后没有pom文件，不用担心泄漏】-->
+                    <password>metoo89745000</password>
+                    <!--加密的包名(可为空,多个用","分割)-->
+                    <packages>com.metoo.sqlite</packages>
+                    <!--需要加密的配置文件，一般是classes目录下的yml或properties文件(可为空,多个用","分割)-->
+                    <cfgfiles>*.properties,/mapper/*mapper.xml</cfgfiles>
+                    <!--外部依赖的jar目录，例如/tomcat/lib(可为空,多个用","分割)-->
+                    <!--<classpath></classpath>-->
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>classFinal</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+
         </plugins>
+
+
+
 
         <resources>
             <resource>

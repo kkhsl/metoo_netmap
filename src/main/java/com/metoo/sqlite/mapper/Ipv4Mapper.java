@@ -22,6 +22,8 @@ public interface Ipv4Mapper {
 
     int deleteTable();
 
+    int insertGather(Ipv4 instance);
+
     int batchInsertGather(List<Ipv4> list);
 
     int deleteTableGather();

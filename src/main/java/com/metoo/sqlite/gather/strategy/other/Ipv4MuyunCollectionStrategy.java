@@ -60,6 +60,7 @@ public class Ipv4MuyunCollectionStrategy implements DataCollectionStrategy {
                                 ipv4.setMac(json.getString("mac"));
                                 ipv4List.add(ipv4);
                             }
+                            log.info("数据打印: {}", ipv4List);
                             this.ipv4Service.batchInsertGather(ipv4List);
                         }
                     } catch (Exception e) {

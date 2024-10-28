@@ -13,6 +13,9 @@ import com.metoo.sqlite.gather.common.GatherCacheManager;
 import com.metoo.sqlite.gather.common.PyCommandBuilder;
 import com.metoo.sqlite.gather.factory.gather.thread.ExecThread;
 import com.metoo.sqlite.gather.strategy.Context;
+import com.metoo.sqlite.gather.strategy.DataCollectionStrategy;
+import com.metoo.sqlite.gather.strategy.other.Ipv4MuyunCollectionStrategy;
+import com.metoo.sqlite.gather.strategy.other.Ipv4PanabitCollectionStrategy;
 import com.metoo.sqlite.gather.strategy.other.Ipv6MuyunCollectionStrategy;
 import com.metoo.sqlite.gather.strategy.other.Ipv6OanabitCollectionStrategy;
 import com.metoo.sqlite.gather.utils.PyExecUtils;
@@ -66,6 +69,8 @@ public class GatherAllInOneExecuteService {
     private PyExecUtils pyExecUtils;
     @Autowired
     private PublicService publicService;
+    @Autowired
+    private IPanaSwitchService panaSwitchService;
 
     /**
      * 调用main.pyc执行脚本及读取文件内容
@@ -103,13 +108,21 @@ public class GatherAllInOneExecuteService {
                     context.setLogId(logId);
                     if (device.getLoginType().equals("api") && device.getDeviceTypeAlias().equals("api")
                             && device.getDeviceVendorAlias().equals("muyun")) {
-                        Ipv6MuyunCollectionStrategy collectionStrategy = new Ipv6MuyunCollectionStrategy(ipv6Service,
+                        DataCollectionStrategy collectionStrategy = new Ipv6MuyunCollectionStrategy(ipv6Service,
+                                muyunService);
+                        ExecThread.exec(collectionStrategy, context);
+
+                        collectionStrategy = new Ipv4MuyunCollectionStrategy(ipv4Service,
                                 muyunService);
                         ExecThread.exec(collectionStrategy, context);
                     } else if (device.getLoginType().equals("api") && device.getDeviceTypeAlias().equals("api")
                             && device.getDeviceVendorAlias().equals("pana")) {
-                        Ipv6OanabitCollectionStrategy collectionStrategy = new Ipv6OanabitCollectionStrategy(ipv6Service,
+                        DataCollectionStrategy collectionStrategy = new Ipv6OanabitCollectionStrategy(ipv6Service,
                                 panabitService);
+                        ExecThread.exec(collectionStrategy, context);
+
+                        collectionStrategy = new Ipv4PanabitCollectionStrategy(ipv4Service,
+                                panabitService, panaSwitchService);
                         ExecThread.exec(collectionStrategy, context);
                     } else {
                         flag = collectData(context);
@@ -140,6 +153,7 @@ public class GatherAllInOneExecuteService {
             }
 
         }
+
         ipv4Service.copyGatherData();
         // 复制数据到端口ip表
         portIpv4Service.copyGatherData();

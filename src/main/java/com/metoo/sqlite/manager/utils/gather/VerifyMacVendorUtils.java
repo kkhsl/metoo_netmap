@@ -110,7 +110,7 @@ public class VerifyMacVendorUtils {
         VENDOR_MAP_TERMINAL.put("liteon", "Liteon");
         VENDOR_MAP_TERMINAL.put("huawei technologies", "HUAWEI TECHNOLOGIES");
         VENDOR_MAP_TERMINAL.put("IEEE Registration", "IEEE Registration");
-        VENDOR_MAP_DEVICESCAN.put("Shenzhen Decnta", "Shenzhen Decnta");
+        VENDOR_MAP_TERMINAL.put("Shenzhen Decnta", "Shenzhen Decnta");
     }
 
     public static String toTerminal(String vendor) {
