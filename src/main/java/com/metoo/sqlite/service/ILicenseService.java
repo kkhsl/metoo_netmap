@@ -13,6 +13,8 @@ public interface ILicenseService {
 
     List<License> query();
 
+    String queryUnitName();
+
     int save(License instance);
 
     int update(License instance);

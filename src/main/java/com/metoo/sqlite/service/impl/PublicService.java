@@ -63,6 +63,14 @@ public class PublicService {
         }
     }
 
+    /**
+     * 异步清除日志文件、es索引等数据
+     */
+    public void clearData() {
+        FileUtils.clearFile(Global.resultFile);
+    }
+
+
     public int createSureyingLog(String name, String beginTime, Integer status, Integer parentId, Integer type) {
         if(!GatherCacheManager.running) {
             throw new RuntimeException("测绘已手动中止");

@@ -133,16 +133,16 @@ public class LicenseManagerController {
                 license.setLicenseVersion(version.getVersion());
             }
 
-            if(license.getArea_id() != null){
-                Area area = this.areaService.selectObjById(license.getArea_id());
-                if(area != null){
-                    license.setUnit(area.getName());
-                    area = this.areaService.selectObjById(area.getParentId());
-                    license.setArea(area.getName());
-                    area = this.areaService.selectObjById(area.getParentId());
-                    license.setCity(area.getName());
-                }
-            }
+//            if(license.getArea_id() != null){
+//                Area area = this.areaService.selectObjById(license.getArea_id());
+//                if(area != null){
+//                    license.setUnit(area.getName());
+//                    area = this.areaService.selectObjById(area.getParentId());
+//                    license.setArea(area.getName());
+//                    area = this.areaService.selectObjById(area.getParentId());
+//                    license.setCity(area.getName());
+//                }
+//            }
 
             System.out.println(JSONObject.toJSONString(license));
             return ResponseUtil.ok(license);

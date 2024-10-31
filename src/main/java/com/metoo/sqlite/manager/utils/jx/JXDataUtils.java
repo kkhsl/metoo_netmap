@@ -56,7 +56,13 @@ public class JXDataUtils {
         try {
             encryptedData = EncrypUtils.encrypt(data);
 
-            DataFileWrite.write(encryptedData, "encrypt.txt");
+            String fileName = "encrypt.txt";
+            String unitName = this.licenseService.queryUnitName();
+            if(!"".equals(unitName)){
+                fileName = unitName + ".txt";
+            }
+
+            DataFileWrite.write(encryptedData, fileName);
         } catch (Exception e) {
             e.printStackTrace();
         }

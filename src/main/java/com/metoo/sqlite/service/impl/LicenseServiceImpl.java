@@ -1,13 +1,20 @@
 package com.metoo.sqlite.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
+import com.github.pagehelper.util.StringUtil;
+import com.metoo.sqlite.entity.Area;
 import com.metoo.sqlite.entity.License;
+import com.metoo.sqlite.entity.Version;
 import com.metoo.sqlite.mapper.LicenseMapper;
+import com.metoo.sqlite.service.IAreaService;
 import com.metoo.sqlite.service.ILicenseService;
+import com.metoo.sqlite.utils.ResponseUtil;
 import com.metoo.sqlite.utils.date.DateTools;
 import com.metoo.sqlite.utils.encryption.AesEncryptUtils;
 import com.metoo.sqlite.utils.license.SystemInfoUtils;
 import com.metoo.sqlite.utils.license.WindowsUniqueID;
+import com.metoo.sqlite.vo.LicenseVo;
+import com.metoo.sqlite.vo.Result;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +28,8 @@ public class LicenseServiceImpl implements ILicenseService {
     private LicenseMapper licenseMapper;
     @Autowired
     private AesEncryptUtils aesEncryptUtils;
+    @Autowired
+    private IAreaService areaService;
 
     @Override
     public synchronized License detection() {
@@ -105,6 +114,33 @@ public class LicenseServiceImpl implements ILicenseService {
     @Override
     public List<License> query() {
         return this.licenseMapper.query();
+    }
+
+    @Override
+    public String queryUnitName() {
+        List<License> licenseList = query();
+        if(licenseList.size() > 0){
+            License obj = licenseList.get(0);
+            String uuid = SystemInfoUtils.getWindowsBiosUUID();
+            if(uuid.equals(obj.getSystemSN())){
+                try {
+                    String licenseInfo = this.aesEncryptUtils.decrypt(obj.getLicense());
+                    if(StringUtil.isEmpty(licenseInfo)){
+                        return "";
+                    }
+
+                    LicenseVo license = JSONObject.parseObject(licenseInfo, LicenseVo.class);
+
+                    if(license.getUnit() != null){
+                        return license.getUnit() ;
+                    }
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return "";
     }
 
     @Override

@@ -125,11 +125,18 @@ public class GatherAllInOneExecuteService {
                                 panabitService, panaSwitchService);
                         ExecThread.exec(collectionStrategy, context);
                     } else {
+
                         flag = collectData(context);
                     }
                     if (latch != null) {
                         latch.countDown();
                     }
+
+                    if(device.getLoginType().equals("ssh") || device.getLoginType().equals("telnet")){
+                        // 先清空output.json，在进行数据采集
+                        publicService.clearData();
+                    }
+
                     // 标记设备分析成功
                     if (flag) {
                         publicService.updateSureyingLog(logId, 2);

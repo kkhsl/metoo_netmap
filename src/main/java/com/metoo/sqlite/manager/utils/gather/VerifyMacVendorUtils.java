@@ -83,6 +83,9 @@ public class VerifyMacVendorUtils {
         VENDOR_MAP_DEVICESCAN.put("openbsd", "openbsd");
         VENDOR_MAP_DEVICESCAN.put("Hangzhou Hikivison", "Hangzhou Hikivison");
         VENDOR_MAP_DEVICESCAN.put("Dahua", "Dahua");
+        VENDOR_MAP_DEVICESCAN.put("Avision, Inc", "Avision, Inc");
+        VENDOR_MAP_DEVICESCAN.put("ZHIYUAN Eletronics", "ZHIYUAN Eletronics");
+        VENDOR_MAP_DEVICESCAN.put("HUAWEI TECHNOLOGIES", "HUAWEI TECHNOLOGIES");
     }
     public static String toDeviceScan(String vendor){
 
@@ -108,7 +111,7 @@ public class VerifyMacVendorUtils {
         VENDOR_MAP_TERMINAL.put("honor", "Honor");
         VENDOR_MAP_TERMINAL.put("chicony", "Chicony");
         VENDOR_MAP_TERMINAL.put("liteon", "Liteon");
-        VENDOR_MAP_TERMINAL.put("huawei technologies", "HUAWEI TECHNOLOGIES");
+//        VENDOR_MAP_TERMINAL.put("huawei technologies", "HUAWEI TECHNOLOGIES");
         VENDOR_MAP_TERMINAL.put("IEEE Registration", "IEEE Registration");
         VENDOR_MAP_TERMINAL.put("Shenzhen Decnta", "Shenzhen Decnta");
     }

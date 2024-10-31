@@ -157,6 +157,7 @@ public class GatherAllInOneService {
             if(!flag){
                 clearData();
             }
+
             return ResponseUtil.ok("测绘完成");
         } catch (Exception e) {
             log.error("测绘失败：{}", e);
