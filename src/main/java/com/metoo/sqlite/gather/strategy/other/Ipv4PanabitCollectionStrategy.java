@@ -62,22 +62,25 @@ public class Ipv4PanabitCollectionStrategy implements DataCollectionStrategy {
                             if(array.size() > 0){
                                 List<Ipv4> ipv4List = new ArrayList<>();
                                 for (Object o : array) {
-
-                                    JSONObject json = JSONObject.parseObject(JSONObject.toJSONString(o));
-                                    Ipv4 ipv4 = new Ipv4();
-                                    ipv4.setCreateTime(context.getCreateTime());
-                                    if(device.isState()){
-                                        if(json.getString("mac") != null && json.getString("mac").contains("-")){
-                                            ipv4.setMac(json.getString("mac").replace("-", ":"));
-                                        } if(json.getString("mac") != null && json.getString("mac").contains(":")){
-                                            ipv4.setMac(json.getString("mac"));
+                                    try {
+                                        JSONObject json = JSONObject.parseObject(JSONObject.toJSONString(o));
+                                        Ipv4 ipv4 = new Ipv4();
+                                        ipv4.setCreateTime(context.getCreateTime());
+                                        if(device.isState()){
+                                            if(json.getString("mac") != null && json.getString("mac").contains("-")){
+                                                ipv4.setMac(json.getString("mac").replace("-", ":"));
+                                            } if(json.getString("mac") != null && json.getString("mac").contains(":")){
+                                                ipv4.setMac(json.getString("mac"));
+                                            }
+                                        }else{
+                                            ipv4.setMac(null);
                                         }
-                                    }else{
-                                        ipv4.setMac(null);
-                                    }
 
-                                    ipv4.setIp(json.getString("ipaddr"));
-                                    ipv4List.add(ipv4);
+                                        ipv4.setIp(json.getString("ipaddr"));
+                                        ipv4List.add(ipv4);
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                    }
                                 }
                                 this.ipv4Service.batchInsertGather(ipv4List);
                             }

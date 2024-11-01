@@ -9,6 +9,7 @@ public class VerifyMacVendorUtils {
     static {
         VENDOR_MAP_DEVICESCAN.put("Tenda", "Tenda");
         VENDOR_MAP_DEVICESCAN.put("h3c", "h3c");
+        VENDOR_MAP_DEVICESCAN.put("Ruijie", "Ruijie");
         VENDOR_MAP_DEVICESCAN.put("TP-LINK", "TP-LINK");
         VENDOR_MAP_DEVICESCAN.put("Lite-On", "Lite-On");
         VENDOR_MAP_DEVICESCAN.put("mercury", "mercury");
@@ -85,7 +86,10 @@ public class VerifyMacVendorUtils {
         VENDOR_MAP_DEVICESCAN.put("Dahua", "Dahua");
         VENDOR_MAP_DEVICESCAN.put("Avision, Inc", "Avision, Inc");
         VENDOR_MAP_DEVICESCAN.put("ZHIYUAN Eletronics", "ZHIYUAN Eletronics");
+        VENDOR_MAP_DEVICESCAN.put("Hangzhou Hikvision Digital Technology", "Hangzhou Hikvision Digital Technology");
         VENDOR_MAP_DEVICESCAN.put("HUAWEI TECHNOLOGIES", "HUAWEI TECHNOLOGIES");
+        VENDOR_MAP_DEVICESCAN.put("KYOCERA Display Corporation", "KYOCERA Display Corporation");
+
     }
     public static String toDeviceScan(String vendor){
 

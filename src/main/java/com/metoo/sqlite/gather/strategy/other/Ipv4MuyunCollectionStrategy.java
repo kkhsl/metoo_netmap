@@ -11,6 +11,7 @@ import com.metoo.sqlite.gather.strategy.DataCollectionStrategy;
 import com.metoo.sqlite.service.IPanaSwitchService;
 import com.metoo.sqlite.service.Ipv4Service;
 import com.metoo.sqlite.utils.muyun.MuyunService;
+import com.metoo.sqlite.utils.net.Ipv4Utils;
 import com.metoo.sqlite.utils.panabit.PanabitSendMsgUtils.PanabitService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,13 +53,19 @@ public class Ipv4MuyunCollectionStrategy implements DataCollectionStrategy {
                         if(data.size() > 0){
                             List<Ipv4> ipv4List = new ArrayList<>();
                             for (Object o : data) {
-                                JSONObject json = JSONObject.parseObject(JSONObject.toJSONString(o));
-                                Ipv4 ipv4 = new Ipv4();
-                                ipv4.setCreateTime(context.getCreateTime());
-                                ipv4.setIp(json.getString("ip"));
-                                ipv4.setPort(json.getString("netif"));
-                                ipv4.setMac(json.getString("mac"));
-                                ipv4List.add(ipv4);
+                                try {
+                                    JSONObject json = JSONObject.parseObject(JSONObject.toJSONString(o));
+                                    if(Ipv4Utils.verifyIp(json.getString("ip"))){
+                                        Ipv4 ipv4 = new Ipv4();
+                                        ipv4.setCreateTime(context.getCreateTime());
+                                        ipv4.setIp(json.getString("ip"));
+                                        ipv4.setPort(json.getString("netif"));
+                                        ipv4.setMac(json.getString("mac"));
+                                        ipv4List.add(ipv4);
+                                    }
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
                             }
                             log.info("数据打印: {}", ipv4List);
                             this.ipv4Service.batchInsertGather(ipv4List);

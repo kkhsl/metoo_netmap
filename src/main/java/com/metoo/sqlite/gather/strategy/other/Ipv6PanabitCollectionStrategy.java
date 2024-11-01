@@ -55,18 +55,22 @@ public class Ipv6PanabitCollectionStrategy implements DataCollectionStrategy {
                         if (data.size() > 0) {
                             List<Ipv6> ipv6List = new ArrayList<>();
                             for (Object o : ipv6List) {
-                                JSONObject json = JSONObject.parseObject(JSONObject.toJSONString(o));
-                                Ipv6 ipv6 = new Ipv6();
-                                if (json.getString("ipaddr") != null) {
-                                    if (json.getString("ipaddr").toLowerCase().startsWith("FE80".toLowerCase())) {
-                                        continue;
+                                try {
+                                    JSONObject json = JSONObject.parseObject(JSONObject.toJSONString(o));
+                                    Ipv6 ipv6 = new Ipv6();
+                                    if (json.getString("ipaddr") != null) {
+                                        if (json.getString("ipaddr").toLowerCase().startsWith("FE80".toLowerCase())) {
+                                            continue;
+                                        }
+                                        ipv6.setIpv6_address(json.getString("ipaddr"));
                                     }
-                                    ipv6.setIpv6_address(json.getString("ipaddr"));
-                                }
-                                ipv6.setCreateTime(context.getCreateTime());
-                                ipv6.setIpv6_mac(json.getString("mac").replace("-", ":"));
+                                    ipv6.setCreateTime(context.getCreateTime());
+                                    ipv6.setIpv6_mac(json.getString("mac").replace("-", ":"));
 
-                                ipv6List.add(ipv6);
+                                    ipv6List.add(ipv6);
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
 
                             }
                             this.ipv6Service.batchInsertGather(ipv6List);

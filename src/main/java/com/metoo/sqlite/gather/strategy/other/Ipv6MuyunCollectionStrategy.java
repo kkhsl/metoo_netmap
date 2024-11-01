@@ -9,6 +9,7 @@ import com.metoo.sqlite.gather.strategy.Context;
 import com.metoo.sqlite.gather.strategy.DataCollectionStrategy;
 import com.metoo.sqlite.service.Ipv6Service;
 import com.metoo.sqlite.utils.muyun.MuyunService;
+import com.metoo.sqlite.utils.net.Ipv6Utils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -49,19 +50,22 @@ public class Ipv6MuyunCollectionStrategy implements DataCollectionStrategy {
                         if (data.size() > 0) {
                             List<Ipv6> ipv6List = new ArrayList<>();
                             for (Object o : data) {
-                                JSONObject json = JSONObject.parseObject(JSONObject.toJSONString(o));
-                                Ipv6 ipv6 = new Ipv6();
-                                ipv6.setCreateTime(context.getCreateTime());
-                                if (json.getString("ip") != null) {
-                                    if (json.getString("ip").toLowerCase().startsWith("FE80".toLowerCase())) {
-                                        continue;
+                                try {
+                                    JSONObject json = JSONObject.parseObject(JSONObject.toJSONString(o));
+                                    Ipv6 ipv6 = new Ipv6();
+                                    ipv6.setCreateTime(context.getCreateTime());
+                                    if (Ipv6Utils.isValidIPv6(json.getString("ip"))) {
+                                        if (json.getString("ip").toLowerCase().startsWith("FE80".toLowerCase())) {
+                                            continue;
+                                        }
+                                        ipv6.setIpv6_address(json.getString("ip"));
+                                        ipv6.setIpv6_mac(json.getString("mac"));
+                                        ipv6.setPort(json.getString("netif"));
+                                        ipv6List.add(ipv6);
                                     }
-                                    ipv6.setIpv6_address(json.getString("ip"));
+                                } catch (Exception e) {
+                                    e.printStackTrace();
                                 }
-                                ipv6.setIpv6_mac(json.getString("mac"));
-                                ipv6.setPort(json.getString("netif"));
-                                ipv6List.add(ipv6);
-
                             }
                             this.ipv6Service.batchInsertGather(ipv6List);
                         }

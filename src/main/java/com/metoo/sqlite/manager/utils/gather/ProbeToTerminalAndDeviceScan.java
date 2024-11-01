@@ -34,14 +34,16 @@ public class ProbeToTerminalAndDeviceScan {
                                                     ConcatenationCharacter.disassembleWithSpace(",", probe.getVendor()),
                                                     ConcatenationCharacter.disassembleWithSpace(",", probe.getOs_gen()),
                                                     ConcatenationCharacter.disassembleWithSpace(",", probe.getOs_family()));
-                                    String vendor = VerifyMacVendorUtils.toTerminal(probe.getMac_vendor());
+                                    String vendor = VerifyMacVendorUtils.toDeviceScan(probe.getMac_vendor());
+                                    if(StringUtil.isNotEmpty(vendor)){
+                                        insertDeviceScan(probe, os);
+                                        continue;
+                                    }
+                                    vendor = VerifyMacVendorUtils.toTerminal(probe.getMac_vendor());
                                     if(StringUtil.isNotEmpty(vendor)){
                                         insertTerminal(probe, os);
                                     }
-                                    vendor = VerifyMacVendorUtils.toDeviceScan(probe.getMac_vendor());
-                                    if(StringUtil.isNotEmpty(vendor)){
-                                        insertDeviceScan(probe, os);
-                                    }
+
                                 }
                             }
                         }
@@ -49,6 +51,9 @@ public class ProbeToTerminalAndDeviceScan {
                 }
             // 剩余probe写入终端
             finalProbeToTerminal();
+
+            // 剩余终端进设备表 - 临时使用，针对终端数量不准确
+//            finalTerminalToDevice();
         }
     }
 
@@ -103,6 +108,43 @@ public class ProbeToTerminalAndDeviceScan {
                                 ConcatenationCharacter.disassembleWithSpace(",", probe.getOs_family()));
                 insertTerminal(probe, os);
             }
+        }
+    }
+
+
+    public void finalTerminalToDevice(){
+        List<Terminal> terminals = terminalService.selectObjByMap(null);
+        if (!terminals.isEmpty()) {
+            for (Terminal terminal : terminals) {
+//                String vendor = VerifyMacVendorUtils.toDeviceScan(terminal.getMacvendor());
+                if(StringUtil.isNotEmpty(terminal.getOs())){
+                    if(terminal.getOs().contains("android")){
+                        insertDeviceScan(terminal.getIpv4addr(), terminal.getIpv6addr(), terminal.getMac(), terminal.getMacvendor(), terminal.getOs(), terminal.getId());
+                    }
+                }
+            }
+        }
+    }
+
+    public void insertDeviceScan(String ipv4, String ipv6, String mac, String vendor, String os, Integer id){
+        DeviceScan deviceScan = new DeviceScan();
+        deviceScan.setDevice_ipv4(ipv4);
+        deviceScan.setDevice_ipv6(ipv6);
+        deviceScan.setMac(mac);
+        deviceScan.setMacVendor(vendor);
+        deviceScan.setDevice_product(os);
+        try {
+            List<DeviceScan> deviceScanList = deviceScanService.selectObjByIpv4OrIpv6(ipv4, ipv6);
+            if(deviceScanList.size() <= 0){
+                this.deviceScanService.insert(deviceScan);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        try {
+            this.terminalService.delete(id);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
