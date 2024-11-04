@@ -15,6 +15,7 @@ import com.metoo.sqlite.manager.api.remote.VersionManagerRemote;
 import com.metoo.sqlite.manager.api.remote.VersionStatusUpdateRemote;
 import com.metoo.sqlite.manager.utils.gather.ProbeToTerminalAndDeviceScan;
 import com.metoo.sqlite.manager.utils.jx.JXDataUtils;
+import com.metoo.sqlite.manager.utils.jx.UnitDataUtils;
 import com.metoo.sqlite.service.*;
 import com.metoo.sqlite.service.impl.PublicService;
 import com.metoo.sqlite.utils.Global;
@@ -52,6 +53,8 @@ public class GatherTestManagerController {
     private VersionStatusUpdateRemote versionStatusUpdateRemote;
     @Autowired
     private JXDataUtils jxDataUtils;
+    @Autowired
+    private UnitDataUtils unitDataUtils;
 
     public static void main(String[] args) {
         String datas = "[{\"ip\":\"fe80::70ef:cea0:c250:cf60\",\"mac\":\"d4:5d:64:26:d8:7b\",\"netif\":\"ETH2\"}]";
@@ -92,6 +95,14 @@ public class GatherTestManagerController {
         // TODO: 2024/9/21 默认为单位1的测试数据
         return NumberUtil.isNumber(license.getUnit_id()) ? Long.parseLong(license.getUnit_id()) : 1L;
     }
+
+    @GetMapping("/getEncryptedDataByUnit")
+    public String getEncryptedDataByUnit() throws Exception {
+        String data = unitDataUtils.getEncryptedDataByUnit();
+        return data;
+    }
+
+
 
     @GetMapping("/status")
     public Integer status() throws Exception {

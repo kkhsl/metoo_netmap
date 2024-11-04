@@ -12,7 +12,7 @@ import lombok.experimental.Accessors;
 
 import java.util.Date;
 
-@ApiModel("用户DTO")
+@ApiModel("")
 @Data
 @Accessors(chain = true)
 @AllArgsConstructor

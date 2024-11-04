@@ -19,6 +19,7 @@ import com.metoo.sqlite.manager.api.JsonRequest;
 import com.metoo.sqlite.manager.utils.gather.ProbeToTerminalAndDeviceScan;
 import com.metoo.sqlite.manager.utils.gather.VerifyVendorUtils;
 import com.metoo.sqlite.manager.utils.jx.JXDataUtils;
+import com.metoo.sqlite.manager.utils.jx.UnitDataUtils;
 import com.metoo.sqlite.model.es.EsQueryService;
 import com.metoo.sqlite.service.*;
 import com.metoo.sqlite.utils.Global;
@@ -78,6 +79,8 @@ public class GatherAllInOneService {
 
     @Autowired
     private JXDataUtils jxDataUtils;
+    @Autowired
+    private UnitDataUtils unitDataUtils;
 
     @Autowired
     private ISubnetIpv6Service subnetIpv6Service;
@@ -228,7 +231,8 @@ public class GatherAllInOneService {
             throw new RuntimeException("测绘已手动中止");
         }
         String endTime = DateTools.getCreateTime();
-        String data = jxDataUtils.getEncryptedData();
+//        String data = jxDataUtils.getEncryptedData();
+        String data = unitDataUtils.getEncryptedDataByUnit();
         gatherUploadData(data);
         String surveying = getSurveyingResult();
         publicService.logGatheringResults(beginTime, endTime, data, surveying);
