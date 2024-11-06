@@ -70,7 +70,6 @@ public class JXDataUtils {
         return encryptedData;
     }
 
-
     public String getData() {
         Map data = new HashMap();
 

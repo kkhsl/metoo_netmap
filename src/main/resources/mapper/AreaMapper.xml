@@ -7,6 +7,10 @@
         select * from metoo_area where id = #{id}
     </select>
 
+    <select id="selectObjByName" parameterType="java.lang.String" resultType="com.metoo.sqlite.entity.Area">
+        select * from metoo_area where name = #{name}
+    </select>
+
     <select id="selectObjAll" parameterType="java.lang.Integer" resultType="com.metoo.sqlite.entity.Area">
         select * from metoo_area
     </select>

@@ -415,18 +415,18 @@ public class Ipv4Utils {
 
 
     @Test
-    public void ipIsInNetTest(){
-        String ip = "192.168.4.5";
-        String subnet = "192.168.5.1/17";
-        System.out.println(ipIsInNet(ip, subnet));
-
-    }
-
-    @Test
     public void getMaskBitByMaskTest(){
         System.out.println(("255.255.128.0"));
     }
 
+
+    @Test
+    public void ipIsInNetTest(){
+        String ip = "192.162.5.5";
+        String subnet = "192.168.5.1/17";
+        System.out.println(ipIsInNet(ip, subnet));
+
+    }
     /**
      * 判断ip地址是否在指定网段
      *

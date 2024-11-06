@@ -8,7 +8,9 @@ public interface AreaMapper {
 
     Area selectObjById(Integer id);
 
+    Area selectObjByName(String name);
+
     List<Area> selectObjAll();
 
-    List<Area> selectObjByParentId(Integer parentId);
+    Area selectObjByParentId(Integer parentId);
 }

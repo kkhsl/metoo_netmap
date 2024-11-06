@@ -4,7 +4,6 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.metoo.sqlite.mapper.TerminalMapper">
 
-
     <select id="selectObjById" parameterType="java.lang.Integer" resultType="com.metoo.sqlite.entity.Terminal">
         SELECT *
         FROM metoo_terminal_detail

@@ -20,12 +20,17 @@ public class AreaServiceImpl implements IAreaService {
     }
 
     @Override
+    public Area selectObjByName(String name) {
+        return this.areaMapper.selectObjByName(name);
+    }
+
+    @Override
     public List<Area> selectObjAll() {
         return this.areaMapper.selectObjAll();
     }
 
     @Override
-    public List<Area> selectObjByParentId(Integer parentId) {
+    public Area selectObjByParentId(Integer parentId) {
         return this.areaMapper.selectObjByParentId(parentId);
     }
 }
