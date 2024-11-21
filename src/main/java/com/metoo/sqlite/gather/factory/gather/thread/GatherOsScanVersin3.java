@@ -18,7 +18,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -114,7 +116,9 @@ public class GatherOsScanVersin3 implements Gather {
             // 创建一个任务列表
             List<Callable<String>> tasks = new ArrayList<>();
             // 分5个列表进行扫描
-            List<Probe> probes = probeService.selectObjByMap(null);
+            Map params = new HashMap();
+            params.put("IpaddrvIsNotNull", "IpaddrvIsNotNull");
+            List<Probe> probes = probeService.selectObjByMap(params);
             if (probes.size() > 0) {
                 // 分5个列表
                 List<List<Probe>> splitLists = JsonFileToDto.splitList(probes, number);

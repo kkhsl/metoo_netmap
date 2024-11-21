@@ -18,7 +18,10 @@ public class EsClientConfig extends AbstractElasticsearchConfiguration {
     @Bean
     public RestHighLevelClient elasticsearchClient() {
         final ClientConfiguration clientConfiguration = ClientConfiguration
-                .builder().connectedTo(host).build();
+                .builder().connectedTo(host)
+                .withConnectTimeout(10000)  // 连接超时设置
+                .withSocketTimeout(10000)  // 套接字超时设置
+                .build();
         return RestClients.create(clientConfiguration).rest();
     }
 }

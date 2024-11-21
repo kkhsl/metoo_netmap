@@ -20,6 +20,9 @@
             <if test="ttlGt != null and ttlGt != ''">
                 AND ttl &gt; #{ttlGt}
             </if>
+            <if test="IpvIsNotNull != null and IpvIsNotNull.trim() != ''">
+                AND ip_addr IS NOT NULL
+            </if>
         </where>
     </select>
 
