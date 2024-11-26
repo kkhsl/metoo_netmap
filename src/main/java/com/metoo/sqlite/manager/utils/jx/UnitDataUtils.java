@@ -161,10 +161,11 @@ public class UnitDataUtils {
                 String data = getData2(terminals, deviceScans, unitSubnet.getName());
                 try {
                     encryptedData = EncrypUtils.encrypt(data);
-                    String fileName = "encrypt.txt";
+                    String time = DateTools.getCurrentDate();
+                    String fileName = "encrypt" + time + ".txt";
                     String unitName = unitSubnet.getName();
                     if(!"".equals(unitName)){
-                        fileName = unitName + ".txt";
+                        fileName = unitName + time + ".txt";
                     }
                     DataFileWrite.write(encryptedData, fileName);
                 } catch (Exception e) {
@@ -176,10 +177,11 @@ public class UnitDataUtils {
             String data = getData();
             try {
                 encryptedData = EncrypUtils.encrypt(data);
-                String fileName = "encrypt.txt";
+                String time = DateTools.getCurrentDate();
+                String fileName = "encrypt" + time + ".txt";
                 String unitName = this.licenseService.queryUnitName();
                 if(!"".equals(unitName)){
-                    fileName = unitName + ".txt";
+                    fileName = unitName + time + ".txt";
                 }
                 DataFileWrite.write(encryptedData, fileName);
             } catch (Exception e) {

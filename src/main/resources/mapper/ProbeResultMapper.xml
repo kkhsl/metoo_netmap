@@ -8,7 +8,7 @@
         select * from metoo_probe_result
     </select>
 
-    <select id="selectObjByMap" parameterType="java.util.Map" resultType="com.metoo.sqlite.entity.Ipv4">
+    <select id="selectObjByMap" parameterType="java.util.Map" resultType="com.metoo.sqlite.entity.ProbeResult">
         SELECT *
         FROM metoo_probe_result
         <where>
