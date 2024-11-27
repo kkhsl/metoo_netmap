@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
@@ -24,7 +25,7 @@ import java.util.Date;
 @Component
 public class DateTools {
 
-    public static String FORMAT_yyyyMMdd = "yyyyMMdd";
+    public static String FORMAT_yyyyMMdd = "yyyy-MM-dd";
     public static String FORMAT_STANDARD = "yyyy-MM-dd HH:mm:ss";
     public static String FORMAT_yyyyMMddHHmm= "yyyy-MM-dd HH:mm";
     public static String FORMAT_yyyyMMddHHmmss = "yyyyMMddHHmmss";
@@ -54,6 +55,24 @@ public class DateTools {
         System.out.println(currentTime);
 
     }
+
+    @Test
+    public void getCurrentDateTest(){
+        System.out.println(getCurrentDate());
+    }
+
+    public static String getCurrentDate(){
+        // 获取当前日期
+        LocalDate currentDate = LocalDate.now();
+
+        // 使用DateTimeFormatter格式化日期
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        String formattedDate = currentDate.format(formatter);
+
+        // 打印格式化后的日期
+        return formattedDate;
+    }
+
 
     public static String getCreateTime(){
         LocalDateTime now = LocalDateTime.now();
