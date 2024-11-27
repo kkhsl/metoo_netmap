@@ -24,9 +24,9 @@ public class Sshtest {
     }
 
     public static String  exec(String path, String[] params){
-        String host = "192.168.5.101";
+        String host = "192.168.5.205";
         int port = 22;
-        String username = "root";
+        String username = "nrsm";
         String password = "metoo89745000";
 
         Session session = null;
