@@ -11,7 +11,6 @@ public class VerifyMacVendorUtils {
         VENDOR_MAP_DEVICESCAN.put("h3c", "h3c");
         VENDOR_MAP_DEVICESCAN.put("Ruijie", "Ruijie");
         VENDOR_MAP_DEVICESCAN.put("TP-LINK", "TP-LINK");
-        VENDOR_MAP_DEVICESCAN.put("Lite-On", "Lite-On");
         VENDOR_MAP_DEVICESCAN.put("mercury", "mercury");
         VENDOR_MAP_DEVICESCAN.put("Huawei Device", "Huawei Device");
         VENDOR_MAP_DEVICESCAN.put("ruijie", "ruijie");
@@ -51,9 +50,8 @@ public class VerifyMacVendorUtils {
         VENDOR_MAP_DEVICESCAN.put("Maipu", "Maipu");
         VENDOR_MAP_DEVICESCAN.put("Venustech", "Venustech");
         VENDOR_MAP_DEVICESCAN.put("Shenou", "Shenou");
-        VENDOR_MAP_DEVICESCAN.put("Communication", "Communication");
+//        VENDOR_MAP_DEVICESCAN.put("Communication", "Communication");
         VENDOR_MAP_DEVICESCAN.put("REALTEK", "REALTEK");
-        VENDOR_MAP_DEVICESCAN.put("Lite-On", "LINK");
         VENDOR_MAP_DEVICESCAN.put("Sharp", "INK");
         VENDOR_MAP_DEVICESCAN.put("Tiger NetCom", "LINK");
         VENDOR_MAP_DEVICESCAN.put("AI-Link", "AI-Link");
@@ -118,6 +116,7 @@ public class VerifyMacVendorUtils {
 //        VENDOR_MAP_TERMINAL.put("huawei technologies", "HUAWEI TECHNOLOGIES");
         VENDOR_MAP_TERMINAL.put("IEEE Registration", "IEEE Registration");
         VENDOR_MAP_TERMINAL.put("Shenzhen Decnta", "Shenzhen Decnta");
+        VENDOR_MAP_TERMINAL.put("Lite-On", "Lite-On");
     }
 
     public static String toTerminal(String vendor) {

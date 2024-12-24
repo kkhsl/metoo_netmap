@@ -35,6 +35,11 @@ public class ProbeServiceImpl implements IProbeService {
         return mergeProbes(probes);
     }
 
+    @Override
+    public List<Probe> mergeProbesByIp() {
+        return null;
+    }
+
     public static List<Probe> mergeProbes(List<Probe> probes) {
         // Create a map to store the merged probes by ip_addr and ipv6
         Map<String, Probe> mergedProbes = new HashMap<>();
@@ -67,6 +72,8 @@ public class ProbeServiceImpl implements IProbeService {
                 existing.setApplication_protocol(mergeField(existing.getApplication_protocol(), probe.getApplication_protocol()));
                 existing.setTtls(mergeField(getTtlAsString(existing.getTtl()), getTtlAsString(probe.getTtl())));
                 existing.setPort_service_vendor(mergeField(existing.getPort_service_vendor(), probe.getPort_service_vendor()));
+                existing.setApplication_protocol(mergeField(existing.getApplication_protocol(), probe.getApplication_protocol()));
+                existing.setPort_num(mergeField(existing.getPort_num(), probe.getPort_num()));
             }
         }
     }

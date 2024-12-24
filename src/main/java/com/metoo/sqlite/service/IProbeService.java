@@ -16,6 +16,8 @@ public interface IProbeService {
 
     List<Probe> selectDeduplicationByIp(Map params);
 
+    List<Probe> mergeProbesByIp();
+
     boolean insert(Probe instance);
 
     boolean update(Probe instance);

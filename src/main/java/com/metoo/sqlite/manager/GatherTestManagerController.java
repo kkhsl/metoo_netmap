@@ -56,6 +56,13 @@ public class GatherTestManagerController {
     @Autowired
     private UnitDataUtils unitDataUtils;
 
+    @GetMapping("/gatherTerminal")
+    public void gatherTerminal2(){
+        GatherFactory factory = new GatherFactory();
+        Gather gather = factory.getGather(Global.TERMINAL);
+        gather.executeMethod();
+    }
+
     public static void main(String[] args) {
         String datas = "[{\"ip\":\"fe80::70ef:cea0:c250:cf60\",\"mac\":\"d4:5d:64:26:d8:7b\",\"netif\":\"ETH2\"}]";
         JSONArray data = JSONArray.parseArray(datas);

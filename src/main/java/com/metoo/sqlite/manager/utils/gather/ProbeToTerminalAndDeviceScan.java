@@ -86,6 +86,10 @@ public class ProbeToTerminalAndDeviceScan {
             terminal.setIpv4addr(probe.getIp_addr());
             terminal.setIpv6addr(probe.getIpv6());
             terminal.setMac(probe.getMac());
+
+            terminal.setActive_port(probe.getPort_num());
+            terminal.setService(probe.getApplication_protocol());
+
             terminal.setMacvendor(probe.getMac_vendor());
         }
         List<Terminal> terminals = this.terminalService.selectObjByIpv4OrIpv6(probe.getIp_addr(), probe.getIpv6());

@@ -44,7 +44,7 @@ public class GatherTerminal implements Gather {
         terminalService.deleteTableGather();
         terminalService.deleteTable();
 
-        List<Probe> probeList = probeService.selectDeduplicationByIp(null);
+        List<Probe> probeList = probeService.selectDeduplicationByIp(Collections.emptyMap());
 
         if(probeList.size() > 0){
 
@@ -115,6 +115,10 @@ public class GatherTerminal implements Gather {
                     os = "Windows";
                     flag = true;
                 }
+
+                String service = ConcatenationCharacter.disassembleWithSpace(",", probe.getApplication_protocol());
+                String activeport = ConcatenationCharacter.disassembleWithSpace(",", probe.getPort_num());
+
                 // 写入终端采集表
                 if(flag){
                     Terminal terminal = new Terminal();
@@ -123,6 +127,8 @@ public class GatherTerminal implements Gather {
                     terminal.setMac(mac);
                     terminal.setMacvendor(mac_vendor);
                     terminal.setOs(os);
+                    terminal.setActive_port(activeport);
+                    terminal.setService(service);
                     terminalService.insertGather(terminal);
                     probeService.deleteProbeByIp(ipv4, ipv6);
                 }
