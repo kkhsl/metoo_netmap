@@ -104,6 +104,7 @@ public class Shiro2Config {
         filterChainDefinitionMap.put("/admin/register", "anon");
         filterChainDefinitionMap.put("/swagger-ui.html", "anon");
 
+        filterChainDefinitionMap.put("/admin/license/query", "myAccessControlFilter, licenseFilter");
         filterChainDefinitionMap.put("/admin/license/**", "myAccessControlFilter");
         filterChainDefinitionMap.put("/admin/user/**", "myAccessControlFilter");
         filterChainDefinitionMap.put("/admin/area/**", "myAccessControlFilter");

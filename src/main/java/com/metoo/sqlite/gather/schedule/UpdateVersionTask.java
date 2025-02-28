@@ -29,6 +29,7 @@ public class UpdateVersionTask {
      * 定时自动下载定时任务
      */
     @Scheduled(cron = "${scheduler.autoUpdateVersionSchedule:0 0 */1 * * ?}")
+//    @Scheduled(cron = "${scheduler.autoUpdateVersionSchedule:0 */1 * * * ?}")
     public void updateVersion() {
         // 判断版本更新开关是否开启
         if (versionFlag) {

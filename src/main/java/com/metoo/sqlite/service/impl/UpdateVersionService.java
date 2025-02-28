@@ -148,7 +148,7 @@ public class UpdateVersionService {
 
                                     //版本是较新版本，下载升级
                                     try {
-                                        downloadVersion(appVersionId);
+                                        downloadVersion(appVersionId);// 下载
                                         // 标记已下载状态
                                         FileVersionUtils.writeUpdateVersion(Global.version_state, Global.version_state_name, "2");// 下载完成
 
@@ -177,8 +177,9 @@ public class UpdateVersionService {
                                     String extractDirectory = Global.versionUnzip;
                                     // 执行 .bat 文件
                                     String batFilePath = extractDirectory + File.separator + Global.versionScriptName;
-                                    DownloadAndExecuteBatFromZip.executeBatchFile(batFilePath);
                                     FileVersionUtils.writeUpdateVersion(Global.version_state, Global.version_state_name, "4");
+                                    DownloadAndExecuteBatFromZip.executeBatchFile(batFilePath);
+//                                    FileVersionUtils.writeUpdateVersion(Global.version_state, Global.version_state_name, "4");
                                     //标记为已更新完成/还原状态
                                     Thread.sleep(10000);
                                     FileVersionUtils.writeUpdateVersion(Global.version_state, Global.version_state_name, "0");

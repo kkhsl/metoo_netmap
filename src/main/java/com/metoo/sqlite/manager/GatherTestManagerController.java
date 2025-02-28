@@ -3,12 +3,10 @@ package com.metoo.sqlite.manager;
 import cn.hutool.core.util.NumberUtil;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.github.pagehelper.util.StringUtil;
 import com.metoo.sqlite.core.config.enums.VersionResultType;
-import com.metoo.sqlite.entity.Ipv4;
-import com.metoo.sqlite.entity.License;
-import com.metoo.sqlite.entity.PanaSwitch;
-import com.metoo.sqlite.entity.Version;
+import com.metoo.sqlite.entity.*;
 import com.metoo.sqlite.gather.factory.gather.thread.Gather;
 import com.metoo.sqlite.gather.factory.gather.thread.GatherFactory;
 import com.metoo.sqlite.manager.api.remote.VersionManagerRemote;
@@ -36,6 +34,8 @@ import java.util.*;
 @RestController
 public class GatherTestManagerController {
 
+
+
     @Autowired
     private ProbeToTerminalAndDeviceScan probeToTerminalAndDeviceScan;
 
@@ -55,6 +55,20 @@ public class GatherTestManagerController {
     private JXDataUtils jxDataUtils;
     @Autowired
     private UnitDataUtils unitDataUtils;
+
+    @Autowired
+    private IProbeService probeService;
+
+    @GetMapping("/getProbe")
+    public String getProbe(){
+        List<Probe> probes = this.probeService.selectObjBackByMap(Collections.emptyMap());
+        if (probes != null && !probes.isEmpty()) {
+            String probeJson = JSONObject.toJSONString(probes, SerializerFeature.WriteNullStringAsEmpty);
+            return probeJson;
+        }
+        return "";
+    }
+
 
     @GetMapping("/gatherTerminal")
     public void gatherTerminal2(){

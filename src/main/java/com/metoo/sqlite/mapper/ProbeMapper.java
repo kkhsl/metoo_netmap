@@ -16,6 +16,8 @@ public interface ProbeMapper {
 
     List<Probe> selectObjByMap(Map params);
 
+    List<Probe> selectObjBackByMap(Map params);
+
     int insert(Probe instance);
 
     int update(Probe instance);

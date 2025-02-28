@@ -339,41 +339,11 @@ public class DownloadAndExecuteBatFromZip {
 
     }
     public static void main(String[] args) throws IOException, InterruptedException {
-        String batFilePath = "C:\\Users\\hkk\\Desktop\\cehui\\install\\netmap\\update.exe";
+        String batFilePath = "C:\\patch\\update\\update.exe";
         executeBatchFile(batFilePath);
     }
 
     public static void executeBatchFile(String batFilePath) throws IOException, InterruptedException {
-//        ProcessBuilder processBuilder = new ProcessBuilder("cmd.exe", "/c", batFilePath);
-//        processBuilder.redirectErrorStream(true);
-//
-//        Process process = processBuilder.start();
-
-//        Process process = Runtime.getRuntime().exec("cmd /c start " + batFilePath);
-
-        // 使用 Runtime.getRuntime().exec() 执行 .vbs 文件
-//        Process process = Runtime.getRuntime().exec("cscript " + batFilePath);
-//
-//
-//
-//        System.exit(0); // 不需要等待脚本执行完成，直接退出当前 Java 进程
-
-//        Process process = Runtime.getRuntime().exec("cmd /c start " + batFilePath);
-
-//        try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
-//            String line;
-//            while ((line = reader.readLine()) != null) {
-//                System.out.println(line);
-//            }
-//        }
-//
-//        int exitCode = process.waitFor();
-//        System.out.println("Batch file executed with exit code: " + exitCode);
-
-
-//        ProcessBuilder processBuilder = new ProcessBuilder("cmd.exe", "/c", batFilePath);
-//        ProcessBuilder processBuilder = new ProcessBuilder("cscript", batFilePath);
-        // exe
 
         ProcessBuilder processBuilder = new ProcessBuilder(batFilePath);
 

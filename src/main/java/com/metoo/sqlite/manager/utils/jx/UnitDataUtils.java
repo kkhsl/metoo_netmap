@@ -43,6 +43,8 @@ public class UnitDataUtils {
     private IUnitSubnetService unitSubnetService;
     @Autowired
     private IAreaService areaService;
+    @Autowired
+    private IProbeService probeService;
 
     public static String getDate() {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -105,8 +107,14 @@ public class UnitDataUtils {
                             for (Terminal terminal : terminalList) {
                                 if(StringUtil.isNotEmpty(terminal.getIpv4addr())){
                                     if(Ipv4Utils.ipIsInNet(terminal.getIpv4addr(), cidr)){
-                                        TerminalInfoVo vo = new TerminalInfoVo(terminal.getMac(), terminal.getService(), terminal.getActive_port(), terminal.getOs(),
-                                                terminal.getIpv4addr(), terminal.getIpv6addr(), terminal.getMacvendor());
+                                        TerminalInfoVo vo = null;
+                                        if("2".equals(terminal.getActive_port())){
+                                            vo = new TerminalInfoVo(terminal.getMac(), null, null, terminal.getOs(),
+                                                    terminal.getIpv4addr(), terminal.getIpv6addr(), terminal.getMacvendor());
+                                        }else{
+                                            vo = new TerminalInfoVo(terminal.getMac(), terminal.getService(), terminal.getActive_port(), terminal.getOs(),
+                                                    terminal.getIpv4addr(), terminal.getIpv6addr(), terminal.getMacvendor());
+                                        }
                                         terminals.add(vo);
                                         ids.add(terminal.getId());
                                     }
@@ -117,7 +125,7 @@ public class UnitDataUtils {
                                 if(StringUtil.isNotEmpty(deviceScan.getDevice_ipv4())){
                                     if(Ipv4Utils.ipIsInNet(deviceScan.getDevice_ipv4(), cidr)){
                                         DeviceScanInfoVo vo = new DeviceScanInfoVo(deviceScan.getDevice_ipv4(),
-                                                deviceScan.getDevice_ipv6(), deviceScan.getDevice_product());
+                                                deviceScan.getDevice_ipv6(), deviceScan.getDevice_product(), deviceScan.getMac(), deviceScan.getMacVendor());
                                         deviceScans.add(vo);
                                         ids.add(deviceScan.getId());
                                     }
@@ -137,8 +145,14 @@ public class UnitDataUtils {
                                 if(StringUtil.isNotEmpty(terminal.getIpv6addr())){
                                     if(!ids.contains(terminal.getId())){
                                         if(Ipv6Utils.isIPv6InCIDR(terminal.getIpv6addr(), cidr)){
-                                            TerminalInfoVo vo = new TerminalInfoVo(terminal.getMac(), terminal.getService(), terminal.getActive_port(), terminal.getOs(),
-                                                    terminal.getIpv4addr(), terminal.getIpv6addr(), terminal.getMacvendor());
+                                            TerminalInfoVo vo = null;
+                                            if("2".equals(terminal.getActive_port())){
+                                                vo = new TerminalInfoVo(terminal.getMac(), null, null, terminal.getOs(),
+                                                        terminal.getIpv4addr(), terminal.getIpv6addr(), terminal.getMacvendor());
+                                            }else{
+                                                vo = new TerminalInfoVo(terminal.getMac(), terminal.getService(), terminal.getActive_port(), terminal.getOs(),
+                                                        terminal.getIpv4addr(), terminal.getIpv6addr(), terminal.getMacvendor());
+                                            }
                                             terminals.add(vo);
                                         }
                                     }
@@ -149,7 +163,7 @@ public class UnitDataUtils {
                                 if(StringUtil.isNotEmpty(deviceScan.getDevice_ipv6())){
                                     if(StringUtil.isNotEmpty(deviceScan.getDevice_ipv6())){
                                         DeviceScanInfoVo vo = new DeviceScanInfoVo(deviceScan.getDevice_ipv4(),
-                                                deviceScan.getDevice_ipv6(), deviceScan.getDevice_product());
+                                                deviceScan.getDevice_ipv6(), deviceScan.getDevice_product(), deviceScan.getMac(), deviceScan.getMacVendor());
                                         deviceScans.add(vo);
                                         ids.add(deviceScan.getId());
                                     }
@@ -211,6 +225,7 @@ public class UnitDataUtils {
         data.put("deviceInfo", new ArrayList<>());
         data.put("deviceScanInfo", new ArrayList<>());
         data.put("terminalInfo", new ArrayList<>());
+        data.put("probe", getProbe());
         try {
             List<GatewayInfo> gatewayInfoList = this.gatewayInfoService.selectObjByMap(null);
             List<GatewayInfoVo> list1 = new ArrayList();
@@ -322,6 +337,7 @@ public class UnitDataUtils {
         data.put("deviceInfo", new ArrayList<>());
         data.put("deviceScanInfo", new ArrayList<>());
         data.put("terminalInfo", new ArrayList<>());
+        data.put("probe", getProbe());
         try {
             List<GatewayInfo> gatewayInfoList = this.gatewayInfoService.selectObjByMap(null);
             List<GatewayInfoVo> list1 = new ArrayList();
@@ -340,8 +356,17 @@ public class UnitDataUtils {
             List<TerminalInfoVo> list2 = new ArrayList();
             if (terminalList.size() > 0) {
                 for (Terminal terminal : terminalList) {
-                    TerminalInfoVo vo = new TerminalInfoVo(terminal.getMac(), terminal.getService(), terminal.getActive_port(), terminal.getOs(),
-                            terminal.getIpv4addr(), terminal.getIpv6addr(), terminal.getMacvendor());
+                    TerminalInfoVo vo = null;
+                    if("2".equals(terminal.getActive_port())){
+                        vo = new TerminalInfoVo(terminal.getMac(), null, null, terminal.getOs(),
+                                terminal.getIpv4addr(), terminal.getIpv6addr(), terminal.getMacvendor());
+                    }else{
+                        vo = new TerminalInfoVo(terminal.getMac(), terminal.getService(), terminal.getActive_port(), terminal.getOs(),
+                                terminal.getIpv4addr(), terminal.getIpv6addr(), terminal.getMacvendor());
+                    }
+//                    terminals.add(vo);
+//                    TerminalInfoVo vo = new TerminalInfoVo(terminal.getMac(), terminal.getService(), terminal.getActive_port(), terminal.getOs(),
+//                            terminal.getIpv4addr(), terminal.getIpv6addr(), terminal.getMacvendor());
                     list2.add(vo);
                 }
             }
@@ -363,7 +388,7 @@ public class UnitDataUtils {
             if (deviceList.size() > 0) {
                 for (DeviceScan deviceScan : deviceScanList) {
                     DeviceScanInfoVo vo = new DeviceScanInfoVo(deviceScan.getDevice_ipv4(),
-                            deviceScan.getDevice_ipv6(), deviceScan.getDevice_product());
+                            deviceScan.getDevice_ipv6(), deviceScan.getDevice_product(), deviceScan.getMac(), deviceScan.getMacVendor());
                     lsit4.add(vo);
                 }
             }
@@ -384,6 +409,9 @@ public class UnitDataUtils {
                     publicService.updateSureyingLog(temLogId, 3);
                 }
             }
+
+            // probe数据
+
 
             List<License> licenseList = this.licenseService.query();
             if (licenseList.size() > 0) {
@@ -426,6 +454,16 @@ public class UnitDataUtils {
 //        String jsonString = JSONObject.toJSONString(data, SerializerFeature.PrettyFormat, SerializerFeature.WriteMapNullValue);
 //        String jsonString = ObjectWriter.writerWithDefaultPrettyPrinter(data, SerializerFeature.PrettyFormat, SerializerFeature.WriteMapNullValue);
 
+    }
+
+    // probe
+    public List<Probe> getProbe(){
+        List<Probe> probes = this.probeService.selectObjBackByMap(Collections.emptyMap());
+        if(probes != null && !probes.isEmpty()){
+            String probeJson = JSONObject.toJSONString(probes, SerializerFeature.WriteNullStringAsEmpty);
+            return probes;
+        }
+       return new ArrayList<>();
     }
 
 }

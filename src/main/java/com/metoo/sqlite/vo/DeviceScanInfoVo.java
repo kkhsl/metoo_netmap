@@ -13,9 +13,20 @@ public class DeviceScanInfoVo {
     private String ipv6Addr;
     private String os;
 
+    private String mac;
+    private String macVendor;
+
     public DeviceScanInfoVo(String ipv4Addr, String ipv6Addr, String os) {
         this.ipv4Addr = ipv4Addr;
         this.ipv6Addr = ipv6Addr;
         this.os = os;
+    }
+
+    public DeviceScanInfoVo(String ipv4Addr, String ipv6Addr, String os, String mac, String macVendor) {
+        this.ipv4Addr = ipv4Addr;
+        this.ipv6Addr = ipv6Addr;
+        this.os = os;
+        this.mac = mac;
+        this.macVendor = macVendor;
     }
 }
