@@ -82,6 +82,7 @@ public class UpdateVersionService {
                     log.error("正在采集,当前状态不允许更新");
                     return VersionResultType.STATUS.getCode();
                 } else if (result.getCode() != null && result.getCode() == 1001) {
+                    String timestamp = System.currentTimeMillis() + "";
                     // 判断版本号是否以下载
                     boolean updateFlag = true;
                     String readState = FileVersionUtils.readState(Global.version_state, Global.version_state_name);
@@ -148,7 +149,8 @@ public class UpdateVersionService {
 
                                     //版本是较新版本，下载升级
                                     try {
-                                        downloadVersion(appVersionId);// 下载
+//                                        downloadVersion(appVersionId);// 下载
+                                        downloadVersionFile(appVersionId, timestamp);
                                         // 标记已下载状态
                                         FileVersionUtils.writeUpdateVersion(Global.version_state, Global.version_state_name, "2");// 下载完成
 
@@ -174,11 +176,12 @@ public class UpdateVersionService {
                                         return VersionResultType.FAIL.getCode();
                                     }
                                     //已下载
-                                    String extractDirectory = Global.versionUnzip;
+                                    String extractDirectory = Global.versionUnzip + File.separator + timestamp;
                                     // 执行 .bat 文件
                                     String batFilePath = extractDirectory + File.separator + Global.versionScriptName;
                                     FileVersionUtils.writeUpdateVersion(Global.version_state, Global.version_state_name, "4");
                                     DownloadAndExecuteBatFromZip.executeBatchFile(batFilePath);
+                                    log.info("exec .exe end");
 //                                    FileVersionUtils.writeUpdateVersion(Global.version_state, Global.version_state_name, "4");
                                     //标记为已更新完成/还原状态
                                     Thread.sleep(10000);
@@ -233,6 +236,33 @@ public class UpdateVersionService {
         log.info("目录已确认存在或创建成功：" + Global.versionPath);
         DownloadAndExecuteBatFromZip.ensureDirectoryExists(Global.versionUnzip);
         log.info("目录已确认存在或创建成功：" + Global.versionUnzip);
+        // 下载压缩包
+        DownloadAndExecuteBatFromZip.downloadFile(zipUrl, zipFilePath);
+        // 解压压缩包
+        DownloadAndExecuteBatFromZip.unzip(zipFilePath, extractDirectory);
+    }
+
+    /**
+     * 增加时间戳
+     * @param versionId
+     * @throws IOException
+     */
+    private void downloadVersionFile(Long versionId, String timestamp) throws IOException {
+        String zipUrl = downloadUrl + "/" + versionId;
+        String fileName = Global.versionName;
+
+        String zipFilePath = Global.versionPath + File.separator + timestamp + File.separator + fileName;
+
+        String extractDirectory = Global.versionUnzip + File.separator + timestamp;
+        DownloadAndExecuteBatFromZip.ensureDirectoryExists(Global.versionPath);
+        log.info("目录已确认存在或创建成功：" + Global.versionPath);
+
+        DownloadAndExecuteBatFromZip.ensureDirectoryExists(Global.versionUnzip);
+        log.info("目录已确认存在或创建成功：" + Global.versionUnzip);
+
+
+        DownloadAndExecuteBatFromZip.ensureDirectoryExists(Global.versionPath + File.separator + timestamp);
+
         // 下载压缩包
         DownloadAndExecuteBatFromZip.downloadFile(zipUrl, zipFilePath);
         // 解压压缩包

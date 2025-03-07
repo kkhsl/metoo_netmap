@@ -87,7 +87,7 @@ public class VerifyMacVendorUtils {
         VENDOR_MAP_DEVICESCAN.put("Hangzhou Hikvision Digital Technology", "Hangzhou Hikvision Digital Technology");
         VENDOR_MAP_DEVICESCAN.put("HUAWEI TECHNOLOGIES", "HUAWEI TECHNOLOGIES");
         VENDOR_MAP_DEVICESCAN.put("KYOCERA Display Corporation", "KYOCERA Display Corporation");
-
+        VENDOR_MAP_DEVICESCAN.put("Inspur Group", "Inspur Group");
     }
     public static String toDeviceScan(String vendor){
 

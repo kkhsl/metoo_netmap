@@ -227,7 +227,8 @@ public class VersionManagerController {
     @GetMapping("/update/state")
     public Result getUpdateState(){
         Map data = new HashMap();
-        String state = readUpdateState();
+//        String state = readUpdateState();
+        String state = FileVersionUtils.readState(Global.version_state, Global.version_state_name);
         if(StringUtil.isNotEmpty(state)){
             data.put("state", state);
             return ResponseUtil.ok(data);
@@ -332,7 +333,7 @@ public class VersionManagerController {
 //        }
 //        return "";
 
-        String filePath = "C:\\patch\\vs\\state\\stt.txt";
+        String filePath = Global.version_state + Global.version_state_name;
         File file = new File(filePath);
 
         // 检查文件是否存在

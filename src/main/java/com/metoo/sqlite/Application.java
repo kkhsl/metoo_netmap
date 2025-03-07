@@ -12,6 +12,7 @@ import com.metoo.sqlite.service.impl.UpdateVersionService;
 import com.metoo.sqlite.utils.Global;
 import com.metoo.sqlite.utils.ResponseUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.Test;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -45,6 +46,11 @@ public class Application  implements CommandLineRunner {
         log.info(("===应用启动耗时："+(System.currentTimeMillis()-time)+"==="));
     }
 
+    @Test
+    public void test(){
+        int matchResult = VersionUtils.compare("1.0.0.2", "1.0.0.2");
+        System.out.println(matchResult);
+    }
 
     @Autowired
     private ISurveyingLogService surveyingLogService;
@@ -72,6 +78,9 @@ public class Application  implements CommandLineRunner {
 
             if(StringUtil.isNotEmpty(state)){
                 if(state.trim().equals("4")){
+                    // state安装状态为4，必须清零
+                    FileVersionUtils.writeUpdateVersion(Global.version_state, Global.version_state_name, "0");
+
                     Version obj = null;
                     String version = FileVersionUtils.readState(Global.version_state, Global.version_info_name);
                     if(StringUtil.isNotEmpty(version)){
@@ -80,15 +89,16 @@ public class Application  implements CommandLineRunner {
                             int matchResult = VersionUtils.compare(version, obj.getVersion());
                             if (matchResult > 0) {
                                 obj.setVersion(version);
-                                FileVersionUtils.writeUpdateVersion(Global.version_state, Global.version_state_name, "0");
+//                                FileVersionUtils.writeUpdateVersion(Global.version_state, Global.version_state_name, "0");
                                 this.versionService.update(obj);
                             }
                         }else{
                             obj = new Version();
                             obj.setVersion(version);
                             this.versionService.save(obj);
-                            FileVersionUtils.writeUpdateVersion(Global.version_state, Global.version_state_name, "0");
+//                            FileVersionUtils.writeUpdateVersion(Global.version_state, Global.version_state_name, "0");
                         }
+
                     }
                 }else{
                     // 检测是否更新完毕，

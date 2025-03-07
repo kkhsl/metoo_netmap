@@ -86,7 +86,7 @@
         <Root level="INFO">
             <Appender-ref ref="Console"></Appender-ref>
             <!--<Appender-ref ref="nrsm"></Appender-ref>-->
-            <!--<Appender-ref ref="rollingFile"></Appender-ref>-->
+            <Appender-ref ref="rollingFile"></Appender-ref>
             <!--异步日志-->
             <!--<Appender-ref ref="MyAsync"></Appender-ref>-->
         </Root>

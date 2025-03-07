@@ -340,26 +340,106 @@ public class DownloadAndExecuteBatFromZip {
     }
     public static void main(String[] args) throws IOException, InterruptedException {
         String batFilePath = "C:\\patch\\update\\update.exe";
-        executeBatchFile(batFilePath);
+        executeBatchFil3e(batFilePath);
     }
 
-    public static void executeBatchFile(String batFilePath) throws IOException, InterruptedException {
 
-        ProcessBuilder processBuilder = new ProcessBuilder(batFilePath);
 
+
+
+    public static void executeBatchFil3e(String batFilePath) throws IOException, InterruptedException {
+        log.info("exec .exe start");
+//        ProcessBuilder processBuilder = new ProcessBuilder("cmd", "/c","start", "/B", batFilePath);
+        ProcessBuilder processBuilder = new ProcessBuilder("cmd", "/c","start", batFilePath);
+//        ProcessBuilder processBuilder = new ProcessBuilder("powershell", "Start-Process", "-FilePath", batFilePath, "-Verb", "runAs");
+
+//        ProcessBuilder processBuilder = new ProcessBuilder(
+//                "powershell", "-Command",
+//                "Start-Process 'C:\\patch\\update\\update.exe' -Verb RunAs"
+//        );
+
+
+
+//        ProcessBuilder processBuilder = new ProcessBuilder(batFilePath);
+
+        File logFile = new File("C:\\patch\\update\\update_log.txt");// 系统资源执行优先级？
+//        File logFile = new File(Global.versionPath + File.separator + "update_log.txt");// 系统资源执行优先级？
         try {
+            processBuilder.redirectOutput(logFile);
             processBuilder.redirectErrorStream(true);
+
+
             Process process = processBuilder.start();
 
             InputStream inputStream = process.getInputStream();
             BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
             String line;
             while ((line = reader.readLine()) != null) {
-                System.out.println(line);
+                log.info("exec .exe line：" + line);
             }
 
             int exitCode = process.waitFor();
-            System.out.println("Process exited with code: " + exitCode);
+            log.info("Process exited with code: " + exitCode);
+
+            if(exitCode == 0){
+                IVersionService versionService = (IVersionService) ApplicationContextUtils.getBean("versionServiceImpl");
+                String state = FileVersionUtils.readState(Global.version_state, Global.version_state_name);
+                if(state.trim().equals("4")){
+                    Version obj = null;
+                    String version = FileVersionUtils.readState(Global.version_state, Global.version_info_name);
+                    if(StringUtil.isNotEmpty(version)){
+                        obj = versionService.selectObjByOne();
+                        if(obj != null){
+                            int matchResult = VersionUtils.compare(version, obj.getVersion());
+                            if (matchResult > 0) {
+                                obj.setVersion(version);
+                                FileVersionUtils.writeUpdateVersion(Global.version_state, Global.version_state_name, "0");
+                                versionService.update(obj);
+                            }
+                        }else{
+                            obj = new Version();
+                            obj.setVersion(version);
+                            versionService.save(obj);
+                            FileVersionUtils.writeUpdateVersion(Global.version_state, Global.version_state_name, "0");
+                        }
+                    }
+                }
+            }
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+
+
+    public static void executeBatchFile(String batFilePath) throws IOException, InterruptedException {
+        log.info("exec .exe start");
+//        ProcessBuilder processBuilder = new ProcessBuilder("cmd", "/c","start", "/B", batFilePath);
+        ProcessBuilder processBuilder = new ProcessBuilder("cmd", "/c","start", batFilePath);
+//        ProcessBuilder processBuilder = new ProcessBuilder("cmd", "/c", "start", "/b", batFilePath);
+
+//ProcessBuilder processBuilder = new ProcessBuilder("powershell", "Start-Process", "-FilePath", batFilePath, "-Verb", "runAs");
+//        ProcessBuilder processBuilder = new ProcessBuilder(batFilePath);
+
+//        File logFile = new File("C:\\patch\\update\\update_log.txt");// 系统资源执行优先级？
+        File logFile = new File(Global.versionPath + File.separator + "update_log.txt");// 系统资源执行优先级？
+        try {
+            processBuilder.redirectOutput(logFile);
+            processBuilder.redirectErrorStream(true);
+
+
+            Process process = processBuilder.start();
+
+            InputStream inputStream = process.getInputStream();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+            String line;
+            while ((line = reader.readLine()) != null) {
+                log.info("exec .exe line：" + line);
+            }
+
+            int exitCode = process.waitFor();
+            log.info("Process exited with code: " + exitCode);
 
             if(exitCode == 0){
                 IVersionService versionService = (IVersionService) ApplicationContextUtils.getBean("versionServiceImpl");

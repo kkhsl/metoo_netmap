@@ -29,6 +29,11 @@ public class ApplicationTests {
 
 
     @Test
+    public void testGlobal(){
+        System.out.println("171.34.163.38");
+    }
+
+    @Test
     public void test() {
         String ip = "171.34.163.38";
         String port = "9000";
