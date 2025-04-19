@@ -105,83 +105,36 @@ public class UpdateVersionService {
                         JSONObject json = JSONObject.parseObject(versionResult, JSONObject.class);
                         String appVersion = json.getString("appVersion");
                         Long appVersionId = json.getLong("appVersionId");
-                        // 如果为补丁版本 列如：1.1.2.[0]
-                        if (appVersion.contains("[")) {
-                            // 存在补丁版本
-                            if (updateFlag) {
-                                // 标记可以更新了
-                                FileVersionUtils.writeUpdateVersion(Global.version_state, Global.version_state_name, "1");
-                                // 版本是较新版本，下载升级
-                                try {
-                                    downloadPatchVersion(appVersionId);
-                                    // 标记已下载状态
-                                    FileVersionUtils.writeUpdateVersion(Global.version_state, Global.version_state_name, "2");// 下载完成
-                                } catch (Exception e) {
-                                    //下载失败
-                                    log.error("下载新版本失败：{}", e.getMessage());
-                                    // 标记下载失败
-                                    FileVersionUtils.writeUpdateVersion(Global.version_state, Global.version_state_name, "-2");
-                                }
-                            }
-                            try {
-                                //已下载，则继续更新sql脚本
-                                executeSqlFile(Global.versionPatchDb);
-                                //标记为已更新完成
-                                FileVersionUtils.writeUpdateVersion(Global.version_state, Global.version_state_name, "3");
-                                //更新版本号
-                                FileVersionUtils.writeUpdateVersion(Global.version_state, Global.version_info_name, appVersion);
-                                log.info("版本更新完成，版本号：{}", appVersion);
-                                return VersionResultType.SUCCESS.getCode();
-                            } catch (Exception e) {
-                                log.error("执行版本升级出现错误：{}", e);
-                                // 标记升级执行失败
-                                FileVersionUtils.writeUpdateVersion(Global.version_state, Global.version_state, "-3");
-                            }
-                        } else {
-                            //其他非补丁版本
-                            //  比较版本号，如果版本号不一致，则下载新版本
-                            int matchResult = VersionUtils.compare(appVersion, version.getVersion());
-                            if (matchResult > 0) {
+                        // 测绘时间
+                        String surveyTime = json.getString("surveyTime");
+                        if(StrUtil.isNotEmpty(surveyTime)){
+                            // 标记测绘时间
+                            FileVersionUtils.writeUpdateVersion(Global.version_state, Global.survey_time_name, surveyTime);
+                        }
+                        if(StrUtil.isNotEmpty(appVersion)) {
+                            // 如果为补丁版本 列如：1.1.2.[0]
+                            if (appVersion.contains("[")) {
+                                // 存在补丁版本
                                 if (updateFlag) {
                                     // 标记可以更新了
                                     FileVersionUtils.writeUpdateVersion(Global.version_state, Global.version_state_name, "1");
-
-                                    //版本是较新版本，下载升级
+                                    // 版本是较新版本，下载升级
                                     try {
-                                        downloadVersion(appVersionId);
+                                        downloadPatchVersion(appVersionId);
                                         // 标记已下载状态
                                         FileVersionUtils.writeUpdateVersion(Global.version_state, Global.version_state_name, "2");// 下载完成
-
-                                        //更新版本号
-                                        FileVersionUtils.writeUpdateVersion(Global.version_state, Global.version_info_name, appVersion);
-
-                                        //标记为已更新完成
-                                        FileVersionUtils.writeUpdateVersion(Global.version_state, Global.version_state_name, "3");
-
                                     } catch (Exception e) {
                                         //下载失败
                                         log.error("下载新版本失败：{}", e.getMessage());
                                         // 标记下载失败
                                         FileVersionUtils.writeUpdateVersion(Global.version_state, Global.version_state_name, "-2");
                                     }
-
                                 }
-                                // 判断状态，解压执行
                                 try {
-                                    String stt = FileVersionUtils.readState(Global.version_state, Global.version_state_name);
-                                    if(stt != null && Integer.parseInt(stt) <= 1){
-                                        FileVersionUtils.writeUpdateVersion(Global.version_state, Global.version_state_name, "-3");
-                                        return VersionResultType.FAIL.getCode();
-                                    }
-                                    //已下载
-                                    String extractDirectory = Global.versionUnzip;
-                                    // 执行 .bat 文件
-                                    String batFilePath = extractDirectory + File.separator + Global.versionScriptName;
-                                    DownloadAndExecuteBatFromZip.executeBatchFile(batFilePath);
-                                    FileVersionUtils.writeUpdateVersion(Global.version_state, Global.version_state_name, "4");
-                                    //标记为已更新完成/还原状态
-                                    Thread.sleep(10000);
-                                    FileVersionUtils.writeUpdateVersion(Global.version_state, Global.version_state_name, "0");
+                                    //已下载，则继续更新sql脚本
+                                    executeSqlFile(Global.versionPatchDb);
+                                    //标记为已更新完成
+                                    FileVersionUtils.writeUpdateVersion(Global.version_state, Global.version_state_name, "3");
                                     //更新版本号
                                     FileVersionUtils.writeUpdateVersion(Global.version_state, Global.version_info_name, appVersion);
                                     log.info("版本更新完成，版本号：{}", appVersion);
@@ -191,7 +144,65 @@ public class UpdateVersionService {
                                     // 标记升级执行失败
                                     FileVersionUtils.writeUpdateVersion(Global.version_state, Global.version_state, "-3");
                                 }
+                            } else {
+                                //其他非补丁版本
+                                //  比较版本号，如果版本号不一致，则下载新版本
+                                int matchResult = VersionUtils.compare(appVersion, version.getVersion());
+                                if (matchResult > 0) {
+                                    if (updateFlag) {
+                                        // 标记可以更新了
+                                        FileVersionUtils.writeUpdateVersion(Global.version_state, Global.version_state_name, "1");
+
+                                        //版本是较新版本，下载升级
+                                        try {
+                                            downloadVersion(appVersionId);
+                                            // 标记已下载状态
+                                            FileVersionUtils.writeUpdateVersion(Global.version_state, Global.version_state_name, "2");// 下载完成
+
+                                            //更新版本号
+                                            FileVersionUtils.writeUpdateVersion(Global.version_state, Global.version_info_name, appVersion);
+
+                                            //标记为已更新完成
+                                            FileVersionUtils.writeUpdateVersion(Global.version_state, Global.version_state_name, "3");
+
+                                        } catch (Exception e) {
+                                            //下载失败
+                                            log.error("下载新版本失败：{}", e.getMessage());
+                                            // 标记下载失败
+                                            FileVersionUtils.writeUpdateVersion(Global.version_state, Global.version_state_name, "-2");
+                                        }
+
+                                    }
+                                    // 判断状态，解压执行
+                                    try {
+                                        String stt = FileVersionUtils.readState(Global.version_state, Global.version_state_name);
+                                        if (stt != null && Integer.parseInt(stt) <= 1) {
+                                            FileVersionUtils.writeUpdateVersion(Global.version_state, Global.version_state_name, "-3");
+                                            return VersionResultType.FAIL.getCode();
+                                        }
+                                        //已下载
+                                        String extractDirectory = Global.versionUnzip;
+                                        // 执行 .bat 文件
+                                        String batFilePath = extractDirectory + File.separator + Global.versionScriptName;
+                                        DownloadAndExecuteBatFromZip.executeBatchFile(batFilePath);
+                                        FileVersionUtils.writeUpdateVersion(Global.version_state, Global.version_state_name, "4");
+                                        //标记为已更新完成/还原状态
+                                        Thread.sleep(10000);
+                                        FileVersionUtils.writeUpdateVersion(Global.version_state, Global.version_state_name, "0");
+                                        //更新版本号
+                                        FileVersionUtils.writeUpdateVersion(Global.version_state, Global.version_info_name, appVersion);
+                                        log.info("版本更新完成，版本号：{}", appVersion);
+                                        return VersionResultType.SUCCESS.getCode();
+                                    } catch (Exception e) {
+                                        log.error("执行版本升级出现错误：{}", e);
+                                        // 标记升级执行失败
+                                        FileVersionUtils.writeUpdateVersion(Global.version_state, Global.version_state, "-3");
+                                    }
+                                }
                             }
+                        }else{
+                            log.info("当前无版本更新");
+                            return VersionResultType.NO.getCode();
                         }
                     } else {
                         log.info("当前无版本更新");
@@ -311,7 +322,7 @@ public class UpdateVersionService {
             return null;
         }
         LicenseVo license = JSONObject.parseObject(licenseInfo, LicenseVo.class);
-        // TODO: 2024/9/21 默认为单位1的测试数据 
+        // TODO: 2024/9/21 默认为单位1的测试数据
         return NumberUtil.isNumber(license.getUnit_id()) ? Long.parseLong(license.getUnit_id()) : 1L;
     }
 

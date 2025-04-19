@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 import java.util.Date;
-
+import java.util.Locale;
 /**
  *   String.format("%tY", new Date())    //2011
  *   String.format("%tm", new Date())   //03
@@ -413,6 +413,27 @@ public class DateTools {
         return endOfDay;
     }
 
+    /**
+     * 判断当前时间时分是否相同
+     * @param dateTimeStr
+     * @return
+     * @throws ParseException
+     */
+    public static boolean isDateTimeMatchCurrentMinute(String dateTimeStr) throws ParseException {
+        // 定义日期格式
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+        // 解析输入日期
+        Date inputDate = sdf.parse(dateTimeStr);
+        // 获取当前日期
+        Date currentDate = new Date();
+        // 创建只包含年月日时分的格式
+        SimpleDateFormat minuteFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
+        // 格式化两个日期为年月日时分字符串
+        String inputMinuteStr = minuteFormat.format(inputDate);
+        String currentMinuteStr = minuteFormat.format(currentDate);
+        // 比较两个字符串
+        return inputMinuteStr.equals(currentMinuteStr);
+    }
     @Test
     public void test1(){
         System.out.println(getStartOfDay());
