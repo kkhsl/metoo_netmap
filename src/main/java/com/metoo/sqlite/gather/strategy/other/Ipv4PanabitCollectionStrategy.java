@@ -22,6 +22,8 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author HKK
@@ -67,11 +69,15 @@ public class Ipv4PanabitCollectionStrategy implements DataCollectionStrategy {
                                         Ipv4 ipv4 = new Ipv4();
                                         ipv4.setCreateTime(context.getCreateTime());
                                         if(device.isState()){
-                                            if(json.getString("mac") != null && json.getString("mac").contains("-")){
-                                                ipv4.setMac(json.getString("mac").replace("-", ":"));
-                                            } if(json.getString("mac") != null && json.getString("mac").contains(":")){
-                                                ipv4.setMac(json.getString("mac"));
-                                            }
+//                                            if(json.getString("mac") != null && json.getString("mac").contains("-")){
+//                                                ipv4.setMac(json.getString("mac").replace("-", ":"));
+//                                            } if(json.getString("mac") != null && json.getString("mac").contains(":")){
+//                                                ipv4.setMac(json.getString("mac"));
+//                                            }else{
+//                                                ipv4.setMac(json.getString("mac"));
+//                                            }
+                                            String mac = parseMacAddress(json.getString("mac"));
+                                            ipv4.setMac(mac);
                                         }else{
                                             ipv4.setMac(null);
                                         }
@@ -96,36 +102,32 @@ public class Ipv4PanabitCollectionStrategy implements DataCollectionStrategy {
         }
     }
 
+    public static String parseMacAddress(String input) {
+        // 正则表达式匹配MAC地址
+        String regex = "(?:[0-9a-fA-F]{2}[:\\-]){5}[0-9a-fA-F]{2}";
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(input);
+
+        if (matcher.find()) {
+            String macAddress = matcher.group();
+            // 如果格式是"-"分隔的，转换为":"分隔的格式
+            return macAddress.replace('-', ':');
+        }
+        return null; // 如果没有匹配到MAC地址
+    }
+
     public static void main(String[] args) {
-        String data = "[{\n" +
-                "\t\"id\": \"2\",\n" +
-                "\t\"ipaddr\": \"192.168.50.98\",\n" +
-                "\t\"onlinesecs\": \"5/07:45:07\",\n" +
-                "\t\"ttl\": \"597\",\n" +
-                "\t\"flowcnt\": \"8\",\n" +
-                "\t\"mac\": \"24-18-c6-92-33-82\",\n" +
-                "\t\"in\": \"241.32M\",\n" +
-                "\t\"out\": \"3.17G\",\n" +
-                "\t\"inbps\": \"168\",\n" +
-                "\t\"outbps\": \"47.06K\",\n" +
-                "\t\"account\": \"0\",\n" +
-                "\t\"iecookies\": \"0\",\n" +
-                "\t\"chromecookies\": \"0\",\n" +
-                "\t\"natip\": \"0\",\n" +
-                "\t\"mstcnt\": \"0\",\n" +
-                "\t\"ratein\": \"0\",\n" +
-                "\t\"rateout\": \"0\",\n" +
-                "\t\"name\": \"none\",\n" +
-                "\t\"ippxy\": \"none\",\n" +
-                "\t\"blackip\": \"0\"\n" +
-                "}]";
-        JSONArray array = JSONArray.parseArray(data);
-        if(array.size() > 0){
-            List<Ipv4> ipv4List = new ArrayList<>();
-            for (Object o : array) {
-                JSONObject json = JSONObject.parseObject(JSONObject.toJSONString(o));
-                System.out.println(json.getString("mac").replace("-", ":"));
-            }
+        // 测试不同的格式
+        String[] testInputs = {
+                "c0:b8:e6:93:39:50",
+                "00-f1-f3-b2-d1-85",
+                "c0-b8-e6-93-39-50/RuijieNetwor_93-39-50",
+                "c0:b8:e6:93:39:50/RuijieNetwor_93-39-50"
+        };
+
+        for (String input : testInputs) {
+            String mac = parseMacAddress(input);
+            System.out.println("Parsed MAC Address: " + mac);
         }
     }
 }

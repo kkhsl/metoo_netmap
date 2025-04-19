@@ -12,7 +12,6 @@ public class VerifyMacVendorUtils {
         VENDOR_MAP_DEVICESCAN.put("Ruijie", "Ruijie");
         VENDOR_MAP_DEVICESCAN.put("TP-LINK", "TP-LINK");
         VENDOR_MAP_DEVICESCAN.put("mercury", "mercury");
-        VENDOR_MAP_DEVICESCAN.put("Huawei Device", "Huawei Device");
         VENDOR_MAP_DEVICESCAN.put("ruijie", "ruijie");
         VENDOR_MAP_DEVICESCAN.put("PUTIAN", "PUTIAN");
         VENDOR_MAP_DEVICESCAN.put("Hikvision", "Hikvision");
@@ -117,6 +116,7 @@ public class VerifyMacVendorUtils {
         VENDOR_MAP_TERMINAL.put("IEEE Registration", "IEEE Registration");
         VENDOR_MAP_TERMINAL.put("Shenzhen Decnta", "Shenzhen Decnta");
         VENDOR_MAP_TERMINAL.put("Lite-On", "Lite-On");
+        VENDOR_MAP_TERMINAL.put("Huawei Device", "Huawei Device");
     }
 
     public static String toTerminal(String vendor) {

@@ -161,16 +161,22 @@ public class ArpUtils {
 
                 Arp arpIpv4 = new Arp(ipv4.getIp(), ipv4.getMac(), ipv4.getPort(), ipv4.getDeviceUuid(), null);
 
-                if(StringUtil.isNotEmpty(arpIpv4.getIp()) && StringUtil.isNotEmpty(arpIpv4.getMac())){
-                    params.clear();
-                    params.put("mac", MacUtils.getMac(ipv4.getMac()));
-                    List<MacVendor> macVendorList = this.macVendorService.selectObjByMap(params);
-                    if(macVendorList.size() > 0){
-                        MacVendor macVendor = macVendorList.get(0);
-                        arpIpv4.setMacVendor(macVendor.getVendor());
+                if(StringUtil.isNotEmpty(arpIpv4.getIp())
+                        && StringUtil.isNotEmpty(arpIpv4.getMac())){
+                    if (!MacUtils.isValidMACAddress(ipv4.getMac())){
+                        arpIpv4.setMacVendor(ipv4.getMac());
+                    }else{
+                        params.clear();
+                        params.put("mac", MacUtils.getMac(ipv4.getMac()));
+                        List<MacVendor> macVendorList = this.macVendorService.selectObjByMap(params);
+                        if(macVendorList.size() > 0){
+                            MacVendor macVendor = macVendorList.get(0);
+                            arpIpv4.setMacVendor(macVendor.getVendor());
+                        }else{
+                            arpIpv4.setMacVendor(ipv4.getMac());
+                        }
                     }
                 }
-
                 arpList.add(arpIpv4);
             }
 
@@ -190,15 +196,18 @@ public class ArpUtils {
                 if(!ipv6s.contains(ipv6.getIpv6_address())){
                     Arp arpIpv6 = new Arp(ipv6.getIpv6_address(), ipv6.getIpv6_mac(), ipv6.getPort(), ipv6.getDeviceUuid());
                     if(StringUtil.isNotEmpty(arpIpv6.getMac())) {
-                        params.clear();
-                        params.put("mac", MacUtils.getMac(ipv6.getIpv6_mac()));
-                        List<MacVendor> macVendorList = this.macVendorService.selectObjByMap(params);
-                        if(macVendorList.size() > 0){
-                            MacVendor macVendor = macVendorList.get(0);
-                            arpIpv6.setMacVendor(macVendor.getVendor());
+                        if (!MacUtils.isValidMACAddress(ipv6.getIpv6_mac())){
+                            arpIpv6.setMacVendor(ipv6.getIpv6_mac());
+                        }else{
+                            params.clear();
+                            params.put("mac", MacUtils.getMac(ipv6.getIpv6_mac()));
+                            List<MacVendor> macVendorList = this.macVendorService.selectObjByMap(params);
+                            if(macVendorList.size() > 0){
+                                MacVendor macVendor = macVendorList.get(0);
+                                arpIpv6.setMacVendor(macVendor.getVendor());
+                            }
                         }
                     }
-
                     arpList2.add(arpIpv6);
                 }
             }
@@ -206,15 +215,18 @@ public class ArpUtils {
             for (Ipv6 ipv6 : ipv6List) {
                 Arp arpIpv6 = new Arp(ipv6.getIpv6_address(), ipv6.getIpv6_mac(), ipv6.getPort(), ipv6.getDeviceUuid());
                 if(StringUtil.isNotEmpty(arpIpv6.getMac())) {
-                    params.clear();
-                    params.put("mac", MacUtils.getMac(ipv6.getIpv6_mac()));
-                    List<MacVendor> macVendorList = this.macVendorService.selectObjByMap(params);
-                    if(macVendorList.size() > 0){
-                        MacVendor macVendor = macVendorList.get(0);
-                        arpIpv6.setMacVendor(macVendor.getVendor());
+                    if (!MacUtils.isValidMACAddress(ipv6.getIpv6_mac())) {
+                        arpIpv6.setMacVendor(ipv6.getIpv6_mac());
+                    } else {
+                        params.clear();
+                        params.put("mac", MacUtils.getMac(ipv6.getIpv6_mac()));
+                        List<MacVendor> macVendorList = this.macVendorService.selectObjByMap(params);
+                        if (macVendorList.size() > 0) {
+                            MacVendor macVendor = macVendorList.get(0);
+                            arpIpv6.setMacVendor(macVendor.getVendor());
+                        }
                     }
                 }
-
                 arpList2.add(arpIpv6);
             }
         }

@@ -18,6 +18,8 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -64,7 +66,11 @@ public class Ipv6OanabitCollectionStrategy implements DataCollectionStrategy {
                                         ipv6.setIpv6_address(json.getString("ipaddr"));
                                     }
                                     ipv6.setCreateTime(context.getCreateTime());
-                                    ipv6.setIpv6_mac(json.getString("mac").replace("-", ":"));
+
+//                                    ipv6.setIpv6_mac(json.getString("mac").replace("-", ":"));
+
+                                    String mac = parseMacAddress(json.getString("mac"));
+                                    ipv6.setIpv6_mac(mac);
 
                                     ipv6List.add(ipv6);
 
@@ -82,6 +88,20 @@ public class Ipv6OanabitCollectionStrategy implements DataCollectionStrategy {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public static String parseMacAddress(String input) {
+        // 正则表达式匹配MAC地址
+        String regex = "(?:[0-9a-fA-F]{2}[:\\-]){5}[0-9a-fA-F]{2}";
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(input);
+
+        if (matcher.find()) {
+            String macAddress = matcher.group();
+            // 如果格式是"-"分隔的，转换为":"分隔的格式
+            return macAddress.replace('-', ':');
+        }
+        return null; // 如果没有匹配到MAC地址
     }
 
 

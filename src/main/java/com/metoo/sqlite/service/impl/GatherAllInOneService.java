@@ -55,7 +55,7 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 public class GatherAllInOneService {
-    private final ReentrantLock lock = new ReentrantLock();
+
     @Autowired
     private ApiService apiService;
     @Autowired
@@ -103,12 +103,15 @@ public class GatherAllInOneService {
     @Autowired
     private ILogstashConfigService logstashConfigService;
 
+
+    private final ReentrantLock lock = new ReentrantLock();
     /**
      * 测绘主逻辑
      *
      * @param type
      * @return
      */
+    // TODO 使用设计模式，优化是否已经开始采集 两阶段终止 volatile
     public Result startGather(Integer type) {
         if (!lock.tryLock()) {
             return ResponseUtil.ok(1002, "正在测绘");
