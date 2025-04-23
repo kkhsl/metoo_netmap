@@ -15,8 +15,6 @@ import java.io.IOException;
 // AuthenticatingFilter
 public class MyAccessControlFilter extends AccessControlFilter {
 
-    @Value("${spring.profiles.active}")
-    private String env;
 
     /**
      * 处理请求前的过滤逻辑

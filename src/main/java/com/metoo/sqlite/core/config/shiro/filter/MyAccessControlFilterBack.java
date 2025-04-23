@@ -13,8 +13,6 @@ import javax.servlet.ServletResponse;
 // AuthenticatingFilter
 public class MyAccessControlFilterBack extends AccessControlFilter {
 
-    @Value("${spring.profiles.active}")
-    private String env;
 
     @Override
     protected boolean preHandle(ServletRequest request, ServletResponse response) throws Exception {
