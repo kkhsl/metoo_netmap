@@ -1,8 +1,6 @@
 package com.metoo.sqlite.utils.file;
 
 import com.metoo.sqlite.utils.Global;
-import org.json.JSONObject;
-import org.json.JSONTokener;
 import org.junit.Test;
 
 import java.io.*;

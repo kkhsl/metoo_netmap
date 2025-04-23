@@ -19,6 +19,7 @@ import com.metoo.sqlite.manager.api.JsonRequest;
 import com.metoo.sqlite.manager.utils.gather.ProbeToTerminalAndDeviceScan;
 import com.metoo.sqlite.manager.utils.gather.VerifyVendorUtils;
 import com.metoo.sqlite.manager.utils.jx.JXDataUtils;
+import com.metoo.sqlite.manager.utils.jx.SendKafkaMsg;
 import com.metoo.sqlite.manager.utils.jx.UnitDataUtils;
 import com.metoo.sqlite.model.es.EsQueryService;
 import com.metoo.sqlite.service.*;
@@ -364,6 +365,16 @@ public class GatherAllInOneService {
         String beginTime = DateTools.getCreateTime();
         int ecLogId = publicService.createSureyingLog("生成加密结果文件", beginTime, 1, null, 10);
         publicService.updateSureyingLog(ecLogId, 2);
+
+        // 上传数据到平台
+
+    }
+
+    public void uploadDate(String data){
+
+            // 调用kafka
+            SendKafkaMsg sendKafkaMsg = new SendKafkaMsg();
+            boolean flag =sendKafkaMsg.send(data);
 
     }
 

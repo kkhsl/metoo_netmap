@@ -1,11 +1,13 @@
 package com.metoo.sqlite.manager.utils.jx;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.*;
 
 import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
+@Slf4j
 public class SendKafkaMsg {
 
     public boolean send(String data) {
@@ -59,8 +61,9 @@ public class SendKafkaMsg {
 
 
         try {
-            RecordMetadata recordMetadata = future.get();
-            String a = recordMetadata.toString();
+            RecordMetadata recordMetadata = future.get();// 阻塞直到发送完成
+            String result = recordMetadata.toString();
+            log.info("kafka:{}", result);
             return true;
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -68,7 +71,9 @@ public class SendKafkaMsg {
             e.printStackTrace();
         } finally {
             // 关闭生产者
-            producer.close();
+            if(producer != null){
+                producer.close();
+            }
         }
         return false;
     }
