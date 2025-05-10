@@ -60,7 +60,16 @@ public class FileUtils {
     public static void clearDirectoryWithFileType(String dirPath,String fileType)  {
         Path path = Paths.get(dirPath);
         // 确保目录存在
-        if (!Files.isDirectory(path)) {
+//        if (!Files.isDirectory(path)) {
+//            throw new IllegalArgumentException("当前路径不是目录: " + dirPath);
+//        }
+        if (!Files.exists(path)) {
+            try {
+                Files.createDirectories(path);  // Creates all necessary parent directories too
+            } catch (IOException e) {
+                throw new IllegalArgumentException("无法创建目录: " + dirPath, e);
+            }
+        } else if (!Files.isDirectory(path)) {
             throw new IllegalArgumentException("当前路径不是目录: " + dirPath);
         }
         try (Stream<Path> paths = Files.walk(path)) {

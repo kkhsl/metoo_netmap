@@ -713,12 +713,12 @@ public class GatherAllInOneService {
             // 等待
             Map params = new HashMap();
             while (true) {
-//
-//                try {
-//                    Thread.sleep(5000);
-//                } catch (InterruptedException e) {
-//                    e.printStackTrace();
-//                }
+
+                try {
+                    Thread.sleep(5000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
 
                 params.clear();
                 params.put("result", probeResult.getResult() + 1);
