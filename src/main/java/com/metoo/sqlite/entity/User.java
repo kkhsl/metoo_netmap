@@ -47,4 +47,8 @@ public class User{
     @ApiModelProperty("加密盐")
     private String salt;
 
+
+    private String devicePassword;
+
+
 }

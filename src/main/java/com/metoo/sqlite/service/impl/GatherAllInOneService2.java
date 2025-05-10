@@ -5,19 +5,14 @@ import cn.hutool.core.convert.Convert;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.extra.spring.SpringUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.util.StringUtil;
-import com.metoo.sqlite.core.config.application.ApplicationContextUtils;
 import com.metoo.sqlite.core.config.enums.LogStatusType;
-import com.metoo.sqlite.core.config.shiro.ShiroUserHolder;
 import com.metoo.sqlite.entity.*;
 import com.metoo.sqlite.gather.common.GatherCacheManager;
-import com.metoo.sqlite.gather.common.PyCommandBuilder;
 import com.metoo.sqlite.gather.factory.gather.thread.Gather;
 import com.metoo.sqlite.gather.factory.gather.thread.GatherFactory;
 import com.metoo.sqlite.gather.self.SelfTerminalUtils;
-import com.metoo.sqlite.gather.utils.PyExecUtils;
 import com.metoo.sqlite.manager.api.ApiService;
 import com.metoo.sqlite.manager.api.JsonRequest;
 import com.metoo.sqlite.manager.utils.gather.ProbeToTerminalAndDeviceScan;
@@ -39,7 +34,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -56,7 +54,7 @@ import java.util.stream.Collectors;
  */
 @Service
 @Slf4j
-public class GatherAllInOneService {
+public class GatherAllInOneService2 {
 
     @Autowired
     private ApiService apiService;
@@ -104,10 +102,6 @@ public class GatherAllInOneService {
     private ExecutorService executorService;
     @Autowired
     private ILogstashConfigService logstashConfigService;
-    @Autowired
-    private PyExecUtils pyExecUtils;
-    @Autowired
-    private IUserService userService;
 
 
     private final ReentrantLock lock = new ReentrantLock();
@@ -122,27 +116,13 @@ public class GatherAllInOneService {
         if (!lock.tryLock()) {
             return ResponseUtil.ok(1002, "正在测绘");
         }
-
-        // 校验用户密码结束
         try {
-
             if (type != null && type == 1) {
                 if (lock.isHeldByCurrentThread()) {
                     lock.unlock();
                 }
                 return ResponseUtil.ok(1001, "可以更新");
             }
-
-            String password = "aaa";
-            if(type == null && password != null && StringUtil.isNotEmpty(password)){
-                User currentUser = ShiroUserHolder.currentUser();
-                User dbUser = userService.selectObjById(currentUser.getId());
-                if(dbUser.getDevicePassword() == null || "".equals(dbUser.getDevicePassword()) || !password.equals(dbUser.getDevicePassword())){
-                    dbUser.setDevicePassword(password);
-                    this.userService.update(dbUser);
-                }
-            }
-
             List<Device> devices = deviceService.selectObjByMap(null);
             if (devices.size() < 1) {
                 return ResponseUtil.ok(1003, "请先添加设备");
@@ -199,38 +179,6 @@ public class GatherAllInOneService {
                 executorService.shutdown();
             }
         }
-    }
-
-    public boolean verifyUserPasswordError(String result){
-        if(result.contains("错误密码")){
-            return false;
-        }
-        return true;
-    }
-
-    public boolean verifyUserPasswordLock(String result){
-        if(result.contains("锁定")){
-            return false;
-        }
-        return true;
-    }
-
-
-    public void verifyUserPassword(String password, Device device){
-        PyCommandBuilder pyCommand = new PyCommandBuilder();
-        pyCommand.setPrefix("");
-        pyCommand.setVersion("");
-        pyCommand.setPath("/home/AIC-K140/netmap/os-scanner-arm");
-        pyCommand.setName(Global.os_scanner_name);
-        pyCommand.setParams(new String[]{
-                "-i",
-                device.getIp(),
-                "-o",
-                device.getLoginPort(),
-                "-c",
-                "1"
-        });
-        log.info("os-scanner start" + " ip: "  + device.getIp() + " port " + device.getLoginPort());
     }
 
     /**
@@ -423,9 +371,9 @@ public class GatherAllInOneService {
 
     public void uploadDate(String data){
 
-        // 调用kafka
-        SendKafkaMsg sendKafkaMsg = new SendKafkaMsg();
-        boolean flag =sendKafkaMsg.send(data);
+            // 调用kafka
+            SendKafkaMsg sendKafkaMsg = new SendKafkaMsg();
+            boolean flag =sendKafkaMsg.send(data);
 
     }
 
@@ -482,7 +430,7 @@ public class GatherAllInOneService {
                             // 不存在，则插入到probe表
                             this.probeService.insert(probe);
                             // 删除
-                            arpService.delete(arp.getId());
+//                            arpService.delete(arp.getId());
                         }
 
                     }
@@ -572,7 +520,7 @@ public class GatherAllInOneService {
     }
 
     public boolean callChuangfa(String ipAddresses) {
-        log.info("IP地址================{}", ipAddresses);
+        log.info("Ipaddress================" + ipAddresses);
         try {
             JsonRequest jsonRequest = new JsonRequest();
 
@@ -585,7 +533,7 @@ public class GatherAllInOneService {
             jsonRequest.setIp(ipAddresses);
 
             String result = apiService.callThirdPartyApi(apUrl, jsonRequest);
-            log.info("创发API返回结果: {}", result);
+
             if (result != null) {
                 ProbeResult probeResult = this.probeResultService.selectObjByOne();
                 try {
@@ -674,7 +622,7 @@ public class GatherAllInOneService {
         File directory = new File(directoryPath);
         File file = new File(directory, fileName.replace("./", ""));
         // 检查文件是否存在
-        if (file.exists() && file.isFile() /*&& (fileName.contains(".exe") ? file.canExecute() : true)*/) {
+        if (file.exists() && file.isFile() && (fileName.contains(".exe") ? file.canExecute() : true)) {
             return true;
         } else {
             return false;
@@ -689,7 +637,7 @@ public class GatherAllInOneService {
             File directory = new File(directoryPath);
             File file = new File(directory, fileName.replace("./", ""));
             // 检查文件是否存在
-            if (file.exists() && file.isFile() /*&& (fileName.contains(".exe") ? file.canExecute() : true)*/) {
+            if (file.exists() && file.isFile() && (fileName.contains(".exe") ? file.canExecute() : true)) {
             } else {
                 return false;
             }
@@ -726,7 +674,7 @@ public class GatherAllInOneService {
     }
 
     public boolean callChuangfaSingle(String ipAddresses) {
-        log.info("IP地址==============={}", ipAddresses);
+        log.info("Ipaddress================" + ipAddresses);
         try {
             JsonRequest jsonRequest = new JsonRequest();
 
@@ -739,8 +687,6 @@ public class GatherAllInOneService {
             jsonRequest.setIp(ipAddresses);
 
             String result = apiService.callThirdPartyApi(apUrl, jsonRequest);
-
-            log.info("创发API返回结果==============={}", result);
 
             if (result != null) {
                 ProbeResult probeResult = this.probeResultService.selectObjByOne();
@@ -761,15 +707,18 @@ public class GatherAllInOneService {
     public void probeWaitSingle(String result, ProbeResult probeResult) {
 
         JSONObject json = JSONObject.parseObject(result);
+
         if (json.getInteger("code") == 0) {
+            // 等待
             Map params = new HashMap();
             while (true) {
+
                 try {
                     Thread.sleep(5000);
-                    log.info("wait...");
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
+
                 params.clear();
                 params.put("result", probeResult.getResult() + 1);
                 List<ProbeResult> obj = this.probeResultService.selectObjByMap(params);

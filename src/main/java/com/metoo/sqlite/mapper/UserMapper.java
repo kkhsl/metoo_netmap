@@ -26,6 +26,8 @@ public interface UserMapper {
 
     int update(UserDto instance);
 
+    int updateUser(User instance);
+
     int delete(Integer id);
 
     @Select("SELECT * FROM metoo_user")

@@ -118,7 +118,7 @@
         </trim>
     </insert>
 
-    <update id="update" parameterType="com.metoo.sqlite.entity.User">
+    <update id="update" parameterType="com.metoo.sqlite.dto.UserDto">
         UPDATE metoo_user
         <set>
             <if test = "username != null and username != ''">
@@ -141,6 +141,39 @@
             </if>
             <if test="mobile != null">
                 mobile=#{mobile},
+            </if>
+            <if test="devicePassword != null">
+                devicePassword=#{devicePassword},
+            </if>
+        </set> where id = #{id}
+    </update>
+
+    <update id="updateUser" parameterType="com.metoo.sqlite.entity.User">
+        UPDATE metoo_user
+        <set>
+            <if test = "username != null and username != ''">
+                username=#{username},
+            </if>
+            <if test = "password != null and password != ''">
+                password=#{password},
+            </if>
+            <if test = "sex != null">
+                sex=#{sex},
+            </if>
+            <if test = "age != null">
+                age=#{age},
+            </if>
+            <if test = "salt != null">
+                salt=#{salt},
+            </if>
+            <if test="email != null">
+                email=#{email},
+            </if>
+            <if test="mobile != null">
+                mobile=#{mobile},
+            </if>
+            <if test="devicePassword != null">
+                devicePassword=#{devicePassword},
             </if>
         </set> where id = #{id}
     </update>

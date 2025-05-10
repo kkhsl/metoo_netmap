@@ -30,6 +30,8 @@ public interface IUserService {
 
     Result update(User user);
 
+    boolean updateUser(User user);
+
     Result delete(String ids);
 
     Result editPassword(UserDto instance);

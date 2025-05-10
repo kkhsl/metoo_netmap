@@ -310,6 +310,17 @@ public class UserServiceImpl implements IUserService {
         return ResponseUtil.badArgument();
     }
 
+    @Override
+    public Result update(User user) {
+        try {
+            this.userMapper.updateUser(user);
+            return ResponseUtil.ok();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseUtil.saveError();
+        }
+    }
+
     public boolean verifyMobileUnique(String mobile, Integer id){
         Map params = new HashMap();
         params.put("mobile", mobile);
@@ -333,8 +344,14 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
-    public Result update(User user) {
-        return null;
+    public boolean updateUser(User user) {
+        try {
+            this.userMapper.updateUser(user);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
     @Override
