@@ -708,6 +708,12 @@ public class GatherAllInOneService {
                 if (!GatherCacheManager.running) {
                     throw new RuntimeException("测绘已手动中止");
                 }
+                params.clear();
+                params.put("result", probeResult.getResult() + 1);
+                List<ProbeResult> obj = this.probeResultService.selectObjByMap(params);
+                if (obj.size() > 0) {
+                    break;
+                }
                 try {
                     Thread.sleep(5000);
                     log.info("wait......");
@@ -715,12 +721,6 @@ public class GatherAllInOneService {
                     e.printStackTrace();
                 }
 
-                params.clear();
-                params.put("result", probeResult.getResult() + 1);
-                List<ProbeResult> obj = this.probeResultService.selectObjByMap(params);
-                if (obj.size() > 0) {
-                    break;
-                }
             }
         }
     }
@@ -764,17 +764,17 @@ public class GatherAllInOneService {
         if (json.getInteger("code") == 0) {
             Map params = new HashMap();
             while (true) {
-                try {
-                    Thread.sleep(5000);
-                    log.info("wait...");
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
                 params.clear();
                 params.put("result", probeResult.getResult() + 1);
                 List<ProbeResult> obj = this.probeResultService.selectObjByMap(params);
                 if (obj.size() > 0) {
                     break;
+                }
+                try {
+                    Thread.sleep(5000);
+                    log.info("wait...");
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
             }
         }
