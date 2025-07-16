@@ -29,6 +29,8 @@ public class DeviceSysInfoDTO {
 
     @ApiModelProperty("操作系统")
     private String os;
+    @ApiModelProperty("OS名称")
+    private String os_name;
 
     private List<String> cpu = new ArrayList<>();
 

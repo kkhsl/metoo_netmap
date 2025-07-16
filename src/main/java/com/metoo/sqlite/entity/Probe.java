@@ -7,6 +7,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @author HKK
  * @version 1.0
@@ -69,9 +72,6 @@ public class Probe {
     @ApiModelProperty("ttl值")
     private Integer ttl;
 
-    @ApiModelProperty("用于逻辑判断")
-    private String ttls;
-
     @ApiModelProperty("os可用率")
     private Float reliability;
     @ApiModelProperty("ipv6")
@@ -79,6 +79,19 @@ public class Probe {
     @ApiModelProperty("mac地址")
     private String mac;
     private String mac_vendor;
+
+
+    private String manufacturer;
+    private String model;
+    private String os1;
+    private List<String> cpu = new ArrayList<>();
+    private List<String> mac_addresses = new ArrayList<>(); // 改为驼峰命名
+
+
+
+    @ApiModelProperty("用于逻辑判断")
+    private String ttls;
+
     public Probe(String port_num) {
         this.port_num = port_num;
     }

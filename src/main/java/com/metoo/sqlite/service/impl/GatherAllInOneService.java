@@ -499,7 +499,24 @@ public class GatherAllInOneService {
 
                 this.probeService.deleteTableBack();
                 this.probeService.copyToBck();
+                List<Probe> probes = this.probeService.selectObjBackByMap(Collections.emptyMap());
+                if(probes.size() > 0){
+                    for (Probe probe : probes) {
+                        if(probe.getMac() != null && !"".equals(probe.getMac())){
+                            List<DeviceSysInfoDTO> deviceSysInfos = this.deviceSysInfoService.query(probe.getMac());
+                            if(deviceSysInfos.size() > 0){
+                                DeviceSysInfoDTO deviceSysInfo = deviceSysInfos.get(0);
+                                probe.setManufacturer(deviceSysInfo.getManufacturer());
+                                probe.setModel(deviceSysInfo.getModel());
+                                probe.setOs1(deviceSysInfo.getOs());
+                                probe.setCpu(deviceSysInfo.getCpu());
+                                probe.setMac_addresses(deviceSysInfo.getMac_addresses());
+                                this.probeService.updateTableBack(probe);
+                            }
+                        }
+                    }
 
+                }
                 publicService.updateSureyingLog(probeLogId, 2);
 
             } catch (Exception e) {
@@ -804,7 +821,7 @@ public class GatherAllInOneService {
             List<Terminal> terminals = this.terminalService.selectObjByMap(Collections.emptyMap());
             if(terminals.size() > 0){
                 for (Terminal terminal : terminals) {
-                    if(terminal.getMac() != null && "".equals(terminal.getMac())){
+                    if(terminal.getMac() != null && !"".equals(terminal.getMac())){
                         List<DeviceSysInfoDTO> deviceSysInfos = this.deviceSysInfoService.query(terminal.getMac());
                         if(deviceSysInfos.size() > 0){
                             DeviceSysInfoDTO deviceSysInfo = deviceSysInfos.get(0);
@@ -816,7 +833,6 @@ public class GatherAllInOneService {
                             this.terminalService.update(terminal);
                         }
                     }
-
                 }
             }
             publicService.updateSureyingLog(temLogId, 2);

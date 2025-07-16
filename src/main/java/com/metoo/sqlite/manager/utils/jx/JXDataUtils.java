@@ -99,7 +99,8 @@ public class JXDataUtils {
             if (terminalList.size() > 0) {
                 for (Terminal terminal : terminalList) {
                     TerminalInfoVo vo = new TerminalInfoVo(terminal.getMac(), terminal.getService(), terminal.getActive_port(), terminal.getOs(),
-                            terminal.getIpv4addr(), terminal.getIpv6addr(), terminal.getMacvendor());
+                            terminal.getIpv4addr(), terminal.getIpv6addr(), terminal.getMacvendor(), terminal.getManufacturer(),
+                            terminal.getModel(), terminal.getOs1(), terminal.getOs_name(), terminal.getCpu(), terminal.getMac_addresses());
                     list2.add(vo);
                 }
             }

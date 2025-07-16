@@ -220,7 +220,7 @@
         </trim>
     </insert>
 
-    <insert id="update" parameterType="com.metoo.sqlite.entity.Probe">
+    <update id="update" parameterType="com.metoo.sqlite.entity.Probe">
         UPDATE metoo_probe
         <set>
             <if test="ip_addr != null and ip_addr != ''">
@@ -294,8 +294,98 @@
             </if>
         </set>
         where id = #{id}
-    </insert>
+    </update>
 
+    <update id="updateTableBack" parameterType="com.metoo.sqlite.entity.Probe">
+        UPDATE metoo_probe_bck
+        <set>
+            <if test="ip_addr != null and ip_addr != ''">
+                ip_addr = #{ip_addr},
+            </if>
+            <if test="port_num != null and port_num != ''">
+                port_num =  #{port_num},
+            </if>
+            <if test="mac_addr != null and mac_addr != ''">
+                mac_addr =  #{mac_addr},
+            </if>
+            <if test="vendor != null and vendor != ''">
+                vendor =  #{vendor},
+            </if>
+            <if test="os_family != null and os_family != ''">
+                os_family =  #{os_family},
+            </if>
+            <if test="os_gen != null and os_gen != ''">
+                os_gen =  #{os_gen},
+            </if>
+            <if test="os_cpe != null and os_cpe != ''">
+                os_cpe =  #{os_cpe},
+            </if>
+            <if test="scan_time != null and scan_time != ''">
+                scan_time =   #{scan_time},
+            </if>
+            <if test="update_time != null and update_time != ''">
+                update_time =  #{update_time},
+            </if>
+            <if test="communicate_protocol != null and communicate_protocol != ''">
+                communicate_protocol =  #{communicate_protocol},
+            </if>
+            <if test="application_protocol != null and application_protocol != ''">
+                application_protocol =   #{application_protocol},
+            </if>
+            <if test="service_output != null and service_output != ''">
+                service_output =   #{service_output},
+            </if>
+            <if test="port_service_cpe != null and port_service_cpe != ''">
+                port_service_cpe =  #{port_service_cpe},
+            </if>
+            <if test="port_service_product != null and port_service_product != ''">
+                port_service_product =   #{port_service_product},
+            </if>
+            <if test="port_service_version != null and port_service_version != ''">
+                port_service_version =  #{port_service_version},
+            </if>
+            <if test="port_service_vendor != null and port_service_vendor != ''">
+                port_service_vendor =  #{port_service_vendor},
+            </if>
+            <if test="device_type != null and device_type != ''">
+                device_type =  #{device_type},
+            </if>
+            <if test="title != null and title != ''">
+                title =  #{title},
+            </if>
+            <if test="response != null and response != ''">
+                response =   #{response},
+            </if>
+            <if test="fingerId != null and fingerId != ''">
+                fingerId =  #{fingerId},
+            </if>
+            <if test="ttl != null and ttl != ''">
+                ttl =  #{ttl},
+            </if>
+            <if test="reliability != null and reliability != ''">
+                reliability = #{reliability},
+            </if>
+            <if test="fingerIdOsScan != null and fingerIdOsScan != ''">
+                fingerIdOsScan = #{fingerIdOsScan},
+            </if>
+            <if test="manufacturer != null and manufacturer != ''">
+                manufacturer = #{manufacturer},
+            </if>
+            <if test="model != null and model != ''">
+                model = #{model},
+            </if>
+            <if test="os1 != null and os1 != ''">
+                os1 = #{os1},
+            </if>
+            <if test="cpu != null and !cpu.isEmpty()">
+                cpu = #{cpu, typeHandler=com.metoo.sqlite.core.config.mybatis.config.json.ListStringToJsonTypeHandler},
+            </if>
+            <if test="mac_addresses != null and !mac_addresses.isEmpty()">
+                mac_addresses = #{mac_addresses, typeHandler=com.metoo.sqlite.core.config.mybatis.config.json.ListStringToJsonTypeHandler},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
 
     <delete id="delete" parameterType="java.lang.Integer">
         delete from metoo_probe where id = #{id}
@@ -310,7 +400,66 @@
     </delete>
 
     <insert id="copyToBck">
-         INSERT INTO metoo_probe_bck SELECT * FROM metoo_probe
+        INSERT INTO metoo_probe_bck (
+            id,
+            createTime,
+            ip_addr,
+            port_num,
+            mac_addr,
+            vendor,
+            os_family,
+            os_gen,
+            os_cpe,
+            scan_time,
+            update_time,
+            communicate_protocol,
+            application_protocol,
+            service_output,
+            port_service_cpe,
+            port_service_product,
+            port_service_version,
+            port_service_vendor,
+            device_type,
+            title,
+            response,
+            fingerId,
+            fingerIdOsScan,
+            ttl,
+            reliability,
+            ipv6,
+            mac,
+            mac_vendor
+        )
+        SELECT
+            id,
+            createTime,
+            ip_addr,
+            port_num,
+            mac_addr,
+            vendor,
+            os_family,
+            os_gen,
+            os_cpe,
+            scan_time,
+            update_time,
+            communicate_protocol,
+            application_protocol,
+            service_output,
+            port_service_cpe,
+            port_service_product,
+            port_service_version,
+            port_service_vendor,
+            device_type,
+            title,
+            response,
+            fingerId,
+            fingerIdOsScan,
+            ttl,
+            reliability,
+            ipv6,
+            mac,
+            mac_vendor
+        FROM metoo_probe
     </insert>
 
 </mapper>

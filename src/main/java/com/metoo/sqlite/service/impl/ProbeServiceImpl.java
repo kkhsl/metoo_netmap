@@ -150,6 +150,11 @@ public class ProbeServiceImpl implements IProbeService {
     }
 
     @Override
+    public boolean updateTableBack(Probe instance) {
+        return this.probeMapper.updateTableBack(instance);
+    }
+
+    @Override
     public int copyToBck() {
         return this.probeMapper.copyToBck();
     }

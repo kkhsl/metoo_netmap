@@ -110,10 +110,12 @@ public class UnitDataUtils {
                                         TerminalInfoVo vo = null;
                                         if("2".equals(terminal.getActive_port())){
                                             vo = new TerminalInfoVo(terminal.getMac(), null, null, terminal.getOs(),
-                                                    terminal.getIpv4addr(), terminal.getIpv6addr(), terminal.getMacvendor());
+                                                    terminal.getIpv4addr(), terminal.getIpv6addr(), terminal.getMacvendor(), terminal.getManufacturer(),
+                                                    terminal.getModel(), terminal.getOs1(), terminal.getOs_name(), terminal.getCpu(), terminal.getMac_addresses());
                                         }else{
                                             vo = new TerminalInfoVo(terminal.getMac(), terminal.getService(), terminal.getActive_port(), terminal.getOs(),
-                                                    terminal.getIpv4addr(), terminal.getIpv6addr(), terminal.getMacvendor());
+                                                    terminal.getIpv4addr(), terminal.getIpv6addr(), terminal.getMacvendor(), terminal.getManufacturer(),
+                                                    terminal.getModel(), terminal.getOs1(), terminal.getOs_name(), terminal.getCpu(), terminal.getMac_addresses());
                                         }
                                         terminals.add(vo);
                                         ids.add(terminal.getId());
@@ -148,10 +150,12 @@ public class UnitDataUtils {
                                             TerminalInfoVo vo = null;
                                             if("2".equals(terminal.getActive_port())){
                                                 vo = new TerminalInfoVo(terminal.getMac(), null, null, terminal.getOs(),
-                                                        terminal.getIpv4addr(), terminal.getIpv6addr(), terminal.getMacvendor());
+                                                        terminal.getIpv4addr(), terminal.getIpv6addr(), terminal.getMacvendor(), terminal.getManufacturer(),
+                                                        terminal.getModel(), terminal.getOs1(), terminal.getOs_name(), terminal.getCpu(), terminal.getMac_addresses());
                                             }else{
                                                 vo = new TerminalInfoVo(terminal.getMac(), terminal.getService(), terminal.getActive_port(), terminal.getOs(),
-                                                        terminal.getIpv4addr(), terminal.getIpv6addr(), terminal.getMacvendor());
+                                                        terminal.getIpv4addr(), terminal.getIpv6addr(), terminal.getMacvendor(), terminal.getManufacturer(),
+                                                        terminal.getModel(), terminal.getOs1(), terminal.getOs_name(), terminal.getCpu(), terminal.getMac_addresses());
                                             }
                                             terminals.add(vo);
                                         }
@@ -359,10 +363,12 @@ public class UnitDataUtils {
                     TerminalInfoVo vo = null;
                     if("2".equals(terminal.getActive_port())){
                         vo = new TerminalInfoVo(terminal.getMac(), null, null, terminal.getOs(),
-                                terminal.getIpv4addr(), terminal.getIpv6addr(), terminal.getMacvendor());
+                                terminal.getIpv4addr(), terminal.getIpv6addr(), terminal.getMacvendor(), terminal.getManufacturer(),
+                                terminal.getModel(), terminal.getOs1(), terminal.getOs_name(), terminal.getCpu(), terminal.getMac_addresses());
                     }else{
                         vo = new TerminalInfoVo(terminal.getMac(), terminal.getService(), terminal.getActive_port(), terminal.getOs(),
-                                terminal.getIpv4addr(), terminal.getIpv6addr(), terminal.getMacvendor());
+                                terminal.getIpv4addr(), terminal.getIpv6addr(), terminal.getMacvendor(), terminal.getManufacturer(),
+                                terminal.getModel(), terminal.getOs1(), terminal.getOs_name(), terminal.getCpu(), terminal.getMac_addresses());
                     }
 //                    terminals.add(vo);
 //                    TerminalInfoVo vo = new TerminalInfoVo(terminal.getMac(), terminal.getService(), terminal.getActive_port(), terminal.getOs(),

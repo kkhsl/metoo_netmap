@@ -28,6 +28,8 @@ public interface ProbeMapper {
 
     int deleteTableBack();
 
+    boolean updateTableBack(Probe instance);
+
     int copyToBck();
 
 }

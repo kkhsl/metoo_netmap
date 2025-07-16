@@ -38,6 +38,7 @@ public class Terminal {
     private String manufacturer;
     private String model;
     private String os1;
+    private String os_name;
     private List<String> cpu = new ArrayList<>();
     private List<String> mac_addresses = new ArrayList<>(); // 改为驼峰命名
 

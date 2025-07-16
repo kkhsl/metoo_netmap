@@ -30,6 +30,8 @@ public interface IProbeService {
 
     int deleteTableBack();
 
+    boolean updateTableBack(Probe instance);
+
     int copyToBck();
 
     boolean deleteProbeByIp(String ipv4, String ipv6);

@@ -157,6 +157,9 @@
             <if test="mac != null and mac != ''">
                 mac = #{mac},
             </if>
+            <if test="os != null and os != ''">
+                os = #{os},
+            </if>
             <if test="ipv4addr != null and ipv4addr != ''">
                 ipv4addr = #{ipv4addr},
             </if>
@@ -172,8 +175,23 @@
             <if test="service != null and service != ''">
                 service = #{service},
             </if>
-            <if test="os != null and os != ''">
-                os = #{os},
+            <if test="manufacturer != null and manufacturer != ''">
+                manufacturer = #{manufacturer},
+            </if>
+            <if test="model != null and model != ''">
+                model = #{model},
+            </if>
+            <if test="os1 != null and os1 != ''">
+                os1 = #{os1},
+            </if>
+            <if test="os_name != null and os_name != ''">
+                os_name = #{os_name},
+            </if>
+            <if test="cpu != null and !cpu.isEmpty()">
+                cpu = #{cpu, typeHandler=com.metoo.sqlite.core.config.mybatis.config.json.ListStringToJsonTypeHandler},
+            </if>
+            <if test="mac_addresses != null and !mac_addresses.isEmpty()">
+                mac_addresses = #{mac_addresses, typeHandler=com.metoo.sqlite.core.config.mybatis.config.json.ListStringToJsonTypeHandler},
             </if>
         </set>
         where id = #{id}
@@ -209,26 +227,26 @@
 
     <insert id="batchInsertGather" parameterType="java.util.List">
         INSERT INTO metoo_terminal_detail_gather (
-            createTime,
-            mac,
-            ipv4addr,
-            ipv6addr,
-            active_port,
-            macvendor,
-            service,
-            os
+        createTime,
+        mac,
+        ipv4addr,
+        ipv6addr,
+        active_port,
+        macvendor,
+        service,
+        os
         )
         VALUES
         <foreach collection ="list" item="item" separator ="," >
             (
-                #{item.createTime},
-                #{item.mac},
-                #{item.ipv4addr},
-                #{item.ipv6addr},
-                #{item.active_port},
-                #{item.macvendor},
-                #{item.service},
-                #{item.os}
+            #{item.createTime},
+            #{item.mac},
+            #{item.ipv4addr},
+            #{item.ipv6addr},
+            #{item.active_port},
+            #{item.macvendor},
+            #{item.service},
+            #{item.os}
             )
         </foreach>
     </insert>

@@ -50,6 +50,7 @@ public class DeviceSysInfoController {
                                     sysInfoDTO.setManufacturer(deviceSysInfoDTO.getManufacturer());
                                     sysInfoDTO.setModel(deviceSysInfoDTO.getModel());
                                     sysInfoDTO.setOs(deviceSysInfoDTO.getOs());
+                                    sysInfoDTO.setOs_name(deviceSysInfoDTO.getOs_name());
                                     deviceSysInfoService.update(sysInfoDTO);
                                 } catch (Exception e) {
                                     e.printStackTrace();

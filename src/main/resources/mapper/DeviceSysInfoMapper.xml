@@ -5,7 +5,7 @@
 
     <select id="query" parameterType="java.lang.String" resultType="com.metoo.sqlite.api.dto.DeviceSysInfoDTO">
         SELECT * FROM metoo_device_sys_info
-        WHERE macAddresses LIKE '%' || #{pattern} || '%'
+        WHERE mac_addresses LIKE '%' || #{pattern} || '%'
     </select>
 
     <insert id="insert" parameterType="com.metoo.sqlite.api.dto.DeviceSysInfoDTO">
@@ -26,11 +26,14 @@
             <if test="os != null and os != ''">
                 os,
             </if>
+            <if test="os_name != null and os_name != ''">
+                os_name,
+            </if>
             <if test="cpu != null and !cpu.isEmpty()">
                 cpu,
             </if>
             <if test="mac_addresses != null and !mac_addresses.isEmpty()">
-                macAddresses,
+                mac_addresses,
             </if>
         </trim>
         <trim prefix="VALUES(" suffixOverrides="," suffix=")">
@@ -48,6 +51,9 @@
             </if>
             <if test="os != null and os != ''">
                 #{os},
+            </if>
+            <if test="os_name != null and os_name != ''">
+                #{os_name},
             </if>
             <if test="cpu != null and !cpu.isEmpty()">
                 #{cpu, typeHandler=com.metoo.sqlite.core.config.mybatis.config.json.ListStringToJsonTypeHandler},
@@ -77,11 +83,14 @@
             <if test="os != null and os != ''">
                 os = #{os},
             </if>
+            <if test="os_name != null and os_name != ''">
+                os_name = #{os_name},
+            </if>
             <if test="cpu != null and !cpu.isEmpty()">
                 cpu = #{cpu, typeHandler=com.metoo.sqlite.core.config.mybatis.config.json.ListStringToJsonTypeHandler},
             </if>
             <if test="mac_addresses != null and !mac_addresses.isEmpty()">
-                macAddresses = #{mac_addresses, typeHandler=com.metoo.sqlite.core.config.mybatis.config.json.ListStringToJsonTypeHandler},
+                mac_addresses = #{mac_addresses, typeHandler=com.metoo.sqlite.core.config.mybatis.config.json.ListStringToJsonTypeHandler},
             </if>
         </set>
         where id = #{id}
