@@ -29,7 +29,8 @@
     <select id="selectObjBackByMap" parameterType="java.util.Map" resultType="com.metoo.sqlite.entity.Probe">
         SELECT ip_addr, port_num, mac_addr, vendor, os_family, os_gen, os_cpe, scan_time, update_time,
         communicate_protocol, application_protocol, service_output, port_service_cpe, port_service_product, port_service_version, port_service_vendor,
-        device_type, title, response, fingerId, fingerIdOsScan, ttl, reliability, ipv6, mac, mac_vendor
+        device_type, title, response, fingerId, fingerIdOsScan, ttl, reliability, ipv6, mac, mac_vendor, manufacturer, model, os1,
+        os_name, cpu, mac_addresses
         FROM metoo_probe_bck
         <where>
             <if test="ip_addr != null and ip_addr != ''">
@@ -376,6 +377,9 @@
             </if>
             <if test="os1 != null and os1 != ''">
                 os1 = #{os1},
+            </if>
+            <if test="os_name != null and os_name != ''">
+                os_name = #{os_name},
             </if>
             <if test="cpu != null and !cpu.isEmpty()">
                 cpu = #{cpu, typeHandler=com.metoo.sqlite.core.config.mybatis.config.json.ListStringToJsonTypeHandler},

@@ -511,6 +511,7 @@ public class GatherAllInOneService {
                                 probe.setOs1(deviceSysInfo.getOs());
                                 probe.setCpu(deviceSysInfo.getCpu());
                                 probe.setMac_addresses(deviceSysInfo.getMac_addresses());
+                                probe.setOs_name(deviceSysInfo.getOs_name());
                                 this.probeService.updateTableBack(probe);
                             }
                         }
