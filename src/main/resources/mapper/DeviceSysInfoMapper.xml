@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.metoo.sqlite.api.mapper.DeviceSysInfoMapper">
+
+    <select id="query" parameterType="java.lang.String" resultType="com.metoo.sqlite.api.dto.DeviceSysInfoDTO">
+        SELECT * FROM metoo_device_sys_info
+        WHERE macAddresses LIKE '%' || #{pattern} || '%'
+    </select>
+
+    <insert id="insert" parameterType="com.metoo.sqlite.api.dto.DeviceSysInfoDTO">
+        INSERT INTO metoo_device_sys_info
+        <trim prefix="(" suffixOverrides="," suffix=")">
+            <if test="addTime != null">
+                addTime,
+            </if>
+            <if test="updateTime != null">
+                updateTime,
+            </if>
+            <if test="manufacturer != null and manufacturer != ''">
+                manufacturer,
+            </if>
+            <if test="model != null and model != ''">
+                model,
+            </if>
+            <if test="os != null and os != ''">
+                os,
+            </if>
+            <if test="cpu != null and !cpu.isEmpty()">
+                cpu,
+            </if>
+            <if test="mac_addresses != null and !mac_addresses.isEmpty()">
+                macAddresses,
+            </if>
+        </trim>
+        <trim prefix="VALUES(" suffixOverrides="," suffix=")">
+            <if test="addTime != null">
+                #{addTime},
+            </if>
+            <if test="updateTime != null">
+                #{updateTime},
+            </if>
+            <if test="manufacturer != null and manufacturer != ''">
+                #{manufacturer},
+            </if>
+            <if test="model != null and model != ''">
+                #{model},
+            </if>
+            <if test="os != null and os != ''">
+                #{os},
+            </if>
+            <if test="cpu != null and !cpu.isEmpty()">
+                #{cpu, typeHandler=com.metoo.sqlite.core.config.mybatis.config.json.ListStringToJsonTypeHandler},
+            </if>
+            <if test="mac_addresses != null and !mac_addresses.isEmpty()">
+                #{mac_addresses, typeHandler=com.metoo.sqlite.core.config.mybatis.config.json.ListStringToJsonTypeHandler},
+            </if>
+    </trim>
+    </insert>
+
+
+    <update id="update" parameterType="com.metoo.sqlite.api.dto.DeviceSysInfoDTO">
+        UPDATE metoo_device_sys_info
+        <set>
+            <if test="addTime != null">
+                addTime = #{addTime},
+            </if>
+            <if test="updateTime != null">
+                updateTime = #{updateTime},
+            </if>
+            <if test="manufacturer != null and manufacturer != ''">
+                manufacturer = #{manufacturer},
+            </if>
+            <if test="model != null and model != ''">
+                model = #{model},
+            </if>
+            <if test="os != null and os != ''">
+                os = #{os},
+            </if>
+            <if test="cpu != null and !cpu.isEmpty()">
+                cpu = #{cpu, typeHandler=com.metoo.sqlite.core.config.mybatis.config.json.ListStringToJsonTypeHandler},
+            </if>
+            <if test="mac_addresses != null and !mac_addresses.isEmpty()">
+                macAddresses = #{mac_addresses, typeHandler=com.metoo.sqlite.core.config.mybatis.config.json.ListStringToJsonTypeHandler},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+</mapper>

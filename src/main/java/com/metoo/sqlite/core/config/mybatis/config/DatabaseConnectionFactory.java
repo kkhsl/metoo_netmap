@@ -1,4 +1,4 @@
-//package com.metoo.sqlite.core.config.mybatis.config;
+package com.metoo.sqlite.core.config.mybatis.config;//package com.metoo.sqlite.core.config.mybatis.config;
 //
 //import org.apache.ibatis.session.SqlSessionFactory;
 //import org.mybatis.spring.SqlSessionFactoryBean;

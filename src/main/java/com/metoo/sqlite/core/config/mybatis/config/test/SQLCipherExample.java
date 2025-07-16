@@ -1,4 +1,4 @@
-//package com.metoo.sqlite.core.config.mybatis.config.test;
+package com.metoo.sqlite.core.config.mybatis.config.test;//package com.metoo.sqlite.core.config.mybatis.config.test;
 //
 //import java.sql.Connection;
 //import java.sql.DriverManager;

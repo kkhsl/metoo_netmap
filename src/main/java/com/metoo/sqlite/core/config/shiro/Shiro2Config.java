@@ -93,6 +93,7 @@ public class Shiro2Config {
 
         filterChainDefinitionMap.put("/py/**", "anon");
         filterChainDefinitionMap.put("/files/encrypt/decrypt", "anon");
+        filterChainDefinitionMap.put("/api/**", "anon");
 
 
 //        filterChainDefinitionMap.put("/admin/**", "anon");
