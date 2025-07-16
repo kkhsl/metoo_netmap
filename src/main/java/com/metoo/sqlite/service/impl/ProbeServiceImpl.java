@@ -36,6 +36,11 @@ public class ProbeServiceImpl implements IProbeService {
     }
 
     @Override
+    public List<Probe> selectBackByMap(Map params) {
+        return this.probeMapper.selectBackByMap(params);
+    }
+
+    @Override
     public List<Probe> selectDeduplicationByIp(Map params) {
         List<Probe> probes = this.probeMapper.selectObjByMap(params);
         return mergeProbes(probes);

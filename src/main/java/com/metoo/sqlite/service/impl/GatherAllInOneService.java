@@ -499,7 +499,7 @@ public class GatherAllInOneService {
 
                 this.probeService.deleteTableBack();
                 this.probeService.copyToBck();
-                List<Probe> probes = this.probeService.selectObjBackByMap(Collections.emptyMap());
+                List<Probe> probes = this.probeService.selectBackByMap(Collections.emptyMap());
                 if(probes.size() > 0){
                     for (Probe probe : probes) {
                         if(probe.getMac() != null && !"".equals(probe.getMac())){

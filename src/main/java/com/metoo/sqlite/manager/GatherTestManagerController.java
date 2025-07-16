@@ -5,6 +5,8 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.github.pagehelper.util.StringUtil;
+import com.metoo.sqlite.api.dto.DeviceSysInfoDTO;
+import com.metoo.sqlite.api.service.IDeviceSysInfoService;
 import com.metoo.sqlite.core.config.enums.VersionResultType;
 import com.metoo.sqlite.entity.*;
 import com.metoo.sqlite.gather.factory.gather.thread.Gather;
@@ -60,7 +62,31 @@ public class GatherTestManagerController {
 
     @Autowired
     private IProbeService probeService;
+    @Autowired
+    private IDeviceSysInfoService deviceSysInfoService;
 
+    @GetMapping("/write/device/info")
+    public void testWriteDeviceInfo(){
+        List<Probe> probes = this.probeService.selectBackByMap(Collections.emptyMap());
+        if(probes.size() > 0){
+            for (Probe probe : probes) {
+                if(probe.getMac() != null && !"".equals(probe.getMac())){
+                    List<DeviceSysInfoDTO> deviceSysInfos = this.deviceSysInfoService.query(probe.getMac());
+                    if(deviceSysInfos.size() > 0){
+                        DeviceSysInfoDTO deviceSysInfo = deviceSysInfos.get(0);
+                        probe.setManufacturer(deviceSysInfo.getManufacturer());
+                        probe.setModel(deviceSysInfo.getModel());
+                        probe.setOs1(deviceSysInfo.getOs());
+                        probe.setCpu(deviceSysInfo.getCpu());
+                        probe.setMac_addresses(deviceSysInfo.getMac_addresses());
+                        probe.setOs_name(deviceSysInfo.getOs_name());
+                        this.probeService.updateTableBack(probe);
+                    }
+                }
+            }
+
+        }
+    }
     @GetMapping("/getProbe")
     public String getProbe(){
         List<Probe> probes = this.probeService.selectObjBackByMap(Collections.emptyMap());

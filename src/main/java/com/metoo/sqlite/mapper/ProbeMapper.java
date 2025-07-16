@@ -16,7 +16,9 @@ public interface ProbeMapper {
 
     List<Probe> selectObjByMap(Map params);
 
-    List<Probe> selectObjBackByMap(Map params);
+    List<Probe> selectObjBackByMap(Map params);// 没有id
+
+    List<Probe> selectBackByMap(Map params);
 
     int insert(Probe instance);
 
