@@ -7,6 +7,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @author HKK
  * @version 1.0
@@ -31,5 +34,11 @@ public class Terminal {
     private String macvendor;
     private String service;
     private String os;
+
+    private String manufacturer;
+    private String model;
+    private String os1;
+    private List<String> cpu = new ArrayList<>();
+    private List<String> mac_addresses = new ArrayList<>(); // 改为驼峰命名
 
 }

@@ -8,6 +8,8 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.spring.SpringUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.util.StringUtil;
+import com.metoo.sqlite.api.dto.DeviceSysInfoDTO;
+import com.metoo.sqlite.api.service.IDeviceSysInfoService;
 import com.metoo.sqlite.core.config.application.ApplicationContextUtils;
 import com.metoo.sqlite.core.config.enums.LogStatusType;
 import com.metoo.sqlite.core.config.shiro.ShiroUserHolder;
@@ -108,6 +110,8 @@ public class GatherAllInOneService {
     private PyExecUtils pyExecUtils;
     @Autowired
     private IUserService userService;
+    @Autowired
+    private IDeviceSysInfoService deviceSysInfoService;
 
 
     private final ReentrantLock lock = new ReentrantLock();
@@ -796,6 +800,25 @@ public class GatherAllInOneService {
             Gather gather = factory.getGather(Global.TERMINAL);
             gather.executeMethod();
             this.probeToTerminalAndDeviceScan.finalProbe();
+            // 根据mac查找设备信息表
+            List<Terminal> terminals = this.terminalService.selectObjByMap(Collections.emptyMap());
+            if(terminals.size() > 0){
+                for (Terminal terminal : terminals) {
+                    if(terminal.getMac() != null && "".equals(terminal.getMac())){
+                        List<DeviceSysInfoDTO> deviceSysInfos = this.deviceSysInfoService.query(terminal.getMac());
+                        if(deviceSysInfos.size() > 0){
+                            DeviceSysInfoDTO deviceSysInfo = deviceSysInfos.get(0);
+                            terminal.setManufacturer(deviceSysInfo.getManufacturer());
+                            terminal.setModel(deviceSysInfo.getModel());
+                            terminal.setOs1(deviceSysInfo.getOs());
+                            terminal.setCpu(deviceSysInfo.getCpu());
+                            terminal.setMac_addresses(deviceSysInfo.getMac_addresses());
+                            this.terminalService.update(terminal);
+                        }
+                    }
+
+                }
+            }
             publicService.updateSureyingLog(temLogId, 2);
         } catch (Exception e) {
             e.printStackTrace();
