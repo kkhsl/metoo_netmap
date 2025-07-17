@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.ibatis.type.MappedTypes;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -31,8 +32,6 @@ public class DeviceSysInfoDTO {
     private String os;
     @ApiModelProperty("OS名称")
     private String os_name;
-
     private List<String> cpu = new ArrayList<>();
-
     private List<String> mac_addresses = new ArrayList<>(); // 改为驼峰命名
 }

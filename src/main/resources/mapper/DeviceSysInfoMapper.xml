@@ -3,10 +3,10 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.metoo.sqlite.api.mapper.DeviceSysInfoMapper">
 
-    <select id="query" parameterType="java.lang.String" resultType="com.metoo.sqlite.api.dto.DeviceSysInfoDTO">
-        SELECT * FROM metoo_device_sys_info
-        WHERE mac_addresses LIKE '%' || #{pattern} || '%'
-    </select>
+    <!--<select id="query" parameterType="java.lang.String" resultType="com.metoo.sqlite.api.dto.DeviceSysInfoDTO">-->
+        <!--SELECT * FROM metoo_device_sys_info-->
+        <!--WHERE mac_addresses LIKE '%' || '"' || #{pattern} || '"' || '%'-->
+    <!--</select>-->
 
     <insert id="insert" parameterType="com.metoo.sqlite.api.dto.DeviceSysInfoDTO">
         INSERT INTO metoo_device_sys_info

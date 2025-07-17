@@ -34,7 +34,7 @@ import java.util.Map;
 
 @Slf4j
 @EnableSwagger2
-@MapperScan("com.metoo.sqlite.mapper")
+@MapperScan({"com.metoo.sqlite.mapper", "com.metoo.sqlite.core.config.mybatis.config", "com.metoo.sqlite.api.mapper"})
 @EnableScheduling // 开启定时任务（启动类增加该注解，使项目启动后执行定时任务）
 @SpringBootApplication
 public class Application  implements CommandLineRunner {
