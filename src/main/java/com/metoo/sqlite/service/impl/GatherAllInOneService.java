@@ -521,7 +521,7 @@ public class GatherAllInOneService {
                 publicService.updateSureyingLog(probeLogId, 2);
 
             } catch (Exception e) {
-                e.printStackTrace();
+                log.error("资产扫描异常1：{}", e.getMessage());
                 publicService.updateSureyingLog(probeLogId, 3);
             }
 
@@ -529,13 +529,13 @@ public class GatherAllInOneService {
             List list = this.probeService.selectObjByMap(null);
             log.info("chuangfa + os_scan========================================：" + JSONObject.toJSONString(list));
 
-            log.info("Probe end===============");
-
             return null;
         } catch (Exception e) {
+            log.error("资产扫描异常2：{}", e.getMessage());
             publicService.updateSureyingLog(probeLogId, 3);
         }
         log.info("Probe end===============");
+
         return null;
     }
 

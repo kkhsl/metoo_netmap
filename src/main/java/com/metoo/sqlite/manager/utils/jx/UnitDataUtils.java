@@ -84,6 +84,8 @@ public class UnitDataUtils {
 
             List<DeviceScan> deviceScanList = this.deviceScanService.selectObjByMap(null);
 
+            List<Probe> probeList = this.probeService.selectObjByMap(null);
+
 //            if (deviceList.size() > 0) {
 //                for (DeviceScan deviceScan : deviceScanList) {
 //                    DeviceScanInfoVo vo = new DeviceScanInfoVo(deviceScan.getDevice_ipv4(),
@@ -98,7 +100,12 @@ public class UnitDataUtils {
 
                 List<DeviceScanInfoVo> deviceScans = new ArrayList();
 
+                List<Probe> probes = new ArrayList();
+
                 List<Integer> ids = new ArrayList();
+
+                List<Integer> probeIds = new ArrayList();
+
                 if(StringUtil.isNotEmpty(unitSubnet.getIpv4Subnet())){
                     if (terminalList.size() > 0) {
                         String[] cidrs = unitSubnet.getIpv4Subnet().split(",");
@@ -134,6 +141,18 @@ public class UnitDataUtils {
                                 }
                              }
 
+                             if(probeList.size() > 0){
+                                 for (Probe probe : probeList) {
+                                     if(probe.getIp_addr()!= null && StringUtil.isNotEmpty(probe.getIp_addr())) {
+                                         if(Ipv4Utils.ipIsInNet(probe.getIp_addr(), cidr)){
+                                             probes.add(probe);
+                                             probeIds.add(probe.getId());
+                                         }
+                                    }
+                                 }
+                             }
+
+
                         }
                     }
                 }
@@ -163,20 +182,33 @@ public class UnitDataUtils {
                                 }
                             }
 
-                            for (DeviceScan deviceScan : deviceScanList) {
-                                if(StringUtil.isNotEmpty(deviceScan.getDevice_ipv6())){
+                            if(deviceScanList.size() > 0){
+                                for (DeviceScan deviceScan : deviceScanList) {
                                     if(StringUtil.isNotEmpty(deviceScan.getDevice_ipv6())){
-                                        DeviceScanInfoVo vo = new DeviceScanInfoVo(deviceScan.getDevice_ipv4(),
-                                                deviceScan.getDevice_ipv6(), deviceScan.getDevice_product(), deviceScan.getMac(), deviceScan.getMacVendor());
-                                        deviceScans.add(vo);
-                                        ids.add(deviceScan.getId());
+                                        if(StringUtil.isNotEmpty(deviceScan.getDevice_ipv6())){
+                                            DeviceScanInfoVo vo = new DeviceScanInfoVo(deviceScan.getDevice_ipv4(),
+                                                    deviceScan.getDevice_ipv6(), deviceScan.getDevice_product(), deviceScan.getMac(), deviceScan.getMacVendor());
+                                            deviceScans.add(vo);
+                                        }
                                     }
                                 }
                             }
+                            if(probeList.size() > 0){
+                                for (Probe probe : probeList) {
+                                    if(probe.getIpv6()!= null && StringUtil.isNotEmpty(probe.getIpv6())) {
+                                        if(!probeIds.contains(probe.getId())){
+                                            if(Ipv6Utils.isIPv6InCIDR(probe.getIp_addr(), cidr)){
+                                                probes.add(probe);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
                         }
                     }
                 }
-                String data = getData2(terminals, deviceScans, unitSubnet.getName());
+                String data = getData2(terminals, deviceScans, probes, unitSubnet.getName());
                 try {
                     encryptedData = EncrypUtils.encrypt(data);
                     String time = DateTools.getCurrentDate();
@@ -221,7 +253,7 @@ public class UnitDataUtils {
      * @param unitName
      * @return
      */
-    public String getData2(List terminalInfo, List deviceScanInfo, String unitName) {
+    public String getData2(List terminalInfo, List deviceScanInfo, List probes, String unitName) {
         Map data = new HashMap();
 
         data.put("areaInfo", new HashMap<>());
@@ -229,7 +261,10 @@ public class UnitDataUtils {
         data.put("deviceInfo", new ArrayList<>());
         data.put("deviceScanInfo", new ArrayList<>());
         data.put("terminalInfo", new ArrayList<>());
-        data.put("probe", getProbe());
+//        data.put("probe", getProbe());
+
+        data.put("probe", probes);
+
         try {
             List<GatewayInfo> gatewayInfoList = this.gatewayInfoService.selectObjByMap(null);
             List<GatewayInfoVo> list1 = new ArrayList();
