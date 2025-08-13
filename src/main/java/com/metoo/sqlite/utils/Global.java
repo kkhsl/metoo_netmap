@@ -182,6 +182,13 @@ public class Global {
     }
 
     /**
+    public static String survey_time_name;
+    @Value("${survey.time.name}")
+    public void setSurvey_time_name(String survey_time_name) {
+        Global.survey_time_name = survey_time_name;
+    }
+
+ /**
      * 补丁版本数据库脚本解压路径-只需解压，不需要重启的版本
      */
     public static String versionPatchDb;
